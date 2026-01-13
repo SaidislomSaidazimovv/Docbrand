@@ -1,26 +1,148 @@
 @import "tailwindcss";
 
+/* DocBrand Dark Theme Colors */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Background colors */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Border colors */
+  --border-primary: #30363d;
+  --border-secondary: #21262d;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Text colors */
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-muted: #484f58;
+
+  /* Accent colors */
+  --accent-blue: #388bfd;
+  --accent-green: #3fb950;
+  --accent-yellow: #d29922;
+  --accent-red: #f85149;
+
+  /* Document defaults */
+  --doc-bg: #ffffff;
+  --doc-text: #1f2328;
+  --doc-font-family: 'Inter', sans-serif;
+  --doc-font-size: 14px;
+  --doc-line-height: 1.7;
+  --doc-space-before: 0pt;
+  --doc-space-after: 12pt;
+  --doc-first-indent: 0in;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Document editor styles */
+.document-editor {
+  background: var(--doc-bg);
+  color: var(--doc-text);
+  min-height: 100%;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+/* TipTap Editor Styles - Dynamic from CSS Variables */
+.ProseMirror {
+  outline: none;
+  min-height: 100%;
+  color: #1f2328;
+  padding: 3rem 3rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  /* Use CSS variables for dynamic styling */
+  font-family: var(--doc-font-family);
+  font-size: var(--doc-font-size);
+  line-height: var(--doc-line-height);
+}
+
+/* H1 - Heading 1 */
+.ProseMirror h1 {
+  font-family: var(--doc-font-family);
+  font-size: calc(var(--doc-font-size) * 2.3);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  padding-top: var(--doc-space-before);
+  padding-bottom: 1rem;
+  margin-bottom: var(--doc-space-after);
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+/* H2 - Heading 2 */
+.ProseMirror h2 {
+  font-family: var(--doc-font-family);
+  font-size: calc(var(--doc-font-size) * 1.7);
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+  padding-top: var(--doc-space-before);
+  padding-bottom: 0.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: var(--doc-space-after);
+  color: #374151;
+}
+
+/* P - Body Text - Uses all dynamic variables */
+.ProseMirror p {
+  font-family: var(--doc-font-family);
+  font-size: var(--doc-font-size);
+  font-weight: 400;
+  line-height: var(--doc-line-height);
+  margin-top: var(--doc-space-before);
+  margin-bottom: var(--doc-space-after);
+  padding: 0;
+  text-indent: var(--doc-first-indent);
+  color: #4b5563;
+}
+
+/* Caption style */
+.ProseMirror .caption,
+.ProseMirror small {
+  font-family: var(--doc-font-family);
+  font-size: calc(var(--doc-font-size) * 0.85);
+  font-weight: 300;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/* Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+/* Selection highlight */
+.ProseMirror ::selection {
+  background-color: rgba(56, 139, 253, 0.3);
+}
+
+/* Focus styles */
+.ProseMirror:focus {
+  outline: none;
 }
