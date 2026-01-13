@@ -27,7 +27,6 @@ export default function ExportModal({ onClose }: ExportModalProps) {
         { id: 'headers', label: 'Generating headers/footers', completed: false },
         { id: 'finalize', label: 'Finalizing document', completed: false },
     ]);
-    const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
     const [downloadBlob, setDownloadBlob] = useState<Blob | null>(null);
 
     const editor = useEditorStore((state) => state.editor);
@@ -103,9 +102,9 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                 const options = {
                     margin: 10,
                     filename: fullFileName,
-                    image: { type: 'jpeg', quality: 0.98 },
+                    image: { type: 'jpeg' as const, quality: 0.98 },
                     html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
                 };
 
                 // Step 4: Finalizing
@@ -118,7 +117,8 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = htmlContent;
 
-                const children: typeof Paragraph[] = [];
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const children: any[] = [];
 
                 tempDiv.childNodes.forEach((node) => {
                     if (node.nodeType === Node.ELEMENT_NODE) {
@@ -231,8 +231,8 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                                 <button
                                     onClick={() => setSelectedFormat('pdf')}
                                     className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${selectedFormat === 'pdf'
-                                            ? 'bg-emerald-50 border-emerald-400'
-                                            : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                                        ? 'bg-emerald-50 border-emerald-400'
+                                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
                                     <FileText size={20} className={selectedFormat === 'pdf' ? 'text-emerald-500' : 'text-red-500'} />
@@ -245,8 +245,8 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                                 <button
                                     onClick={() => setSelectedFormat('docx')}
                                     className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${selectedFormat === 'docx'
-                                            ? 'bg-emerald-50 border-emerald-400'
-                                            : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                                        ? 'bg-emerald-50 border-emerald-400'
+                                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
                                     <FileText size={20} className={selectedFormat === 'docx' ? 'text-emerald-500' : 'text-blue-500'} />
@@ -294,8 +294,8 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                                 {steps.map((step) => (
                                     <div key={step.id} className="flex items-center gap-3">
                                         <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${step.completed
-                                                ? 'bg-emerald-500'
-                                                : 'bg-gray-200'
+                                            ? 'bg-emerald-500'
+                                            : 'bg-gray-200'
                                             }`}>
                                             {step.completed && <Check size={12} className="text-white" />}
                                         </div>
