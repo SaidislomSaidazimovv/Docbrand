@@ -1,17 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown, ChevronRight, X, Check, Link2, Upload, AlertCircle, FileText, Map, Trash2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronDown, ChevronRight, Upload, FileText, Map, Trash2, Folder } from 'lucide-react';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useHistoryStore } from '@/store/historyStore';
+import type { Requirement } from '@/types';
 
 interface LeftSidebarProps {
     onImportClick?: () => void;
 }
 
+// Section type for grouped requirements
+interface Section {
+    id: string;
+    name: string;
+    requirements: Requirement[];
+}
+
 export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
-    const [expandedSections, setExpandedSections] = useState<string[]>(['Uncategorized']);
+    const [expandedSections, setExpandedSections] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<'map' | 'rfp'>('rfp');
 
     const { requirements, activeLinkingReqId, setLinkingMode, clearRequirements } = useRequirementsStore();
@@ -44,13 +52,28 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
         );
     };
 
-    // Group requirements by section
-    const grouped = requirements.reduce((acc, req) => {
-        const section = req.sectionPath[0] || 'Uncategorized';
-        if (!acc[section]) acc[section] = [];
-        acc[section].push(req);
-        return acc;
-    }, {} as Record<string, typeof requirements>);
+    // Group requirements by section with progress calculation
+    const sections: Section[] = useMemo(() => {
+        const sectionRecord: Record<string, Section> = {};
+
+        for (const req of requirements) {
+            const sectionId = req.sectionPath[0] || 'Uncategorized';
+
+            if (!sectionRecord[sectionId]) {
+                sectionRecord[sectionId] = {
+                    id: sectionId,
+                    name: sectionId,
+                    requirements: []
+                };
+            }
+
+            sectionRecord[sectionId].requirements.push(req);
+        }
+
+        return Object.values(sectionRecord).sort((a, b) =>
+            a.id.localeCompare(b.id, undefined, { numeric: true })
+        );
+    }, [requirements]);
 
     // Count stats
     const linkedCount = requirements.filter((r) => r.status === 'linked').length;
@@ -58,18 +81,33 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
     const totalCount = requirements.length;
     const coveragePercent = totalCount > 0 ? Math.round((linkedCount / totalCount) * 100) : 0;
 
-    // Get status icon
-    const getStatusIcon = (status: string) => {
+    // Get status dot color
+    const getStatusColor = (status: string) => {
         switch (status) {
             case 'linked':
-                return <Check size={12} className="text-[#3fb950]" />;
+                return 'bg-[#3fb950]'; // Green
             case 'partial':
-                return <AlertCircle size={12} className="text-[#d29922]" />;
+                return 'bg-[#d29922]'; // Orange
             case 'ignored':
-                return <X size={12} className="text-[#8b949e]" />;
+                return 'bg-[#8b949e]'; // Gray
             default: // unlinked
-                return <div className="w-3 h-3 rounded-full border-2 border-[#d29922]" />;
+                return 'bg-[#f85149]'; // Red
         }
+    };
+
+    // Calculate section progress
+    const getSectionProgress = (sectionReqs: typeof requirements) => {
+        if (sectionReqs.length === 0) return 0;
+        const linked = sectionReqs.filter(r => r.status === 'linked').length;
+        return Math.round((linked / sectionReqs.length) * 100);
+    };
+
+    // Get progress bar color classes
+    const getProgressColors = (percent: number) => {
+        if (percent === 100) return 'from-[#3fb950] to-[#3fb950]';
+        if (percent >= 60) return 'from-[#3fb950] to-[#d29922]';
+        if (percent >= 30) return 'from-[#d29922] to-[#f85149]';
+        return 'from-[#f85149] to-[#f85149]';
     };
 
     const handleLinkClick = (reqId: string) => {
@@ -191,121 +229,111 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                         </div>
                     </div>
                 ) : (
-                    /* RFP Requirements List */
-                    Object.entries(grouped).map(([section, sectionReqs]) => {
-                        const isExpanded = expandedSections.includes(section);
-                        const sectionUnlinked = sectionReqs.filter(r => r.status === 'unlinked').length;
+                    /* RFP Requirements - Grouped by Section */
+                    <div className="p-2">
+                        <p className="text-[10px] text-[#6e7681] uppercase tracking-wider px-2 mb-2">
+                            RFP Requirements
+                        </p>
 
-                        return (
-                            <div key={section}>
-                                {/* Section Header */}
-                                <button
-                                    onClick={() => toggleSection(section)}
-                                    className="w-full flex items-center gap-2 px-4 py-2 hover:bg-[#21262d] transition-colors"
-                                >
-                                    {isExpanded ? (
-                                        <ChevronDown size={12} className="text-[#8b949e]" />
-                                    ) : (
-                                        <ChevronRight size={12} className="text-[#8b949e]" />
-                                    )}
-                                    <FileText size={12} className="text-[#8b949e]" />
-                                    <span className="text-sm text-[#c9d1d9] flex-1 text-left truncate">{section}</span>
-                                    {sectionUnlinked > 0 ? (
-                                        <span className="text-xs px-1.5 py-0.5 bg-[#f8514922] text-[#f85149] rounded">
-                                            {sectionUnlinked}
-                                        </span>
-                                    ) : (
-                                        <span className="text-xs text-[#3fb950]">✓</span>
-                                    )}
-                                </button>
+                        {sections.map((section) => {
+                            const isExpanded = expandedSections.includes(section.id);
+                            const progress = getSectionProgress(section.requirements);
 
-                                {/* Requirements */}
-                                {isExpanded && (
-                                    <div className="pl-4">
-                                        {sectionReqs.map((req) => {
-                                            const isLinking = activeLinkingReqId === req.id;
+                            return (
+                                <div key={section.id} className="mb-2">
+                                    {/* Section Header - Like the reference image */}
+                                    <button
+                                        onClick={() => toggleSection(section.id)}
+                                        className="w-full bg-[#21262d] rounded-lg p-3 hover:bg-[#30363d] transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Folder size={16} className="text-[#8b949e]" />
+                                            <span className="text-sm font-medium text-[#c9d1d9] flex-1 text-left truncate">
+                                                {section.name}
+                                            </span>
+                                            {/* Mini progress bar */}
+                                            <div className="w-16 h-1.5 bg-[#161b22] rounded-full overflow-hidden">
+                                                <div
+                                                    className={`h-full bg-gradient-to-r ${getProgressColors(progress)} transition-all`}
+                                                    style={{ width: `${progress}%` }}
+                                                />
+                                            </div>
+                                            <span className={`text-xs font-medium ${progress === 100 ? 'text-[#3fb950]' : progress > 50 ? 'text-[#d29922]' : 'text-[#f85149]'}`}>
+                                                {progress}%
+                                            </span>
+                                            {isExpanded ? (
+                                                <ChevronDown size={14} className="text-[#8b949e]" />
+                                            ) : (
+                                                <ChevronRight size={14} className="text-[#8b949e]" />
+                                            )}
+                                        </div>
+                                    </button>
 
-                                            return (
+                                    {/* Requirements in Section */}
+                                    {isExpanded && (
+                                        <div className="ml-4 mt-1 space-y-1">
+                                            {section.requirements.map((req) => (
                                                 <div
                                                     key={req.id}
-                                                    className={`flex items-start gap-2 px-4 py-2 cursor-pointer transition-colors group ${isLinking
-                                                        ? 'bg-[#388bfd22] border-l-2 border-[#388bfd]'
+                                                    onClick={() => handleLinkClick(req.id)}
+                                                    className={`flex items-start gap-3 p-2 rounded-lg cursor-pointer transition-colors ${activeLinkingReqId === req.id
+                                                        ? 'bg-[#388bfd22] border border-[#388bfd]'
                                                         : 'hover:bg-[#21262d]'
                                                         }`}
                                                 >
-                                                    {/* Status indicator */}
-                                                    <div className="mt-0.5 flex-shrink-0">
-                                                        {getStatusIcon(req.status)}
-                                                    </div>
+                                                    {/* Status dot */}
+                                                    <div className={`w-2 h-2 rounded-full mt-1.5 ${getStatusColor(req.status)}`} />
 
                                                     {/* Requirement info */}
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`text-xs font-mono ${req.status === 'linked' ? 'text-[#3fb950]' : 'text-[#f85149]'
-                                                                }`}>
-                                                                {req.id}
+                                                            <span className="text-xs font-mono text-[#8b949e]">
+                                                                {req.id.substring(0, 12)}
                                                             </span>
                                                         </div>
-                                                        <p className="text-xs text-[#8b949e] truncate mt-0.5">
+                                                        <p className="text-xs text-[#c9d1d9] truncate mt-0.5">
                                                             {req.text}
                                                         </p>
                                                     </div>
-
-                                                    {/* Link button */}
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleLinkClick(req.id);
-                                                        }}
-                                                        className={`opacity-0 group-hover:opacity-100 p-1 rounded transition-all ${isLinking
-                                                            ? 'opacity-100 bg-[#388bfd] text-white'
-                                                            : 'hover:bg-[#30363d] text-[#8b949e]'
-                                                            }`}
-                                                        title={isLinking ? 'Cancel linking' : 'Link to block'}
-                                                    >
-                                                        <Link2 size={12} />
-                                                    </button>
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 )}
             </div>
 
             {/* Footer */}
-            {!isEmpty && (
-                <div className="p-3 border-t border-[#21262d]">
-                    <div className="grid grid-cols-2 gap-2">
-                        <button
-                            onClick={onImportClick}
-                            className="flex items-center justify-center gap-2 py-2 bg-[#21262d] hover:bg-[#30363d] rounded text-sm text-[#c9d1d9] transition-colors"
-                        >
-                            <Upload size={14} />
-                            Import
-                        </button>
-                        <button
-                            onClick={handleClearAll}
-                            className="flex items-center justify-center gap-2 py-2 bg-[#21262d] hover:bg-[#f8514933] rounded text-sm text-[#f85149] transition-colors"
-                        >
-                            <Trash2 size={14} />
-                            Clear All
-                        </button>
-                    </div>
-
-                    {unlinkedCount > 0 && (
-                        <div className="mt-3 flex items-center gap-2 px-2 py-1.5 bg-[#f8514922] rounded">
-                            <span className="text-sm font-medium text-[#f85149]">
-                                {unlinkedCount} Issue{unlinkedCount > 1 ? 's' : ''}
-                            </span>
-                            <X size={12} className="text-[#f85149]" />
-                        </div>
-                    )}
+            <div className="p-3 border-t border-[#21262d]">
+                <div className="grid grid-cols-2 gap-2">
+                    <button
+                        onClick={onImportClick}
+                        className="flex items-center justify-center gap-2 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-lg text-xs text-[#c9d1d9] font-medium transition-colors"
+                    >
+                        <Upload size={12} />
+                        Import
+                    </button>
+                    <button
+                        onClick={handleClearAll}
+                        disabled={isEmpty}
+                        className="flex items-center justify-center gap-2 py-2 bg-[#21262d] hover:bg-[#f8514922] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-xs text-[#f85149] font-medium transition-colors"
+                    >
+                        <Trash2 size={12} />
+                        Clear All
+                    </button>
                 </div>
-            )}
+
+                {/* Issue count */}
+                {!isEmpty && unlinkedCount > 0 && (
+                    <div className="mt-2 flex items-center gap-2 px-2 py-1.5 bg-[#f8514922] rounded text-xs text-[#f85149]">
+                        <span className="font-medium">{unlinkedCount} Issues</span>
+                        <button className="ml-auto text-[#f85149] hover:text-white">×</button>
+                    </div>
+                )}
+            </div>
         </aside>
     );
 }

@@ -7,7 +7,10 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Heading from '@tiptap/extension-heading';
 import { TextStyle } from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
 import { PasteFirewall } from './extensions/PasteFirewall';
+import FloatingToolbar from './FloatingToolbar';
 import { Edit3, Link2 } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
@@ -50,6 +53,13 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             }),
             TextStyle,
             FontFamily,
+            Underline,
+            Link.configure({
+                openOnClick: false,
+                HTMLAttributes: {
+                    class: 'text-blue-500 underline',
+                },
+            }),
             PasteFirewall,
         ],
         immediatelyRender: false,
@@ -186,6 +196,9 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                         </div>
                     </div>
                 )}
+
+                {/* Floating Toolbar for text selection */}
+                <FloatingToolbar editor={editor} />
 
                 <EditorContent editor={editor} />
             </div>

@@ -14,8 +14,12 @@ type Phase = 'upload' | 'parsing' | 'review' | 'importing' | 'done';
 
 interface ExtractedReq {
     text: string;
+    shortText: string;
     confidence: 'high' | 'medium' | 'low';
     selected: boolean;
+    section?: string;
+    sectionName?: string;
+    reqId?: string;
 }
 
 export default function ImportModal({ onClose }: ImportModalProps) {
@@ -59,11 +63,15 @@ export default function ImportModal({ onClose }: ImportModalProps) {
             const { extractRequirements } = await import('@/lib/parsers/classifier');
             const classified = extractRequirements(paragraphs);
 
-            // Convert to ExtractedReq format
+            // Convert to ExtractedReq format - preserve section info from classifier
             const extracted: ExtractedReq[] = classified.map((req) => ({
                 text: req.text,
+                shortText: req.shortText,
                 confidence: req.confidence,
                 selected: req.confidence !== 'low', // Auto-select high/medium
+                section: req.section,
+                sectionName: req.sectionName,
+                reqId: req.reqId,
             }));
 
             setExtractedReqs(extracted);
@@ -96,10 +104,10 @@ export default function ImportModal({ onClose }: ImportModalProps) {
         const fileId = fileIdRef.current;
 
         const requirements: Requirement[] = selectedReqs.map((req, i) => ({
-            id: `req-${Date.now()}-${i}`,
-            text: req.text.slice(0, 50) + (req.text.length > 50 ? '...' : ''),
+            id: req.reqId || `req-${Date.now()}-${i}`,
+            text: req.shortText || req.text.slice(0, 50) + (req.text.length > 50 ? '...' : ''),
             originalText: req.text,
-            sectionPath: ['Uncategorized'],
+            sectionPath: req.sectionName ? [req.sectionName] : ['Uncategorized'],
             status: 'unlinked',
             kanbanStatus: 'to_address',
             priority: req.confidence === 'high' ? 'mandatory' : 'desired',

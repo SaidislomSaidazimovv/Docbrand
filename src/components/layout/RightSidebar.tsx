@@ -90,8 +90,7 @@ export default function RightSidebar() {
         lineHeight, setLineHeight,
         spaceBefore, setSpaceBefore,
         spaceAfter, setSpaceAfter,
-        firstLineIndent, setFirstLineIndent,
-        applyPreset
+        firstLineIndent, setFirstLineIndent
     } = useStyleStore();
 
     // Format file size
@@ -110,21 +109,21 @@ export default function RightSidebar() {
         }
     };
 
-    // Handle preset with editor command
+    // Handle preset with editor command - ONLY affects current paragraph (where cursor is)
     const handlePreset = (preset: 'h1' | 'h2' | 'body' | 'caption') => {
-        applyPreset(preset);
         if (!editor) return;
 
+        // Use commands directly - cursor position preserved by onMouseDown preventDefault on buttons
         switch (preset) {
             case 'h1':
-                editor.chain().focus().toggleHeading({ level: 1 }).run();
+                editor.commands.toggleHeading({ level: 1 });
                 break;
             case 'h2':
-                editor.chain().focus().toggleHeading({ level: 2 }).run();
+                editor.commands.toggleHeading({ level: 2 });
                 break;
             case 'body':
             case 'caption':
-                editor.chain().focus().setParagraph().run();
+                editor.commands.setParagraph();
                 break;
         }
     };
@@ -359,24 +358,28 @@ export default function RightSidebar() {
                             <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wide block mb-3">Presets</span>
                             <div className="grid grid-cols-2 gap-2">
                                 <button
+                                    onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => handlePreset('h1')}
                                     className="px-3 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-full text-sm text-[#c9d1d9] transition-colors"
                                 >
                                     Heading 1
                                 </button>
                                 <button
+                                    onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => handlePreset('h2')}
                                     className="px-3 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-full text-sm text-[#c9d1d9] transition-colors"
                                 >
                                     Heading 2
                                 </button>
                                 <button
+                                    onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => handlePreset('body')}
                                     className="px-3 py-2 bg-[#388bfd] hover:bg-[#58a6ff] rounded-full text-sm text-white font-medium transition-colors"
                                 >
                                     Body
                                 </button>
                                 <button
+                                    onMouseDown={(e) => e.preventDefault()}
                                     onClick={() => handlePreset('caption')}
                                     className="px-3 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-full text-sm text-[#c9d1d9] transition-colors"
                                 >
