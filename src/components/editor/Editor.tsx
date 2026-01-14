@@ -15,6 +15,8 @@ import { Edit3, Link2 } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
+import { useHeaderFooterStore } from '@/store/headerFooterStore';
+import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
 import RequirementLinkPopup from './RequirementLinkPopup';
 
 interface EditorProps {
@@ -200,7 +202,16 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 {/* Floating Toolbar for text selection */}
                 <FloatingToolbar editor={editor} />
 
-                <EditorContent editor={editor} />
+                {/* Document Header */}
+                <DocumentHeader />
+
+                {/* Editor Content */}
+                <div className="px-16 py-8 min-h-[800px]">
+                    <EditorContent editor={editor} />
+                </div>
+
+                {/* Document Footer */}
+                <DocumentFooter />
             </div>
 
             {/* Requirement Link Popup */}

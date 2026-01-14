@@ -113,17 +113,20 @@ export default function RightSidebar() {
     const handlePreset = (preset: 'h1' | 'h2' | 'body' | 'caption') => {
         if (!editor) return;
 
-        // Use commands directly - cursor position preserved by onMouseDown preventDefault on buttons
+        // Get current cursor position before any focus changes
+        const { from } = editor.state.selection;
+
+        // Use chain with focus at specific position to ensure we only affect current paragraph
         switch (preset) {
             case 'h1':
-                editor.commands.toggleHeading({ level: 1 });
+                editor.chain().focus().setTextSelection(from).toggleHeading({ level: 1 }).run();
                 break;
             case 'h2':
-                editor.commands.toggleHeading({ level: 2 });
+                editor.chain().focus().setTextSelection(from).toggleHeading({ level: 2 }).run();
                 break;
             case 'body':
             case 'caption':
-                editor.commands.setParagraph();
+                editor.chain().focus().setTextSelection(from).setParagraph().run();
                 break;
         }
     };
