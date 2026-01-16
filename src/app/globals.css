@@ -61,60 +61,85 @@ body {
   border-radius: 0.5rem;
 }
 
-/* TipTap Editor Styles - Dynamic from CSS Variables */
+/* TipTap Editor Styles - Notion-like */
 .ProseMirror {
   outline: none;
   min-height: 100%;
-  color: #1f2328;
-  padding: 3rem 3rem;
+  color: #37352f;
+  padding: 2rem;
   word-wrap: break-word;
   overflow-wrap: break-word;
-
-  /* Use CSS variables for dynamic styling */
-  font-family: var(--doc-font-family);
-  font-size: var(--doc-font-size);
-  line-height: var(--doc-line-height);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, 'Apple Color Emoji', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  caret-color: #37352f;
+  /* Dark cursor for visibility */
+  cursor: text;
 }
 
-/* H1 - Heading 1 */
+/* H1 - Heading 1 (Notion: 30px) */
 .ProseMirror h1 {
-  font-family: var(--doc-font-family);
-  font-size: calc(var(--doc-font-size) * 2.3);
+  font-size: 1.875rem;
   font-weight: 700;
   line-height: 1.2;
   margin: 0;
-  padding-top: var(--doc-space-before);
-  padding-bottom: 1rem;
-  margin-bottom: var(--doc-space-after);
-  border-bottom: 1px solid #e5e7eb;
-  color: #111827;
+  margin-top: 2em;
+  margin-bottom: 4px;
+  color: #37352f;
 }
 
-/* H2 - Heading 2 */
+/* H2 - Heading 2 (Notion: 24px) */
 .ProseMirror h2 {
-  font-family: var(--doc-font-family);
-  font-size: calc(var(--doc-font-size) * 1.7);
+  font-size: 1.5rem;
   font-weight: 600;
   line-height: 1.3;
   margin: 0;
-  padding-top: var(--doc-space-before);
-  padding-bottom: 0.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: var(--doc-space-after);
-  color: #374151;
+  margin-top: 1.4em;
+  margin-bottom: 1px;
+  color: #37352f;
 }
 
-/* P - Body Text - Uses all dynamic variables */
+/* P - Body Text (Notion: 16px, line-height 1.5) */
 .ProseMirror p {
-  font-family: var(--doc-font-family);
-  font-size: var(--doc-font-size);
+  font-size: 1rem;
   font-weight: 400;
-  line-height: var(--doc-line-height);
-  margin-top: var(--doc-space-before);
-  margin-bottom: var(--doc-space-after);
-  padding: 0;
-  text-indent: var(--doc-first-indent);
-  color: #4b5563;
+  line-height: 1.5;
+  margin: 0;
+  padding: 3px 2px;
+  color: #37352f;
+}
+
+/* Links - Notion style (blue, visible) */
+.ProseMirror a {
+  color: #2383e2;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.ProseMirror a:hover {
+  color: #1a6bc0;
+  text-decoration: underline;
+}
+
+/* Inline Code - Notion style */
+.ProseMirror code {
+  font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 85%;
+  background: rgba(135, 131, 120, 0.15);
+  color: #eb5757;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+/* Bold */
+.ProseMirror strong {
+  font-weight: 600;
+}
+
+/* Italic */
+.ProseMirror em {
+  font-style: italic;
 }
 
 /* Caption style */
@@ -145,4 +170,267 @@ body {
 /* Focus styles */
 .ProseMirror:focus {
   outline: none;
+}
+
+/* ========================================
+   Additional Editor Styles
+   ======================================== */
+
+/* Make block elements position-relative for handles */
+.ProseMirror>p,
+.ProseMirror>h1,
+.ProseMirror>h2,
+.ProseMirror>h3,
+.ProseMirror>blockquote,
+.ProseMirror>ul,
+.ProseMirror>ol,
+.ProseMirror>pre {
+  position: relative;
+}
+
+/* Blockquote - Notion style (just left border) */
+.ProseMirror blockquote {
+  border-left: 3px solid #37352f;
+  padding-left: 14px;
+  margin: 4px 0;
+  color: #37352f;
+}
+
+/* Code block - Notion style */
+.ProseMirror pre {
+  background-color: #f7f6f3;
+  border-radius: 3px;
+  padding: 32px 16px 32px 20px;
+  font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 85%;
+  overflow-x: auto;
+  color: #37352f;
+}
+
+/* List styling - Notion style */
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.ProseMirror li {
+  padding: 3px 2px;
+}
+
+.ProseMirror li p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Horizontal rule - Notion style */
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid rgba(55, 53, 47, 0.16);
+  margin: 6px 0;
+}
+
+/* Task List / Checklist - Notion style */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li>label {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.ProseMirror ul[data-type="taskList"] li>label input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(55, 53, 47, 0.4);
+  border-radius: 3px;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.ProseMirror ul[data-type="taskList"] li>label input[type="checkbox"]:hover {
+  border-color: #2383e2;
+}
+
+.ProseMirror ul[data-type="taskList"] li>label input[type="checkbox"]:checked {
+  background-color: #2383e2;
+  border-color: #2383e2;
+}
+
+.ProseMirror ul[data-type="taskList"] li>label input[type="checkbox"]:checked::after {
+  content: '✓';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.ProseMirror ul[data-type="taskList"] li[data-checked="true"]>div>p {
+  text-decoration: line-through;
+  color: rgba(55, 53, 47, 0.5);
+}
+
+.ProseMirror ul[data-type="taskList"] li>div {
+  flex: 1 1 auto;
+}
+
+/* Table - Notion style */
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.ProseMirror td,
+.ProseMirror th {
+  min-width: 100px;
+  border: 1px solid rgba(55, 53, 47, 0.16);
+  padding: 8px 12px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.ProseMirror th {
+  font-weight: 600;
+  background-color: #f7f6f3;
+  text-align: left;
+}
+
+.ProseMirror td>p,
+.ProseMirror th>p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Table selected cell */
+.ProseMirror .selectedCell {
+  background-color: rgba(200, 200, 255, 0.4);
+}
+
+/* Table resize handle */
+.ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #2383e2;
+  pointer-events: none;
+}
+
+/* ========================================
+   Block Handle / Drag Handle Styles
+   ======================================== */
+
+/* Container for block handles */
+.block-handle-container {
+  position: absolute;
+  left: -3.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  user-select: none;
+}
+
+/* Show handles on hover */
+.ProseMirror>*:hover .block-handle-container,
+.block-handle-container:hover {
+  opacity: 1;
+}
+
+/* Plus button */
+.plus-handle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 18px;
+  font-weight: 300;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.plus-handle:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Drag handle */
+.drag-handle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 14px;
+  cursor: grab;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.drag-handle:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* @ Mentions - Notion style */
+.ProseMirror .mention {
+  background: rgba(35, 131, 226, 0.1);
+  color: #2383e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ProseMirror .mention:hover {
+  background: rgba(35, 131, 226, 0.2);
+}
+
+/* Mention suggestion popup */
+.mention-list {
+  z-index: 9999;
 }

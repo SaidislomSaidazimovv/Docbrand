@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback, useRef, useState } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, ReactRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Heading from '@tiptap/extension-heading';
@@ -9,13 +9,26 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
+import Dropcursor from '@tiptap/extension-dropcursor';
+import Gapcursor from '@tiptap/extension-gapcursor';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
+import Mention from '@tiptap/extension-mention';
+import tippy, { Instance as TippyInstance } from 'tippy.js';
 import { PasteFirewall } from './extensions/PasteFirewall';
+import { mentionSuggestion } from './extensions/MentionSuggestion';
+import { SlashCommands } from './extensions/SlashCommands';
+import SlashCommandsMenu, { getSuggestionItems } from './SlashCommandsMenu';
 import FloatingToolbar from './FloatingToolbar';
+import BlockHandleOverlay from './BlockHandleOverlay';
 import { Edit3, Link2 } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
-import { useHeaderFooterStore } from '@/store/headerFooterStore';
 import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
 import RequirementLinkPopup from './RequirementLinkPopup';
 
@@ -62,7 +75,81 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                     class: 'text-blue-500 underline',
                 },
             }),
+            Dropcursor.configure({
+                color: '#388bfd',
+                width: 2,
+            }),
+            Gapcursor,
+            SlashCommands.configure({
+                suggestion: {
+                    items: getSuggestionItems,
+                    render: () => {
+                        let component: ReactRenderer | null = null;
+                        let popup: TippyInstance[] | null = null;
+
+                        return {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            onStart: (props: any) => {
+                                component = new ReactRenderer(SlashCommandsMenu, {
+                                    props,
+                                    editor: props.editor,
+                                });
+
+                                popup = tippy('body', {
+                                    getReferenceClientRect: props.clientRect,
+                                    appendTo: () => document.body,
+                                    content: component.element,
+                                    showOnCreate: true,
+                                    interactive: true,
+                                    trigger: 'manual',
+                                    placement: 'bottom-start',
+                                });
+                            },
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            onUpdate: (props: any) => {
+                                component?.updateProps(props);
+
+                                if (popup?.[0]) {
+                                    popup[0].setProps({
+                                        getReferenceClientRect: props.clientRect,
+                                    });
+                                }
+                            },
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            onKeyDown: (props: any) => {
+                                if (props.event.key === 'Escape') {
+                                    popup?.[0]?.hide();
+                                    return true;
+                                }
+
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                return (component?.ref as any)?.onKeyDown?.(props.event) ?? false;
+                            },
+                            onExit: () => {
+                                popup?.[0]?.destroy();
+                                component?.destroy();
+                            },
+                        };
+                    },
+                },
+            }),
             PasteFirewall,
+            TaskList,
+            TaskItem.configure({
+                nested: true,
+            }),
+            Table.configure({
+                resizable: true,
+            }),
+            TableRow,
+            TableHeader,
+            TableCell,
+            Mention.configure({
+                HTMLAttributes: {
+                    class: 'mention',
+                },
+                suggestion: mentionSuggestion,
+            }),
         ],
         immediatelyRender: false,
         content: '', // Empty by default
@@ -206,7 +293,9 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 <DocumentHeader />
 
                 {/* Editor Content */}
-                <div className="px-16 py-8 min-h-[800px]">
+                <div ref={editorContainerRef} className="px-16 py-8 min-h-[800px] relative">
+                    {/* Block Handle Overlay */}
+                    <BlockHandleOverlay editor={editor} containerRef={editorContainerRef} />
                     <EditorContent editor={editor} />
                 </div>
 
