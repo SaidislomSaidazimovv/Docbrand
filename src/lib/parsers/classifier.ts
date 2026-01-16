@@ -49,11 +49,13 @@ export interface RequirementSection {
     requirements: ClassifiedRequirement[];
 }
 
-// Truncate text for display (max 60 chars)
-function truncateText(text: string, maxLength: number = 60): string {
+// Truncate text for display (max 40 chars for compact view)
+function truncateText(text: string, maxLength: number = 40): string {
     const cleaned = text.replace(/\s+/g, ' ').trim();
-    if (cleaned.length <= maxLength) return cleaned;
-    return cleaned.substring(0, maxLength - 3).trim() + '...';
+    // Remove section numbers at start
+    const withoutNumber = cleaned.replace(/^[A-Z0-9]+\.\d+(\.\d+)?\s*/, '');
+    if (withoutNumber.length <= maxLength) return withoutNumber;
+    return withoutNumber.substring(0, maxLength - 3).trim() + '...';
 }
 
 // Extract section info from text

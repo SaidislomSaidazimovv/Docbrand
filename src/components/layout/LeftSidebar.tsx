@@ -291,8 +291,8 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                                 {req.id.substring(0, 12)}
                                                             </span>
                                                         </div>
-                                                        <p className="text-xs text-[#c9d1d9] truncate mt-0.5">
-                                                            {req.text}
+                                                        <p className="text-xs text-[#c9d1d9] line-clamp-1">
+                                                            {req.text.length > 35 ? req.text.substring(0, 35) + '...' : req.text}
                                                         </p>
                                                     </div>
                                                 </div>
