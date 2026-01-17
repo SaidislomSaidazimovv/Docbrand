@@ -1,0 +1,12 @@
+/* styles/quality.css */
+/* Exactly as specified in docs/Skills/phase-3-4-architecture/SKILL.md */
+
+.issue-highlight {
+    background: rgba(239, 68, 68, 0.2);
+    border-bottom: 2px solid #ef4444;
+    cursor: pointer;
+}
+
+.issue-highlight:hover {
+    background: rgba(239, 68, 68, 0.3);
+}

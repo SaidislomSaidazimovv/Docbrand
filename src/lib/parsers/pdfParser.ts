@@ -1,12 +1,10 @@
 /**
  * PDF Parser using pdfjs-dist
  * 
- * Properly configured for Next.js with:
+ * Exactly as specified in docs/Skills/pdfjs/PDFJS_NextJS_Dynamic_Import.md
  * - Dynamic import (SSR safe)
- * - Worker from CDN
+ * - Worker from node_modules via import.meta.url
  * - Instance caching
- * 
- * @see docs/Skills/pdfjs/PDFJS_NextJS_Dynamic_Import.md
  */
 
 export interface ParsedParagraph {
@@ -14,18 +12,12 @@ export interface ParsedParagraph {
     pageNumber: number;
 }
 
-// Cache pdfjs instance to avoid re-importing
+// ✅ CORRECT - lazy load in browser only
 let pdfjsLib: typeof import('pdfjs-dist') | null = null;
 
-/**
- * Get pdfjs instance with lazy loading
- * - Only imports in browser (SSR safe)
- * - Caches instance for performance
- */
 async function getPdfJs() {
     if (pdfjsLib) return pdfjsLib;
 
-    // SSR guard
     if (typeof window === 'undefined') {
         throw new Error('PDF.js can only run in browser');
     }
@@ -33,9 +25,11 @@ async function getPdfJs() {
     // Dynamic import - never evaluated on server
     pdfjsLib = await import('pdfjs-dist');
 
-    // Set worker from CDN - must match the installed version
-    const version = pdfjsLib.version;
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
+    // Worker from node_modules (not CDN) - exactly as skill documents
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+        'pdfjs-dist/build/pdf.worker.min.mjs',
+        import.meta.url
+    ).toString();
 
     return pdfjsLib;
 }
