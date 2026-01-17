@@ -22,6 +22,7 @@ import tippy, { Instance as TippyInstance } from 'tippy.js';
 import { PasteFirewall } from './extensions/PasteFirewall';
 import { mentionSuggestion } from './extensions/MentionSuggestion';
 import { SlashCommands } from './extensions/SlashCommands';
+import { QualityScanner } from './extensions/QualityScanner';
 import SlashCommandsMenu, { getSuggestionItems } from './SlashCommandsMenu';
 import FloatingToolbar from './FloatingToolbar';
 import BlockHandleOverlay from './BlockHandleOverlay';
@@ -150,6 +151,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 },
                 suggestion: mentionSuggestion,
             }),
+            QualityScanner, // Quality issue highlighting
         ],
         immediatelyRender: false,
         content: '', // Empty by default

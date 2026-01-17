@@ -36,11 +36,13 @@ export default function ImportModal({ onClose }: ImportModalProps) {
     const handleFileUpload = useCallback(async (file: File) => {
         setFileName(file.name);
         setFileSize(file.size);
-        fileIdRef.current = `file-${Date.now()}`;
         setPhase('parsing');
         setError(null);
 
         try {
+            // Generate stable file ID from content
+            const { generateFileId } = await import('@/lib/parsers/classifier');
+            fileIdRef.current = generateFileId({ name: file.name, size: file.size, lastModified: file.lastModified });
             // Dynamically import parsers to avoid SSR issues
             const isPDF = file.name.toLowerCase().endsWith('.pdf');
             const isDOCX = file.name.toLowerCase().endsWith('.docx');

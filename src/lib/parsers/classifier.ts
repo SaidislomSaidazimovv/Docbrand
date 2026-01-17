@@ -1,11 +1,80 @@
 /**
- * Requirement Classifier v2
+ * Requirement Classifier v3
  * 
  * Smart extraction with section grouping and better filtering.
  * - Groups requirements by sections (L.1, M.2, etc.)
  * - Limits text length for readability
  * - Higher confidence threshold
+ * - Stable content-based ID generation (FNV-1a hash)
  */
+
+// =============================================================================
+// STABLE ID GENERATION (per docs/Skills/import/Stable_ID_Generation.md)
+// =============================================================================
+
+/**
+ * FNV-1a hash - fast, deterministic hash function
+ * Used for generating stable IDs from content
+ */
+function fnv1aHash(str: string): string {
+    let hash = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i);
+        hash = (hash * 16777619) >>> 0;
+    }
+    return hash.toString(36);
+}
+
+/**
+ * Normalize text for comparison and hashing
+ * - Trims whitespace
+ * - Collapses multiple spaces
+ * - Lowercase for consistency
+ */
+function normalizeText(text: string): string {
+    return text.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+/**
+ * Generate stable file ID from file properties
+ */
+export function generateFileId(file: { name: string; size: number; lastModified?: number }): string {
+    const input = `${file.name}|${file.size}|${file.lastModified || 0}`;
+    return `file-${fnv1aHash(input)}`;
+}
+
+/**
+ * Generate stable requirement ID from content
+ * - Based on file identity + page + paragraph index + text content
+ * - Survives re-parsing (same content = same ID)
+ */
+export function generateRequirementId(params: {
+    fileId: string;
+    page: number;
+    index: number;
+    text: string;
+}): string {
+    const { fileId, page, index, text } = params;
+    const normText = normalizeText(text).slice(0, 500);
+    const input = `${fileId}|p${page}|i${index}|${normText}`;
+    return `req-${fnv1aHash(input)}`;
+}
+
+/**
+ * Check if two requirements are duplicates
+ * - Same page + similar text = duplicate
+ */
+export function areDuplicates(a: { page?: number; text: string }, b: { page?: number; text: string }): boolean {
+    if (a.page !== b.page) return false;
+    const normA = normalizeText(a.text);
+    const normB = normalizeText(b.text);
+    return normA === normB ||
+        (normA.includes(normB) && normB.length / normA.length > 0.9);
+}
+
+// =============================================================================
+// CLASSIFIER LOGIC
+// =============================================================================
 
 // Deontic keywords that indicate requirements
 const DEONTIC_KEYWORDS = [
