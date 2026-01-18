@@ -92,3 +92,31 @@ export function registerPageLifecycleFlush(flushNow: () => void) {
     // BEST EFFORT: May not fire on mobile
     window.addEventListener('beforeunload', flushNow);
 }
+
+// =============================================================================
+// Transaction Safety (JSDoc Examples)
+// =============================================================================
+
+/**
+ * TRANSACTION SAFETY PATTERNS
+ * 
+ * IndexedDB auto-commits when the event loop goes idle. If you `await` anything
+ * async (like `editor.getJSON()`) inside a transaction scope, you get:
+ * `TransactionInactiveError: Transaction has already completed`
+ * 
+ * @example
+ * // ❌ WRONG: Async work inside transaction
+ * await db.transaction('rw', db.docs, async () => {
+ *   const content = await editor.getJSON(); // BOOM
+ *   await db.docs.put(content);
+ * });
+ * 
+ * @example
+ * // ✅ CORRECT: Prepare outside, commit inside
+ * const prepared = await prepareSnapshot(editor, store);
+ * await db.transaction('rw', db.docs, async () => {
+ *   await db.docs.put(prepared); // Pure writes only
+ * });
+ */
+export const TRANSACTION_SAFETY_DOCS = true; // Documentation marker
+

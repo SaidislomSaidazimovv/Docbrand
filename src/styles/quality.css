@@ -1,6 +1,7 @@
 /* styles/quality.css */
 /* Exactly as specified in docs/Skills/phase-3-4-architecture/SKILL.md */
 
+/* Base issue highlight */
 .issue-highlight {
     background: rgba(239, 68, 68, 0.2);
     border-bottom: 2px solid #ef4444;
@@ -9,4 +10,28 @@
 
 .issue-highlight:hover {
     background: rgba(239, 68, 68, 0.3);
+}
+
+/* Severity-specific styles */
+.issue-critical {
+    background: rgba(248, 81, 73, 0.2);
+    border-bottom: 2px solid #f85149;
+}
+
+.issue-critical:hover {
+    background: rgba(248, 81, 73, 0.35);
+}
+
+.issue-warning {
+    background: rgba(245, 158, 11, 0.2);
+    border-bottom: 2px solid #f59e0b;
+}
+
+.issue-warning:hover {
+    background: rgba(245, 158, 11, 0.35);
+}
+
+.issue-passed {
+    background: rgba(34, 197, 94, 0.1);
+    border-bottom: 2px solid #22c55e;
 }
