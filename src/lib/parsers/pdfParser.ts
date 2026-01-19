@@ -5,7 +5,11 @@
  * - Dynamic import (SSR safe)
  * - Worker from node_modules via import.meta.url
  * - Instance caching
+ * 
+ * Enhanced with sentence-level splitting for better block linking.
  */
+
+import { splitParagraphsIntoBlocks, type ParagraphBlock } from '@/lib/utils/sentenceSplitter';
 
 export interface ParsedParagraph {
     text: string;
@@ -34,6 +38,9 @@ async function getPdfJs() {
     return pdfjsLib;
 }
 
+/**
+ * Parse PDF file into paragraphs (legacy)
+ */
 export async function parsePDF(file: File): Promise<ParsedParagraph[]> {
     const pdfjs = await getPdfJs();
 
@@ -82,3 +89,15 @@ export async function parsePDF(file: File): Promise<ParsedParagraph[]> {
 
     return paragraphs.filter((p) => p.text.length > 20);
 }
+
+/**
+ * Parse PDF file into sentence-level blocks
+ * 
+ * Each sentence becomes a separate block with unique ID for requirement linking.
+ */
+export async function parsePDFToBlocks(file: File): Promise<ParagraphBlock[]> {
+    const paragraphs = await parsePDF(file);
+    return splitParagraphsIntoBlocks(paragraphs);
+}
+
+export { type ParagraphBlock };

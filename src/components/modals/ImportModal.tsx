@@ -43,6 +43,7 @@ export default function ImportModal({ onClose }: ImportModalProps) {
             // Generate stable file ID from content
             const { generateFileId } = await import('@/lib/parsers/classifier');
             fileIdRef.current = generateFileId({ name: file.name, size: file.size, lastModified: file.lastModified });
+
             // Dynamically import parsers to avoid SSR issues
             const isPDF = file.name.toLowerCase().endsWith('.pdf');
             const isDOCX = file.name.toLowerCase().endsWith('.docx');
@@ -51,15 +52,23 @@ export default function ImportModal({ onClose }: ImportModalProps) {
                 throw new Error('Only PDF and DOCX files are supported');
             }
 
-            let paragraphs: { text: string }[] = [];
+            // Use new sentence-level block parsing for better granularity
+            let blocks: { text: string; blockId: string; pageNumber: number }[] = [];
 
             if (isPDF) {
-                const { parsePDF } = await import('@/lib/parsers/pdfParser');
-                paragraphs = await parsePDF(file);
+                const { parsePDFToBlocks } = await import('@/lib/parsers/pdfParser');
+                blocks = await parsePDFToBlocks(file);
             } else {
-                const { parseDOCX } = await import('@/lib/parsers/docxParser');
-                paragraphs = await parseDOCX(file);
+                const { parseDOCXToBlocks } = await import('@/lib/parsers/docxParser');
+                blocks = await parseDOCXToBlocks(file);
             }
+
+            // Convert blocks to paragraph format for classifier compatibility
+            const paragraphs = blocks.map(block => ({
+                text: block.text,
+                pageNumber: block.pageNumber,
+                blockId: block.blockId,
+            }));
 
             // Classify paragraphs as requirements
             const { extractRequirements } = await import('@/lib/parsers/classifier');
@@ -79,6 +88,7 @@ export default function ImportModal({ onClose }: ImportModalProps) {
             setExtractedReqs(extracted);
             setPhase('review');
         } catch (err) {
+            console.error('Import error:', err);
             setError(err instanceof Error ? err.message : 'Failed to parse file');
             setPhase('upload');
         }

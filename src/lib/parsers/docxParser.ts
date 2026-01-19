@@ -2,15 +2,20 @@
  * DOCX Parser using mammoth
  * 
  * Parses DOCX files and extracts text content as paragraphs.
+ * Enhanced with sentence-level splitting for better block linking.
  */
 
 import mammoth from 'mammoth';
+import { splitParagraphsIntoBlocks, type ParagraphBlock } from '@/lib/utils/sentenceSplitter';
 
 export interface ParsedParagraph {
     text: string;
     pageNumber: number;
 }
 
+/**
+ * Parse DOCX file into paragraphs (legacy)
+ */
 export async function parseDOCX(file: File): Promise<ParsedParagraph[]> {
     const arrayBuffer = await file.arrayBuffer();
 
@@ -30,3 +35,15 @@ export async function parseDOCX(file: File): Promise<ParsedParagraph[]> {
 
     return paragraphs;
 }
+
+/**
+ * Parse DOCX file into sentence-level blocks
+ * 
+ * Each sentence becomes a separate block with unique ID for requirement linking.
+ */
+export async function parseDOCXToBlocks(file: File): Promise<ParagraphBlock[]> {
+    const paragraphs = await parseDOCX(file);
+    return splitParagraphsIntoBlocks(paragraphs);
+}
+
+export { type ParagraphBlock };

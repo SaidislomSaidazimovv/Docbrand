@@ -132,9 +132,40 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
     // Navigate to first linked block
     const handleNavigateToBlock = (reqId: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        const linkedBlocks = EditorController.getBlocksForRequirement(reqId);
+
+        // First try EditorController (Path E - document-based)
+        let linkedBlocks = EditorController.getBlocksForRequirement(reqId);
+
+        // Fallback to Zustand store (legacy linking)
+        if (linkedBlocks.length === 0) {
+            const req = requirements.find(r => r.id === reqId);
+            if (req?.linkedBlockIds && req.linkedBlockIds.length > 0) {
+                linkedBlocks = req.linkedBlockIds;
+            }
+        }
+
         if (linkedBlocks.length > 0) {
-            EditorController.scrollToBlock(linkedBlocks[0]);
+            const blockId = linkedBlocks[0];
+
+            // Try EditorController scroll first
+            const success = EditorController.scrollToBlock(blockId);
+
+            // Fallback: Find by DOM data-block-id
+            if (!success) {
+                const blockElement = document.querySelector(`[data-block-id="${blockId}"]`);
+                if (blockElement) {
+                    blockElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Add highlight animation class
+                    blockElement.classList.add('block-highlight');
+                    setTimeout(() => {
+                        blockElement.classList.remove('block-highlight');
+                    }, 2000);
+                } else {
+                    console.warn(`Block not found: ${blockId}`);
+                }
+            }
+        } else {
+            console.warn(`No linked blocks for requirement: ${reqId}`);
         }
     };
 
@@ -311,7 +342,10 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                                 {req.id.substring(0, 12)}
                                                             </span>
                                                         </div>
-                                                        <p className="text-xs text-[#c9d1d9] line-clamp-1">
+                                                        <p
+                                                            className="text-xs text-[#c9d1d9] line-clamp-1"
+                                                            title={req.originalText || req.text}
+                                                        >
                                                             {req.text.length > 35 ? req.text.substring(0, 35) + '...' : req.text}
                                                         </p>
                                                         {/* Navigate to block button for linked requirements */}

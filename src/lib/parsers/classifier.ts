@@ -118,8 +118,8 @@ export interface RequirementSection {
     requirements: ClassifiedRequirement[];
 }
 
-// Truncate text for display (max 40 chars for compact view)
-function truncateText(text: string, maxLength: number = 40): string {
+// Truncate text for display (max 15 chars for compact view)
+function truncateText(text: string, maxLength: number = 15): string {
     const cleaned = text.replace(/\s+/g, ' ').trim();
     // Remove section numbers at start
     const withoutNumber = cleaned.replace(/^[A-Z0-9]+\.\d+(\.\d+)?\s*/, '');

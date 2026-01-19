@@ -9,6 +9,7 @@ export { DocBlock, generateBlockId, type LinkedRequirement, type DocBlockAttribu
 export { StrictDocument } from './extensions/StrictDocument';
 export { RequirementLinking, RequirementLinkingKey } from './extensions/RequirementLinking';
 export { DocBlockWrapper } from './extensions/DocBlockWrapper';
+export { NodeSelectionExtension, NodeSelectionPluginKey } from './extensions/NodeSelectionExtension';
 
 // Plugins
 export { BlockIndex, BlockIndexPluginKey, getBlockPosition, getAllBlockIds } from './plugins/BlockIndexPlugin';
@@ -16,3 +17,7 @@ export { BlockIndex, BlockIndexPluginKey, getBlockPosition, getAllBlockIds } fro
 // Core
 export { LinkIndex, linkIndex, type LinkTransactionMeta } from './LinkIndex';
 export { EditorController } from './EditorController';
+
+// Smart Chips
+export { SMART_CHIPS, resolveVariables, hasVariables, findVariables, type SmartChipVariable, type VariableContext } from './SmartChipVariables';
+

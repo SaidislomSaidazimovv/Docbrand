@@ -33,7 +33,7 @@ import { useStyleStore } from '@/store/styleStore';
 import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
 import RequirementLinkPopup from './RequirementLinkPopup';
 // DocBrand Path E Architecture imports
-import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper } from '@/lib/editor';
+import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper, NodeSelectionExtension } from '@/lib/editor';
 
 interface EditorProps {
     onEditHeaderFooter?: () => void;
@@ -159,6 +159,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             DocBlockWrapper, // Auto-wrap raw blocks
             RequirementLinking,
             BlockIndex,
+            NodeSelectionExtension, // Alt+Click/Alt+A block selection
         ],
         immediatelyRender: false,
         content: '', // Empty by default
@@ -236,18 +237,48 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const handleEditorClick = useCallback(() => {
         if (!activeLinkingReqId || !editor) return;
 
-        // Get current block ID from EditorController
-        const blockId = EditorController.getCurrentBlockId();
-        if (!blockId) {
-            // Fallback to position-based ID if no DocBlock found
-            const { from } = editor.state.selection;
-            const fallbackBlockId = `block-${from}`;
-            linkToBlock(activeLinkingReqId, fallbackBlockId);
-        } else {
-            // Use EditorController for proper Path E linking
-            EditorController.linkRequirementToBlock(blockId, activeLinkingReqId);
-            linkToBlock(activeLinkingReqId, blockId);
+        const { from } = editor.state.selection;
+        const $from = editor.state.doc.resolve(from);
+
+        // Find the nearest block-level element
+        let blockElement: HTMLElement | null = null;
+        const domPos = editor.view.domAtPos(from);
+        if (domPos.node) {
+            const el = domPos.node instanceof HTMLElement ? domPos.node : domPos.node.parentElement;
+            blockElement = el?.closest('p, h1, h2, h3, h4, h5, h6, li, blockquote') as HTMLElement;
         }
+
+        // Get current block ID from EditorController
+        let blockId = EditorController.getCurrentBlockId();
+
+        if (!blockId) {
+            // Create a stable block ID based on content hash + position
+            const blockNode = $from.parent;
+            const textContent = blockNode.textContent.substring(0, 50);
+            const hash = textContent.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            blockId = `block-${Math.abs(hash).toString(16).substring(0, 8)}`;
+        }
+
+        // Mark the DOM element with the block ID for later navigation
+        if (blockElement && !blockElement.hasAttribute('data-block-id')) {
+            blockElement.setAttribute('data-block-id', blockId);
+        }
+
+        // Mark block as linked for green border styling
+        if (blockElement) {
+            blockElement.setAttribute('data-linked', 'true');
+        }
+
+        // Try Path E linking first
+        if (EditorController.isReady()) {
+            EditorController.linkRequirementToBlock(blockId, activeLinkingReqId);
+        }
+
+        // Also save to Zustand store
+        linkToBlock(activeLinkingReqId, blockId);
         setLinkingMode(null);
     }, [activeLinkingReqId, editor, linkToBlock, setLinkingMode]);
 

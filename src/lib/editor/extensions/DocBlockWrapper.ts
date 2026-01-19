@@ -45,7 +45,7 @@ export const DocBlockWrapper = Extension.create<DocBlockWrapperOptions>({
 
     addOptions() {
         return {
-            enabled: false, // DISABLED by default for safety
+            enabled: false, // DISABLED - causes infinite loop, needs more investigation
         };
     },
 

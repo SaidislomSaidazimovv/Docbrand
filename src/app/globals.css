@@ -469,3 +469,58 @@ body {
   background: rgba(63, 185, 80, 0.15);
   border-bottom: 2px solid #3fb950;
 }
+
+/* =============================================================================
+   Block Linked Indicators
+   Shows colored left border for blocks linked to RFP requirements
+============================================================================= */
+
+/* Block linked to requirement - green left border */
+.ProseMirror [data-block-id][data-linked="true"] {
+  position: relative;
+  border-left: 4px solid #3fb950;
+  padding-left: 12px;
+  margin-left: -16px;
+  transition: all 0.2s ease;
+}
+
+/* Block pending/selected for linking - yellow */
+.ProseMirror [data-block-id][data-linking="true"] {
+  border-left: 4px solid #d29922;
+  padding-left: 12px;
+  margin-left: -16px;
+  background: rgba(210, 153, 34, 0.08);
+}
+
+/* Hover effect on linked blocks */
+.ProseMirror [data-block-id][data-linked="true"]:hover {
+  background: rgba(63, 185, 80, 0.08);
+}
+
+/* Block navigation highlight animation */
+.ProseMirror [data-block-id].block-highlight {
+  animation: blockHighlight 2s ease-out;
+}
+
+@keyframes blockHighlight {
+  0% {
+    background: rgba(56, 139, 253, 0.3);
+  }
+
+  100% {
+    background: transparent;
+  }
+}
+
+/* =============================================================================
+   NodeSelection - Block Selection Styling
+   Alt+Click or Alt+A selects entire block
+============================================================================= */
+
+/* Selected node (NodeSelection active) */
+.ProseMirror .ProseMirror-selectednode {
+  outline: 2px solid #388bfd;
+  outline-offset: 2px;
+  background: rgba(56, 139, 253, 0.1);
+  border-radius: 4px;
+}
