@@ -32,6 +32,8 @@ import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
 import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
 import RequirementLinkPopup from './RequirementLinkPopup';
+// DocBrand Path E Architecture imports
+import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper } from '@/lib/editor';
 
 interface EditorProps {
     onEditHeaderFooter?: () => void;
@@ -152,6 +154,11 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 suggestion: mentionSuggestion,
             }),
             QualityScanner, // Quality issue highlighting
+            // DocBrand Path E Architecture
+            DocBlock, // Block wrapper with linkedRequirements
+            DocBlockWrapper, // Auto-wrap raw blocks
+            RequirementLinking,
+            BlockIndex,
         ],
         immediatelyRender: false,
         content: '', // Empty by default
@@ -162,12 +169,16 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
         },
     });
 
-    // Sync editor with global store
+    // Sync editor with global store and EditorController
     useEffect(() => {
         if (editor) {
             setEditor(editor);
+            EditorController.setEditor(editor);
         }
-        return () => setEditor(null);
+        return () => {
+            setEditor(null);
+            EditorController.clearEditor();
+        };
     }, [editor, setEditor]);
 
     // Inject dynamic styles via <style> tag
@@ -225,9 +236,18 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const handleEditorClick = useCallback(() => {
         if (!activeLinkingReqId || !editor) return;
 
-        const { from } = editor.state.selection;
-        const blockId = `block-${from}`;
-        linkToBlock(activeLinkingReqId, blockId);
+        // Get current block ID from EditorController
+        const blockId = EditorController.getCurrentBlockId();
+        if (!blockId) {
+            // Fallback to position-based ID if no DocBlock found
+            const { from } = editor.state.selection;
+            const fallbackBlockId = `block-${from}`;
+            linkToBlock(activeLinkingReqId, fallbackBlockId);
+        } else {
+            // Use EditorController for proper Path E linking
+            EditorController.linkRequirementToBlock(blockId, activeLinkingReqId);
+            linkToBlock(activeLinkingReqId, blockId);
+        }
         setLinkingMode(null);
     }, [activeLinkingReqId, editor, linkToBlock, setLinkingMode]);
 

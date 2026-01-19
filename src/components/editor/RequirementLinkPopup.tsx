@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, Check, Link2 } from 'lucide-react';
 import { useRequirementsStore } from '@/store/requirementsStore';
+import { EditorController } from '@/lib/editor';
 
 interface RequirementLinkPopupProps {
     blockId: string;
@@ -27,11 +28,19 @@ export default function RequirementLinkPopup({ blockId, onClose }: RequirementLi
     );
 
     const handleLink = (reqId: string) => {
+        // Update Zustand store (UI state)
         linkToBlock(reqId, blockId);
+
+        // Also update document via EditorController (Path E canonical storage)
+        EditorController.linkRequirementToBlock(blockId, reqId);
     };
 
     const handleUnlink = (reqId: string) => {
+        // Update Zustand store (UI state)
         unlinkFromBlock(reqId, blockId);
+
+        // Also update document via EditorController (Path E canonical storage)
+        EditorController.unlinkRequirementFromBlock(blockId, reqId);
     };
 
     return (

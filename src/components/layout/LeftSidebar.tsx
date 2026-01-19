@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, Upload, FileText, Map, Trash2, Folder } from 'lucide-react';
+import { ChevronDown, ChevronRight, Upload, FileText, Map, Trash2, Folder, ExternalLink } from 'lucide-react';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useHistoryStore } from '@/store/historyStore';
+import { EditorController } from '@/lib/editor';
 import type { Requirement } from '@/types';
 
 interface LeftSidebarProps {
@@ -110,11 +111,30 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
         return 'from-[#f85149] to-[#f85149]';
     };
 
-    const handleLinkClick = (reqId: string) => {
+    const handleLinkClick = (reqId: string, e?: React.MouseEvent) => {
+        // If holding Shift, navigate to linked block instead of linking
+        if (e?.shiftKey) {
+            const linkedBlocks = EditorController.getBlocksForRequirement(reqId);
+            if (linkedBlocks.length > 0) {
+                EditorController.scrollToBlock(linkedBlocks[0]);
+                return;
+            }
+        }
+
+        // Toggle linking mode
         if (activeLinkingReqId === reqId) {
             setLinkingMode(null);
         } else {
             setLinkingMode(reqId);
+        }
+    };
+
+    // Navigate to first linked block
+    const handleNavigateToBlock = (reqId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const linkedBlocks = EditorController.getBlocksForRequirement(reqId);
+        if (linkedBlocks.length > 0) {
+            EditorController.scrollToBlock(linkedBlocks[0]);
         }
     };
 
@@ -294,6 +314,17 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                         <p className="text-xs text-[#c9d1d9] line-clamp-1">
                                                             {req.text.length > 35 ? req.text.substring(0, 35) + '...' : req.text}
                                                         </p>
+                                                        {/* Navigate to block button for linked requirements */}
+                                                        {req.status === 'linked' && req.linkedBlockIds && req.linkedBlockIds.length > 0 && (
+                                                            <button
+                                                                onClick={(e) => handleNavigateToBlock(req.id, e)}
+                                                                className="mt-1 flex items-center gap-1 text-[10px] text-[#388bfd] hover:text-[#58a6ff]"
+                                                                title="Go to linked block"
+                                                            >
+                                                                <ExternalLink size={10} />
+                                                                Go to block
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
