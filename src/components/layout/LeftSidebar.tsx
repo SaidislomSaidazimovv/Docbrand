@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, Upload, FileText, Map, Trash2, Folder, ExternalLink } from 'lucide-react';
+import { ChevronDown, ChevronRight, Upload, FileText, Map, Trash2, Folder, ExternalLink, Unlink } from 'lucide-react';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useHistoryStore } from '@/store/historyStore';
 import { EditorController } from '@/lib/editor';
+import { unmarkBlockAsLinked } from '@/lib/editor/plugins/LinkedBlockDecorator';
 import type { Requirement } from '@/types';
 
 interface LeftSidebarProps {
@@ -23,7 +24,7 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<'map' | 'rfp'>('rfp');
 
-    const { requirements, activeLinkingReqId, setLinkingMode, clearRequirements } = useRequirementsStore();
+    const { requirements, activeLinkingReqId, setLinkingMode, clearRequirements, unlinkFromBlock } = useRequirementsStore();
     const { sources, clearSources } = useSourcesStore();
     const { addToHistory } = useHistoryStore();
 
@@ -126,6 +127,53 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
             setLinkingMode(null);
         } else {
             setLinkingMode(reqId);
+        }
+    };
+
+    // Unlink a requirement from its block
+    const handleUnlink = (reqId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const req = requirements.find(r => r.id === reqId);
+        if (req?.linkedBlockIds && req.linkedBlockIds.length > 0) {
+            const blockId = req.linkedBlockIds[0];
+            console.log('[Sidebar] Unlinking:', reqId, 'from', blockId);
+
+            // Method 1: Find by data-block-id
+            const blockElement = document.querySelector(`[data-block-id="${blockId}"]`);
+            if (blockElement) {
+                (blockElement as HTMLElement).style.borderLeft = '';
+                (blockElement as HTMLElement).style.paddingLeft = '';
+                (blockElement as HTMLElement).style.marginLeft = '';
+                blockElement.classList.remove('block-linked');
+                blockElement.removeAttribute('data-linked');
+                blockElement.removeAttribute('data-block-id');
+                console.log('[Sidebar] Cleared by data-block-id');
+            }
+
+            // Method 2: Find ALL elements with block-linked class or data-linked attribute
+            const linkedElements = document.querySelectorAll('.ProseMirror .block-linked, .ProseMirror [data-linked="true"], .tiptap .block-linked, .tiptap [data-linked="true"]');
+            console.log('[Sidebar] Found linked elements to clear:', linkedElements.length);
+            linkedElements.forEach((el) => {
+                const htmlEl = el as HTMLElement;
+                htmlEl.style.borderLeft = '';
+                htmlEl.style.paddingLeft = '';
+                htmlEl.style.marginLeft = '';
+                htmlEl.classList.remove('block-linked');
+                htmlEl.removeAttribute('data-linked');
+                htmlEl.removeAttribute('data-block-id');
+                console.log('[Sidebar] Cleared .block-linked element:', el.textContent?.substring(0, 30));
+            });
+
+
+            // Remove from decorator's linked blocks Set - THIS IS THE KEY FIX
+            unmarkBlockAsLinked(blockId);
+
+            // Unlink from store
+            unlinkFromBlock(reqId, blockId);
+
+            // Force editor refresh to clear visual indicators
+            EditorController.forceRefresh();
+            console.log('[Sidebar] Unlinked successfully');
         }
     };
 
@@ -350,14 +398,24 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                         </p>
                                                         {/* Navigate to block button for linked requirements */}
                                                         {req.status === 'linked' && req.linkedBlockIds && req.linkedBlockIds.length > 0 && (
-                                                            <button
-                                                                onClick={(e) => handleNavigateToBlock(req.id, e)}
-                                                                className="mt-1 flex items-center gap-1 text-[10px] text-[#388bfd] hover:text-[#58a6ff]"
-                                                                title="Go to linked block"
-                                                            >
-                                                                <ExternalLink size={10} />
-                                                                Go to block
-                                                            </button>
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <button
+                                                                    onClick={(e) => handleNavigateToBlock(req.id, e)}
+                                                                    className="flex items-center gap-1 text-[10px] text-[#388bfd] hover:text-[#58a6ff]"
+                                                                    title="Go to linked block"
+                                                                >
+                                                                    <ExternalLink size={10} />
+                                                                    Go to block
+                                                                </button>
+                                                                <button
+                                                                    onClick={(e) => handleUnlink(req.id, e)}
+                                                                    className="flex items-center gap-1 text-[10px] text-[#f85149] hover:text-[#ff6a6a]"
+                                                                    title="Remove link"
+                                                                >
+                                                                    <Unlink size={10} />
+                                                                    Unlink
+                                                                </button>
+                                                            </div>
                                                         )}
                                                     </div>
                                                 </div>

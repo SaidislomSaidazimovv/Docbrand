@@ -476,9 +476,10 @@ body {
 ============================================================================= */
 
 /* Block linked to requirement - green left border */
-.ProseMirror [data-block-id][data-linked="true"] {
+.ProseMirror [data-block-id][data-linked="true"],
+.ProseMirror .block-linked {
   position: relative;
-  border-left: 4px solid #3fb950;
+  border-left: 4px solid #3fb950 !important;
   padding-left: 12px;
   margin-left: -16px;
   transition: all 0.2s ease;

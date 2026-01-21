@@ -13,6 +13,7 @@ export { NodeSelectionExtension, NodeSelectionPluginKey } from './extensions/Nod
 
 // Plugins
 export { BlockIndex, BlockIndexPluginKey, getBlockPosition, getAllBlockIds } from './plugins/BlockIndexPlugin';
+export { LinkedBlockDecorator, LinkedBlockDecoratorKey, markBlockAsLinked, unmarkBlockAsLinked, isBlockLinked, getLinkedBlockIds } from './plugins/LinkedBlockDecorator';
 
 // Core
 export { LinkIndex, linkIndex, type LinkTransactionMeta } from './LinkIndex';

@@ -33,7 +33,7 @@ import { useStyleStore } from '@/store/styleStore';
 import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
 import RequirementLinkPopup from './RequirementLinkPopup';
 // DocBrand Path E Architecture imports
-import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper, NodeSelectionExtension } from '@/lib/editor';
+import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper, NodeSelectionExtension, LinkedBlockDecorator, markBlockAsLinked } from '@/lib/editor';
 
 interface EditorProps {
     onEditHeaderFooter?: () => void;
@@ -160,6 +160,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             RequirementLinking,
             BlockIndex,
             NodeSelectionExtension, // Alt+Click/Alt+A block selection
+            LinkedBlockDecorator, // Persistent visual indicators for linked blocks
         ],
         immediatelyRender: false,
         content: '', // Empty by default
@@ -240,12 +241,32 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
         const { from } = editor.state.selection;
         const $from = editor.state.doc.resolve(from);
 
-        // Find the nearest block-level element
+        // Find the nearest block-level element using ProseMirror view
         let blockElement: HTMLElement | null = null;
-        const domPos = editor.view.domAtPos(from);
-        if (domPos.node) {
-            const el = domPos.node instanceof HTMLElement ? domPos.node : domPos.node.parentElement;
-            blockElement = el?.closest('p, h1, h2, h3, h4, h5, h6, li, blockquote') as HTMLElement;
+        try {
+            const domPos = editor.view.domAtPos(from);
+            // Get the DOM node and traverse up to find block element
+            let node: Node | null = domPos.node;
+            if (domPos.offset && node.childNodes[domPos.offset]) {
+                node = node.childNodes[domPos.offset];
+            }
+            // Find closest block element
+            if (node) {
+                const el = node instanceof HTMLElement ? node : node.parentElement;
+                blockElement = el?.closest('p, h1, h2, h3, h4, h5, h6, li, blockquote') as HTMLElement;
+                // Fallback: search within editor
+                if (!blockElement) {
+                    const editorEl = editor.view.dom;
+                    const allBlocks = editorEl.querySelectorAll('p, h1, h2, h3, h4, h5, h6');
+                    // Find block containing selection
+                    const sel = window.getSelection();
+                    if (sel && sel.anchorNode) {
+                        blockElement = (sel.anchorNode instanceof HTMLElement ? sel.anchorNode : sel.anchorNode.parentElement)?.closest('p, h1, h2, h3, h4, h5, h6') as HTMLElement;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('[Editor] Error finding block element:', e);
         }
 
         // Get current block ID from EditorController
@@ -267,10 +288,25 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             blockElement.setAttribute('data-block-id', blockId);
         }
 
-        // Mark block as linked for green border styling
+        // Mark block as linked for green border styling (DOM fallback)
         if (blockElement) {
             blockElement.setAttribute('data-linked', 'true');
+            // Add CSS class for styling
+            blockElement.classList.add('block-linked');
+            // Add inline style as fallback for immediate feedback
+            blockElement.style.borderLeft = '4px solid #3fb950';
+            blockElement.style.paddingLeft = '12px';
+            blockElement.style.marginLeft = '-16px';
+            console.log('[Editor] Block linked:', blockId, blockElement);
+        } else {
+            console.warn('[Editor] Block element not found for linking');
         }
+
+        // Register with decoration plugin for persistent visual feedback
+        markBlockAsLinked(blockId);
+
+        // Force editor refresh to update decorations
+        editor.view.dispatch(editor.state.tr);
 
         // Try Path E linking first
         if (EditorController.isReady()) {
