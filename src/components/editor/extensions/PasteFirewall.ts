@@ -139,15 +139,10 @@ export const PasteFirewall = Extension.create({
                         const html = event.clipboardData?.getData('text/html') || '';
                         const plainText = event.clipboardData?.getData('text/plain') || '';
 
-                        // If no HTML or very simple paste, just do plain text
+                        // If no HTML or very simple paste, let other handlers process it
+                        // (MarkdownPasteHandler will check for markdown syntax)
                         if (!html || html.length < 50) {
-                            event.preventDefault();
-                            if (plainText) {
-                                const { state, dispatch } = view;
-                                const tr = state.tr.insertText(plainText, state.selection.from, state.selection.to);
-                                dispatch(tr);
-                            }
-                            return true;
+                            return false; // Pass to next handler (MarkdownPasteHandler)
                         }
 
                         // Sanitize HTML

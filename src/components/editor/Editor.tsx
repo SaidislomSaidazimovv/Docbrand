@@ -20,6 +20,7 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import Mention from '@tiptap/extension-mention';
 import tippy, { Instance as TippyInstance } from 'tippy.js';
 import { PasteFirewall } from './extensions/PasteFirewall';
+import { MarkdownPasteHandler } from './extensions/MarkdownPasteHandler';
 import { mentionSuggestion } from './extensions/MentionSuggestion';
 import { SlashCommands } from './extensions/SlashCommands';
 import { QualityScanner } from './extensions/QualityScanner';
@@ -137,6 +138,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 },
             }),
             PasteFirewall,
+            MarkdownPasteHandler, // Auto-format markdown on paste
             TaskList,
             TaskItem.configure({
                 nested: true,
