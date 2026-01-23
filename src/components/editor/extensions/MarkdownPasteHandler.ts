@@ -301,14 +301,9 @@ export const MarkdownPasteHandler = Extension.create({
                 props: {
                     handlePaste: (view, event) => {
                         const plainText = event.clipboardData?.getData('text/plain') || '';
-                        const html = event.clipboardData?.getData('text/html') || '';
 
-                        // If there's HTML content, let PasteFirewall handle it
-                        if (html && html.length > 50) {
-                            return false;
-                        }
-
-                        // Check if plain text contains markdown
+                        // Check if plain text contains markdown syntax
+                        // (Works for both web copy and plain text copy)
                         if (!plainText || !containsMarkdownSyntax(plainText)) {
                             return false; // Let default paste handle it
                         }
