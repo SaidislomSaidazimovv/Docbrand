@@ -3,10 +3,13 @@
  * 
  * Sanitizes pasted content and shows changes in UI:
  * - Strips inline styles (font-family, color, font-size)
+ * - Preserves semantic formatting (bold, italic, underline, links)
  * - Normalizes formatting
  * - Stores state for UI display
  * 
- * @see docs/Skills/phase-3-4-architecture/SKILL.md
+ * IMPORTANT: This handler MUST process all HTML paste events to preserve
+ * inline formatting like bold/italic. If we pass to MarkdownPasteHandler,
+ * it will use plainText and lose all HTML formatting.
  */
 
 import { Extension } from '@tiptap/core';
@@ -36,7 +39,7 @@ export interface PasteFirewallState {
 export const pasteFirewallKey = new PluginKey<PasteFirewallState>('pasteFirewall');
 
 // =============================================================================
-// HTML SANITIZER
+// HTML SANITIZER - Preserves semantic tags like <strong>, <em>, <a>
 // =============================================================================
 
 function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteChange[] } {
@@ -52,7 +55,7 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
     let fontSizeRemoved = false;
     let classesRemoved = false;
 
-    // Strip inline styles
+    // Strip inline styles from ALL elements
     doc.querySelectorAll('[style]').forEach(el => {
         const style = el.getAttribute('style') || '';
 
@@ -81,14 +84,44 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
         el.removeAttribute('class');
     });
 
-    // Strip MS Office specific elements
-    doc.querySelectorAll('meta, style, link, script, o\\:p').forEach(el => el.remove());
+    // Strip MS Office specific elements and metadata
+    doc.querySelectorAll('meta, style, link, script, o\\:p, xml, br').forEach(el => el.remove());
+
+    // Inline tags to preserve (semantic formatting)
+    const inlineTags = ['STRONG', 'B', 'EM', 'I', 'U', 'A', 'CODE', 'S', 'STRIKE', 'SUB', 'SUP'];
+
+    // Function to unwrap a tag (keep children, remove tag)
+    const unwrapElement = (el: Element) => {
+        const parent = el.parentNode;
+        if (parent) {
+            while (el.firstChild) {
+                parent.insertBefore(el.firstChild, el);
+            }
+            parent.removeChild(el);
+        }
+    };
+
+    // Unwrap all block-level and non-semantic inline tags
+    // Keep only: strong, em, a, u, code, etc.
+    const allElements = Array.from(doc.body.querySelectorAll('*'));
+    for (const el of allElements) {
+        if (!inlineTags.includes(el.tagName)) {
+            unwrapElement(el);
+        }
+    }
+
+    // Get final HTML - should only have text and inline formatting
+    let result = doc.body.innerHTML;
+
+    // Clean up multiple spaces
+    result = result.replace(/\s+/g, ' ').trim();
 
     return {
-        afterHtml: doc.body.innerHTML,
+        afterHtml: result,
         changes,
     };
 }
+
 
 // =============================================================================
 // EXTENSION
@@ -97,7 +130,12 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
 export const PasteFirewall = Extension.create({
     name: 'pasteFirewall',
 
+    // Set higher priority to run before MarkdownPasteHandler
+    priority: 1000,
+
     addProseMirrorPlugins() {
+        const editor = this.editor;
+
         return [
             new Plugin<PasteFirewallState>({
                 key: pasteFirewallKey,
@@ -139,37 +177,48 @@ export const PasteFirewall = Extension.create({
                         const html = event.clipboardData?.getData('text/html') || '';
                         const plainText = event.clipboardData?.getData('text/plain') || '';
 
-                        // If no HTML or very simple paste, let other handlers process it
-                        // (MarkdownPasteHandler will check for markdown syntax)
-                        if (!html || html.length < 50) {
-                            return false; // Pass to next handler (MarkdownPasteHandler)
+                        // If we have HTML content, process it to preserve formatting
+                        // This includes bold, italic, underline, links, etc.
+                        if (html && html.trim().length > 0) {
+                            // Sanitize HTML (removes styles but preserves semantic tags)
+                            const { afterHtml, changes } = sanitizePastedHtml(html);
+
+                            // If changes detected, store state (UI can show notification)
+                            if (changes.length > 0) {
+                                view.dispatch(
+                                    view.state.tr
+                                        .setMeta(pasteFirewallKey, {
+                                            type: 'OPEN',
+                                            beforeHtml: html,
+                                            afterHtml,
+                                            changes,
+                                            plainText,
+                                        })
+                                        .setMeta('addToHistory', false)
+                                );
+                            }
+
+                            // Insert sanitized HTML content
+                            event.preventDefault();
+
+                            // Debug: log what we're inserting
+                            console.log('[PasteFirewall] Original HTML:', html);
+                            console.log('[PasteFirewall] Sanitized HTML:', afterHtml);
+
+                            // Use TipTap's insertContent with parseOptions to prevent extra paragraphs
+                            editor.commands.insertContent(afterHtml, {
+                                parseOptions: {
+                                    preserveWhitespace: false,
+                                }
+                            });
+
+                            console.log('[PasteFirewall] Inserted HTML with formatting preserved');
+                            return true;
                         }
 
-                        // Sanitize HTML
-                        const { afterHtml, changes } = sanitizePastedHtml(html);
-
-                        // If changes detected, store state (UI can show notification)
-                        if (changes.length > 0) {
-                            view.dispatch(
-                                view.state.tr
-                                    .setMeta(pasteFirewallKey, {
-                                        type: 'OPEN',
-                                        beforeHtml: html,
-                                        afterHtml,
-                                        changes,
-                                        plainText,
-                                    })
-                                    .setMeta('addToHistory', false)
-                            );
-                        }
-
-                        // Insert sanitized content
-                        event.preventDefault();
-                        const { state, dispatch } = view;
-                        const tr = state.tr.insertText(plainText, state.selection.from, state.selection.to);
-                        dispatch(tr);
-
-                        return true;
+                        // No HTML - let MarkdownPasteHandler process plain text
+                        // (This is for pasting from plain text sources)
+                        return false;
                     },
                 },
             }),
@@ -181,6 +230,7 @@ export const PasteFirewall = Extension.create({
 // HELPERS
 // =============================================================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function closePasteFirewall(editor: any): void {
     if (!editor?.view) return;
 
@@ -191,6 +241,7 @@ export function closePasteFirewall(editor: any): void {
     );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getPasteFirewallState(editor: any): PasteFirewallState | null {
     if (!editor?.state) return null;
     return pasteFirewallKey.getState(editor.state) || null;

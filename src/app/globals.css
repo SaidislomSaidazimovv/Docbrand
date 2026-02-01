@@ -57,8 +57,29 @@ body {
   background: var(--doc-bg);
   color: var(--doc-text);
   min-height: 100%;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 0.5rem;
+}
+
+/* Page break spacer - Word-style page separation */
+.page-break-spacer {
+  display: block !important;
+  user-select: none !important;
+  pointer-events: none !important;
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+.page-break-spacer>div:first-child {
+  position: relative !important;
+  left: -64px !important;
+  width: calc(100% + 128px) !important;
+  background: #161b22 !important;
+}
+
+/* Hide TipTap controls inside page break */
+.page-break-spacer * {
+  pointer-events: none !important;
 }
 
 /* TipTap Editor Styles - Notion-like */
@@ -524,4 +545,64 @@ body {
   outline-offset: 2px;
   background: rgba(56, 139, 253, 0.1);
   border-radius: 4px;
+}
+
+/* =============================================================================
+   Page Dividers - Virtual page break indicators
+============================================================================= */
+
+.page-divider {
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* =============================================================================
+   Print Styles - Proper pagination for printing
+============================================================================= */
+
+@media print {
+
+  /* Hide UI elements */
+  .page-divider,
+  .block-handle-container,
+  .drag-handle,
+  .plus-handle {
+    display: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+
+  /* Document styling */
+  .document-editor {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Content flow */
+  .ProseMirror p,
+  .ProseMirror h1,
+  .ProseMirror h2,
+  .ProseMirror h3,
+  .ProseMirror li {
+    page-break-inside: avoid;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Headings should stay with following content */
+  .ProseMirror h1,
+  .ProseMirror h2,
+  .ProseMirror h3 {
+    page-break-after: avoid;
+  }
+
+  /* Tables and code blocks */
+  .ProseMirror table,
+  .ProseMirror pre {
+    page-break-inside: avoid;
+  }
 }

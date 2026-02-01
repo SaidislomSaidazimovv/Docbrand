@@ -98,9 +98,9 @@ export default function StatusBar({ onOpenShredder }: StatusBarProps) {
     const inProgress = requirements.filter((r) => r.kanbanStatus === 'in_progress').length;
     const progressPercent = total > 0 ? Math.round(((complete + inReview * 0.75 + inProgress * 0.25) / total) * 100) : 0;
 
-    // Estimate page count (roughly 500 words per page)
-    const pageCount = Math.max(1, Math.ceil(wordCount / 500));
-    const currentPage = 1; // Simplified - could be calculated based on cursor position
+    // Get page count from store (calculated by usePageBreaks in Editor)
+    const pageCount = useEditorStore((state) => state.pageCount);
+    const currentPage = 1; // Simplified - could be calculated based on cursor/scroll position
 
     // Get save status text
     const getSaveStatusText = () => {

@@ -116,13 +116,13 @@ export default function RightSidebar() {
         // Get current cursor position before any focus changes
         const { from } = editor.state.selection;
 
-        // Use chain with focus at specific position to ensure we only affect current paragraph
+        // Use setHeading (not toggleHeading) to prevent toggling back to paragraph
         switch (preset) {
             case 'h1':
-                editor.chain().focus().setTextSelection(from).toggleHeading({ level: 1 }).run();
+                editor.chain().focus().setTextSelection(from).setHeading({ level: 1 }).run();
                 break;
             case 'h2':
-                editor.chain().focus().setTextSelection(from).toggleHeading({ level: 2 }).run();
+                editor.chain().focus().setTextSelection(from).setHeading({ level: 2 }).run();
                 break;
             case 'body':
             case 'caption':

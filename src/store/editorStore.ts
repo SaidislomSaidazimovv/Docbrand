@@ -11,9 +11,13 @@ import type { Editor } from '@tiptap/react';
 interface EditorState {
     editor: Editor | null;
     setEditor: (editor: Editor | null) => void;
+    pageCount: number;
+    setPageCount: (count: number) => void;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
     editor: null,
     setEditor: (editor) => set({ editor }),
+    pageCount: 1,
+    setPageCount: (pageCount) => set({ pageCount }),
 }));

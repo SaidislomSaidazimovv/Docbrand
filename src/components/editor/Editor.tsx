@@ -31,8 +31,9 @@ import { Edit3, Link2 } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
-import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
+import { DocumentHeader } from './DocumentHeaderFooter';
 import RequirementLinkPopup from './RequirementLinkPopup';
+import { PageBreakExtension, PAGE_HEIGHT, PAGE_GAP } from './extensions/PageBreakExtension';
 // DocBrand Path E Architecture imports
 import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper, NodeSelectionExtension, LinkedBlockDecorator, markBlockAsLinked } from '@/lib/editor';
 
@@ -42,6 +43,7 @@ interface EditorProps {
 
 export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const setEditor = useEditorStore((state) => state.setEditor);
+    const setStorePageCount = useEditorStore((state) => state.setPageCount);
     const { requirements, activeLinkingReqId, linkToBlock, setLinkingMode } = useRequirementsStore();
 
     // Popup state
@@ -55,6 +57,23 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     // Ref for dynamic style element
     const styleRef = useRef<HTMLStyleElement | null>(null);
     const editorContainerRef = useRef<HTMLDivElement>(null);
+    const editorContentRef = useRef<HTMLDivElement>(null);
+
+    // Page count from PageBreakExtension (for minHeight calculation)
+    const [pageCount, setPageCount] = useState(1);
+
+    // Listen for page count updates from extension
+    useEffect(() => {
+        const handlePageBreaksUpdate = (e: CustomEvent) => {
+            const newPageCount = e.detail.pageCount;
+            setPageCount(newPageCount);
+            setStorePageCount(newPageCount); // Update store for StatusBar
+        };
+        document.addEventListener('pagebreaks-updated', handlePageBreaksUpdate as EventListener);
+        return () => {
+            document.removeEventListener('pagebreaks-updated', handlePageBreaksUpdate as EventListener);
+        };
+    }, [setStorePageCount]);
 
     // Count unlinked requirements
     const hasUnlinkedReqs = requirements.some(r => r.status === 'unlinked');
@@ -163,6 +182,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             BlockIndex,
             NodeSelectionExtension, // Alt+Click/Alt+A block selection
             LinkedBlockDecorator, // Persistent visual indicators for linked blocks
+            PageBreakExtension, // Auto page breaks
         ],
         immediatelyRender: false,
         content: '', // Empty by default
@@ -358,40 +378,57 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 </button>
             )}
 
-            {/* Document with red line indicator */}
-            <div
-                ref={editorContainerRef}
-                onClick={handleEditorClick}
-                className={`w-full max-w-[800px] bg-white rounded-lg shadow-2xl min-h-[1000px] document-editor transition-all relative ${isLinkingMode ? 'ring-2 ring-[#388bfd] cursor-crosshair' : ''}`}
-            >
-                {/* Red Line Indicator for unlinked requirements */}
-                {hasUnlinkedReqs && !isLinkingMode && (
-                    <div
-                        onClick={(e) => handleRedLineClick(e, 'block-main')}
-                        className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#f85149] cursor-pointer hover:w-2 transition-all rounded-l-lg"
-                        title="Click to link requirements"
-                    >
-                        <div className="absolute top-1/2 -translate-y-1/2 left-3 w-5 h-5 bg-[#f85149] rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
-                            {requirements.filter(r => r.status === 'unlinked').length}
+            {/* Word-style Multi-Page Document */}
+            <div className="w-full max-w-[800px] relative">
+                {/* Single white container */}
+                <div
+                    ref={editorContainerRef}
+                    onClick={handleEditorClick}
+                    className={`w-full bg-white rounded-lg shadow-2xl document-editor transition-all relative ${isLinkingMode ? 'ring-2 ring-[#388bfd] cursor-crosshair' : ''}`}
+                    style={{
+                        minHeight: `${PAGE_HEIGHT}px`,
+                    }}
+                >
+                    {/* Red Line Indicator for unlinked requirements */}
+                    {hasUnlinkedReqs && !isLinkingMode && (
+                        <div
+                            onClick={(e) => handleRedLineClick(e, 'block-main')}
+                            className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#f85149] cursor-pointer hover:w-2 transition-all rounded-l-lg z-30"
+                            title="Click to link requirements"
+                        >
+                            <div className="absolute top-1/2 -translate-y-1/2 left-3 w-5 h-5 bg-[#f85149] rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                                {requirements.filter(r => r.status === 'unlinked').length}
+                            </div>
                         </div>
+                    )}
+
+                    {/* Floating Toolbar */}
+                    <FloatingToolbar editor={editor} />
+
+                    {/* Document Header */}
+                    <DocumentHeader />
+
+                    {/* Editor Content */}
+                    <div
+                        ref={editorContentRef}
+                        className="px-16 py-8 relative"
+                    >
+                        <BlockHandleOverlay editor={editor} containerRef={editorContainerRef} />
+                        <EditorContent editor={editor} />
                     </div>
-                )}
-
-                {/* Floating Toolbar for text selection */}
-                <FloatingToolbar editor={editor} />
-
-                {/* Document Header */}
-                <DocumentHeader />
-
-                {/* Editor Content */}
-                <div ref={editorContainerRef} className="px-16 py-8 min-h-[800px] relative">
-                    {/* Block Handle Overlay */}
-                    <BlockHandleOverlay editor={editor} containerRef={editorContainerRef} />
-                    <EditorContent editor={editor} />
                 </div>
 
-                {/* Document Footer */}
-                <DocumentFooter />
+                {/* Page gap overlays - visual only */}
+                {pageCount > 1 && Array.from({ length: pageCount - 1 }, (_, i) => (
+                    <div
+                        key={`page-gap-${i}`}
+                        className="absolute left-0 right-0 bg-[#0d1117] pointer-events-none z-40"
+                        style={{
+                            top: `${(i + 1) * PAGE_HEIGHT}px`,
+                            height: `${PAGE_GAP}px`,
+                        }}
+                    />
+                ))}
             </div>
 
             {/* Requirement Link Popup */}

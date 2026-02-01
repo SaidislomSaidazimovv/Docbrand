@@ -1,120 +1,153 @@
-/**
- * Markdown Paste Handler Extension for TipTap
- * 
- * Detects markdown syntax in pasted plain text and converts
- * to formatted TipTap content with proper styles.
- * 
- * Supports:
- * - # Heading 1, ## Heading 2, ### Heading 3
- * - **bold**, *italic*, ***bold italic***
- * - - bullet list, 1. ordered list
- * - --- horizontal rule
- * 
- * @see implementation_plan.md
- * 
- * NOTE: This is a NEW file - does not modify any existing code
- */
+'use client';
 
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 
+const markdownPasteKey = new PluginKey('markdownPaste');
+
 // =============================================================================
-// TYPES
+// Types
 // =============================================================================
 
 interface ParsedBlock {
-    type: 'heading' | 'paragraph' | 'bulletList' | 'orderedList' | 'horizontalRule';
+    type: 'heading' | 'paragraph' | 'bulletList' | 'orderedList' | 'horizontalRule' | 'emptyLine' | 'blockquote';
     level?: number;
     content: string;
-    marks?: Array<{ type: 'bold' | 'italic' }>;
-}
-
-interface MarkdownPasteState {
-    lastPasteWasMarkdown: boolean;
-    blockCount: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    textNodes?: any[];
 }
 
 // =============================================================================
-// PLUGIN KEY
+// Inline Parser - Handles bold, italic, links
 // =============================================================================
 
-export const markdownPasteKey = new PluginKey<MarkdownPasteState>('markdownPasteHandler');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseInlineMarkdown(text: string): any[] {
+    if (!text) return [];
 
-// =============================================================================
-// MARKDOWN PARSER
-// =============================================================================
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any[] = [];
+    let remaining = text;
 
-/**
- * Check if text contains markdown syntax
- */
-function containsMarkdownSyntax(text: string): boolean {
-    const markdownPatterns = [
-        /^#{1,6}\s+/m,           // Headings
-        /\*\*[^*]+\*\*/,         // Bold
-        /\*[^*]+\*/,             // Italic
-        /^[-*+]\s+/m,            // Bullet list
-        /^\d+\.\s+/m,            // Ordered list
-        /^---$/m,                // Horizontal rule
-        /^>\s+/m,                // Blockquote
-        /`[^`]+`/,               // Inline code
-    ];
+    // Combined pattern for all inline elements
+    // Order matters: process longer patterns first
+    const inlinePattern = /(\*\*\*(.+?)\*\*\*)|(\*\*(.+?)\*\*)|(\*([^*\n]+?)\*)|(\[([^\]]+)\]\(([^)]+)\))|(`([^`]+)`)/g;
 
-    return markdownPatterns.some(pattern => pattern.test(text));
-}
+    let lastIndex = 0;
+    let match;
 
-/**
- * Parse inline markdown marks (bold, italic)
- */
-function parseInlineMarks(text: string): { cleanText: string; hasBold: boolean; hasItalic: boolean } {
-    let cleanText = text;
-    let hasBold = false;
-    let hasItalic = false;
+    while ((match = inlinePattern.exec(text)) !== null) {
+        // Add plain text before match
+        if (match.index > lastIndex) {
+            const plainText = text.slice(lastIndex, match.index);
+            if (plainText) {
+                result.push({ type: 'text', text: plainText });
+            }
+        }
 
-    // Check for bold (**text** or __text__)
-    if (/\*\*[^*]+\*\*/.test(cleanText) || /__[^_]+__/.test(cleanText)) {
-        hasBold = true;
-        cleanText = cleanText.replace(/\*\*([^*]+)\*\*/g, '$1');
-        cleanText = cleanText.replace(/__([^_]+)__/g, '$1');
+        if (match[2]) {
+            // ***bold+italic*** - group 2
+            result.push({
+                type: 'text',
+                text: match[2],
+                marks: [{ type: 'bold' }, { type: 'italic' }],
+            });
+        } else if (match[4]) {
+            // **bold** - group 4
+            result.push({
+                type: 'text',
+                text: match[4],
+                marks: [{ type: 'bold' }],
+            });
+        } else if (match[6]) {
+            // *italic* - group 6
+            result.push({
+                type: 'text',
+                text: match[6],
+                marks: [{ type: 'italic' }],
+            });
+        } else if (match[8] && match[9]) {
+            // [text](url) - groups 8 (text) and 9 (url)
+            result.push({
+                type: 'text',
+                text: match[8],
+                marks: [{ type: 'link', attrs: { href: match[9] } }],
+            });
+        } else if (match[11]) {
+            // `code` - group 11
+            result.push({
+                type: 'text',
+                text: match[11],
+                marks: [{ type: 'code' }],
+            });
+        }
+
+        lastIndex = match.index + match[0].length;
     }
 
-    // Check for italic (*text* or _text_)
-    if (/\*[^*]+\*/.test(cleanText) || /_[^_]+_/.test(cleanText)) {
-        hasItalic = true;
-        cleanText = cleanText.replace(/\*([^*]+)\*/g, '$1');
-        cleanText = cleanText.replace(/_([^_]+)_/g, '$1');
+    // Add remaining plain text
+    if (lastIndex < text.length) {
+        const plainText = text.slice(lastIndex);
+        if (plainText) {
+            result.push({ type: 'text', text: plainText });
+        }
     }
 
-    return { cleanText, hasBold, hasItalic };
+    // If no matches found, return original text
+    if (result.length === 0) {
+        return [{ type: 'text', text }];
+    }
+
+    return result;
 }
 
-/**
- * Parse markdown text into blocks
- */
+// =============================================================================
+// Block Parser
+// =============================================================================
+
 function parseMarkdownToBlocks(text: string): ParsedBlock[] {
-    const lines = text.split('\n');
+    // Normalize line endings
+    const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = normalizedText.split('\n');
     const blocks: ParsedBlock[] = [];
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
 
-        // Skip empty lines
-        if (!line) continue;
+        // Empty line
+        if (!line) {
+            // Only add empty line if we have content before
+            if (blocks.length > 0 && blocks[blocks.length - 1].type !== 'emptyLine') {
+                blocks.push({ type: 'emptyLine', content: '' });
+            }
+            continue;
+        }
 
         // Horizontal rule
-        if (/^---$/.test(line) || /^\*\*\*$/.test(line) || /^___$/.test(line)) {
+        if (/^(---|\*\*\*|___)$/.test(line)) {
             blocks.push({ type: 'horizontalRule', content: '' });
             continue;
         }
 
-        // Headings (# to ######)
+        // Heading
         const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
         if (headingMatch) {
-            const level = headingMatch[1].length;
-            const { cleanText } = parseInlineMarks(headingMatch[2]);
             blocks.push({
                 type: 'heading',
-                level: Math.min(level, 3), // TipTap typically uses h1-h3
-                content: cleanText,
+                level: headingMatch[1].length as 1 | 2 | 3 | 4 | 5 | 6,
+                content: headingMatch[2],
+                textNodes: parseInlineMarkdown(headingMatch[2]),
+            });
+            continue;
+        }
+
+        // Blockquote
+        const quoteMatch = line.match(/^>\s*(.*)$/);
+        if (quoteMatch) {
+            blocks.push({
+                type: 'blockquote',
+                content: quoteMatch[1],
+                textNodes: parseInlineMarkdown(quoteMatch[1]),
             });
             continue;
         }
@@ -122,14 +155,10 @@ function parseMarkdownToBlocks(text: string): ParsedBlock[] {
         // Bullet list
         const bulletMatch = line.match(/^[-*+]\s+(.+)$/);
         if (bulletMatch) {
-            const { cleanText, hasBold, hasItalic } = parseInlineMarks(bulletMatch[1]);
-            const marks: Array<{ type: 'bold' | 'italic' }> = [];
-            if (hasBold) marks.push({ type: 'bold' });
-            if (hasItalic) marks.push({ type: 'italic' });
             blocks.push({
                 type: 'bulletList',
-                content: cleanText,
-                marks: marks.length > 0 ? marks : undefined,
+                content: bulletMatch[1],
+                textNodes: parseInlineMarkdown(bulletMatch[1]),
             });
             continue;
         }
@@ -137,63 +166,53 @@ function parseMarkdownToBlocks(text: string): ParsedBlock[] {
         // Ordered list
         const orderedMatch = line.match(/^\d+\.\s+(.+)$/);
         if (orderedMatch) {
-            const { cleanText, hasBold, hasItalic } = parseInlineMarks(orderedMatch[1]);
-            const marks: Array<{ type: 'bold' | 'italic' }> = [];
-            if (hasBold) marks.push({ type: 'bold' });
-            if (hasItalic) marks.push({ type: 'italic' });
             blocks.push({
                 type: 'orderedList',
-                content: cleanText,
-                marks: marks.length > 0 ? marks : undefined,
+                content: orderedMatch[1],
+                textNodes: parseInlineMarkdown(orderedMatch[1]),
             });
             continue;
         }
 
-        // Regular paragraph
-        const { cleanText, hasBold, hasItalic } = parseInlineMarks(line);
-        const marks: Array<{ type: 'bold' | 'italic' }> = [];
-        if (hasBold) marks.push({ type: 'bold' });
-        if (hasItalic) marks.push({ type: 'italic' });
+        // Regular paragraph with inline formatting
         blocks.push({
             type: 'paragraph',
-            content: cleanText,
-            marks: marks.length > 0 ? marks : undefined,
+            content: line,
+            textNodes: parseInlineMarkdown(line),
         });
     }
 
     return blocks;
 }
 
-/**
- * Convert parsed blocks to TipTap JSON content
- */
-function blocksToTipTapContent(blocks: ParsedBlock[]): object[] {
-    const content: object[] = [];
-    let currentBulletList: object[] = [];
-    let currentOrderedList: object[] = [];
+// =============================================================================
+// Convert to TipTap Content
+// =============================================================================
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function blocksToTipTapContent(blocks: ParsedBlock[]): any[] {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const content: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let currentBulletList: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let currentOrderedList: any[] = [];
 
     const flushBulletList = () => {
         if (currentBulletList.length > 0) {
-            content.push({
-                type: 'bulletList',
-                content: currentBulletList,
-            });
+            content.push({ type: 'bulletList', content: currentBulletList });
             currentBulletList = [];
         }
     };
 
     const flushOrderedList = () => {
         if (currentOrderedList.length > 0) {
-            content.push({
-                type: 'orderedList',
-                content: currentOrderedList,
-            });
+            content.push({ type: 'orderedList', content: currentOrderedList });
             currentOrderedList = [];
         }
     };
 
     for (const block of blocks) {
-        // Flush lists if switching types
         if (block.type !== 'bulletList') flushBulletList();
         if (block.type !== 'orderedList') flushOrderedList();
 
@@ -202,54 +221,57 @@ function blocksToTipTapContent(blocks: ParsedBlock[]): object[] {
                 content.push({
                     type: 'heading',
                     attrs: { level: block.level || 1 },
-                    content: [{ type: 'text', text: block.content }],
+                    content: block.textNodes && block.textNodes.length > 0
+                        ? block.textNodes
+                        : [{ type: 'text', text: block.content }],
                 });
                 break;
 
             case 'paragraph':
-                const textNode: { type: string; text: string; marks?: object[] } = {
-                    type: 'text',
-                    text: block.content,
-                };
-                if (block.marks) {
-                    textNode.marks = block.marks.map(m => ({ type: m.type }));
-                }
                 content.push({
                     type: 'paragraph',
-                    content: [textNode],
+                    content: block.textNodes && block.textNodes.length > 0
+                        ? block.textNodes
+                        : [{ type: 'text', text: block.content }],
+                });
+                break;
+
+            case 'emptyLine':
+                content.push({ type: 'paragraph', content: [] });
+                break;
+
+            case 'blockquote':
+                content.push({
+                    type: 'blockquote',
+                    content: [{
+                        type: 'paragraph',
+                        content: block.textNodes && block.textNodes.length > 0
+                            ? block.textNodes
+                            : [{ type: 'text', text: block.content }],
+                    }],
                 });
                 break;
 
             case 'bulletList':
-                const bulletTextNode: { type: string; text: string; marks?: object[] } = {
-                    type: 'text',
-                    text: block.content,
-                };
-                if (block.marks) {
-                    bulletTextNode.marks = block.marks.map(m => ({ type: m.type }));
-                }
                 currentBulletList.push({
                     type: 'listItem',
                     content: [{
                         type: 'paragraph',
-                        content: [bulletTextNode],
+                        content: block.textNodes && block.textNodes.length > 0
+                            ? block.textNodes
+                            : [{ type: 'text', text: block.content }],
                     }],
                 });
                 break;
 
             case 'orderedList':
-                const orderedTextNode: { type: string; text: string; marks?: object[] } = {
-                    type: 'text',
-                    text: block.content,
-                };
-                if (block.marks) {
-                    orderedTextNode.marks = block.marks.map(m => ({ type: m.type }));
-                }
                 currentOrderedList.push({
                     type: 'listItem',
                     content: [{
                         type: 'paragraph',
-                        content: [orderedTextNode],
+                        content: block.textNodes && block.textNodes.length > 0
+                            ? block.textNodes
+                            : [{ type: 'text', text: block.content }],
                     }],
                 });
                 break;
@@ -260,7 +282,6 @@ function blocksToTipTapContent(blocks: ParsedBlock[]): object[] {
         }
     }
 
-    // Flush any remaining lists
     flushBulletList();
     flushOrderedList();
 
@@ -268,33 +289,24 @@ function blocksToTipTapContent(blocks: ParsedBlock[]): object[] {
 }
 
 // =============================================================================
-// EXTENSION
+// Extension
 // =============================================================================
 
 export const MarkdownPasteHandler = Extension.create({
     name: 'markdownPasteHandler',
 
-    // Higher priority so it runs BEFORE PasteFirewall
-    priority: 110,
-
     addProseMirrorPlugins() {
         const editor = this.editor;
 
         return [
-            new Plugin<MarkdownPasteState>({
+            new Plugin({
                 key: markdownPasteKey,
 
                 state: {
-                    init: () => ({
-                        lastPasteWasMarkdown: false,
-                        blockCount: 0,
-                    }),
+                    init: () => ({ lastPasteWasMarkdown: false, blockCount: 0 }),
                     apply(tr, value) {
                         const meta = tr.getMeta(markdownPasteKey);
-                        if (meta) {
-                            return meta;
-                        }
-                        return value;
+                        return meta || value;
                     },
                 },
 
@@ -302,38 +314,28 @@ export const MarkdownPasteHandler = Extension.create({
                     handlePaste: (view, event) => {
                         const plainText = event.clipboardData?.getData('text/plain') || '';
 
-                        // Check if plain text contains markdown syntax
-                        // (Works for both web copy and plain text copy)
-                        if (!plainText || !containsMarkdownSyntax(plainText)) {
-                            return false; // Let default paste handle it
-                        }
+                        if (!plainText) return false;
 
                         // Parse markdown
                         const blocks = parseMarkdownToBlocks(plainText);
-                        if (blocks.length === 0) {
-                            return false;
-                        }
+                        if (blocks.length === 0) return false;
 
-                        // Convert to TipTap content
+                        console.log('[MarkdownPaste] Converted', blocks.length, 'blocks');
+
+                        // Convert to TipTap format
                         const tipTapContent = blocksToTipTapContent(blocks);
 
                         // Insert content
                         event.preventDefault();
                         try {
                             editor.commands.insertContent(tipTapContent);
-
-                            // Update state
-                            view.dispatch(
-                                view.state.tr.setMeta(markdownPasteKey, {
-                                    lastPasteWasMarkdown: true,
-                                    blockCount: blocks.length,
-                                })
-                            );
-
-                            console.log('[MarkdownPaste] Converted', blocks.length, 'blocks from markdown');
+                            view.dispatch(view.state.tr.setMeta(markdownPasteKey, {
+                                lastPasteWasMarkdown: true,
+                                blockCount: blocks.length,
+                            }));
                             return true;
                         } catch (error) {
-                            console.error('[MarkdownPaste] Error inserting content:', error);
+                            console.error('[MarkdownPaste] Error:', error);
                             return false;
                         }
                     },
@@ -342,17 +344,3 @@ export const MarkdownPasteHandler = Extension.create({
         ];
     },
 });
-
-// =============================================================================
-// HELPERS
-// =============================================================================
-
-/**
- * Get current markdown paste state
- */
-export function getMarkdownPasteState(editor: { state: { doc: object } }): MarkdownPasteState | null {
-    if (!editor?.state) return null;
-    return markdownPasteKey.getState(editor.state as Parameters<typeof markdownPasteKey.getState>[0]) || null;
-}
-
-export default MarkdownPasteHandler;
