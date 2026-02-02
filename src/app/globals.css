@@ -54,7 +54,7 @@ body {
 
 /* Document editor styles */
 .document-editor {
-  background: var(--doc-bg);
+  background: #ffffff !important;
   color: var(--doc-text);
   min-height: 100%;
   overflow: visible;

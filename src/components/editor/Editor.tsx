@@ -411,7 +411,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                     {/* Editor Content */}
                     <div
                         ref={editorContentRef}
-                        className="px-16 py-8 relative"
+                        className="px-16 py-2 relative"
                     >
                         <BlockHandleOverlay editor={editor} containerRef={editorContainerRef} />
                         <EditorContent editor={editor} />
