@@ -52,13 +52,22 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
         const blockRect = block.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
 
-        // Calculate handle top - center handle with first line of content
-        // lineHeight is ~24px, handle is 24px, so just use blockRect.top
-        const handleTop = blockRect.top - containerRect.top;
+        // Calculate handle top - account for 72px padding added to container
+        // BlockHandleOverlay renders inside editorContentRef, which is already inside padding
+        // So we subtract padding to get position relative to editorContentRef
+        const CONTAINER_PADDING = 72;
+
+        // No vertical offset needed since paragraph padding is now 0
+        const handleTop = blockRect.top - containerRect.top - CONTAINER_PADDING;
+
+        // Handles should appear to the LEFT of content
+        // Since we're inside editorContentRef (which is inside padding),
+        // use NEGATIVE value to position handles to the left
+        const handleLeft = -56;
 
         setHandlePosition({
             top: handleTop,
-            left: 20, // Closer to content
+            left: handleLeft,
             pos,
             blockElement: block,
         });

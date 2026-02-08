@@ -33,7 +33,7 @@ import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
 import { DocumentHeader } from './DocumentHeaderFooter';
 import RequirementLinkPopup from './RequirementLinkPopup';
-import { PageBreakExtension, PAGE_HEIGHT, PAGE_GAP } from './extensions/PageBreakExtension';
+// Removed PageBreakExtension - using infinite scroll instead
 // DocBrand Path E Architecture imports
 import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper, NodeSelectionExtension, LinkedBlockDecorator, markBlockAsLinked } from '@/lib/editor';
 
@@ -43,7 +43,7 @@ interface EditorProps {
 
 export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const setEditor = useEditorStore((state) => state.setEditor);
-    const setStorePageCount = useEditorStore((state) => state.setPageCount);
+    // Removed pageCount - no longer using pagination
     const { requirements, activeLinkingReqId, linkToBlock, setLinkingMode } = useRequirementsStore();
 
     // Popup state
@@ -59,21 +59,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const editorContainerRef = useRef<HTMLDivElement>(null);
     const editorContentRef = useRef<HTMLDivElement>(null);
 
-    // Page count from PageBreakExtension (for minHeight calculation)
-    const [pageCount, setPageCount] = useState(1);
-
-    // Listen for page count updates from extension
-    useEffect(() => {
-        const handlePageBreaksUpdate = (e: CustomEvent) => {
-            const newPageCount = e.detail.pageCount;
-            setPageCount(newPageCount);
-            setStorePageCount(newPageCount); // Update store for StatusBar
-        };
-        document.addEventListener('pagebreaks-updated', handlePageBreaksUpdate as EventListener);
-        return () => {
-            document.removeEventListener('pagebreaks-updated', handlePageBreaksUpdate as EventListener);
-        };
-    }, [setStorePageCount]);
+    // Removed pageCount state and listener - no pagination needed
 
     // Count unlinked requirements
     const hasUnlinkedReqs = requirements.some(r => r.status === 'unlinked');
@@ -182,13 +168,14 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             BlockIndex,
             NodeSelectionExtension, // Alt+Click/Alt+A block selection
             LinkedBlockDecorator, // Persistent visual indicators for linked blocks
-            PageBreakExtension, // Auto page breaks
+            // Removed PageBreakExtension - infinite scroll instead
         ],
         immediatelyRender: false,
         content: '', // Empty by default
         editorProps: {
             attributes: {
                 class: 'prose prose-slate max-w-none focus:outline-none min-h-[800px]',
+                style: 'white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word;',
             },
         },
     });
@@ -220,13 +207,17 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 font-size: ${fontSize}px !important;
                 line-height: ${lineHeight} !important;
                 position: relative;
+                white-space: pre-wrap;
+                overflow-wrap: break-word;
+                word-break: break-word;
+                max-width: 100%;
             }
             .ProseMirror p {
                 font-family: '${fontFamily}', sans-serif !important;
                 font-size: ${fontSize}px !important;
                 line-height: ${lineHeight} !important;
-                margin-top: ${spaceBefore}pt !important;
-                margin-bottom: ${spaceAfter}pt !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
                 text-indent: ${firstLineIndent}in !important;
                 position: relative;
             }
@@ -378,15 +369,16 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 </button>
             )}
 
-            {/* Word-style Multi-Page Document */}
+            {/* Infinite Scroll Document */}
             <div className="w-full max-w-[800px] relative">
-                {/* Single white container */}
+                {/* Single white container that grows with content */}
                 <div
                     ref={editorContainerRef}
                     onClick={handleEditorClick}
                     className={`w-full bg-white rounded-lg shadow-2xl document-editor transition-all relative ${isLinkingMode ? 'ring-2 ring-[#388bfd] cursor-crosshair' : ''}`}
                     style={{
-                        minHeight: `${PAGE_HEIGHT}px`,
+                        minHeight: '800px',
+                        padding: '72px',
                     }}
                 >
                     {/* Red Line Indicator for unlinked requirements */}
@@ -408,27 +400,20 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                     {/* Document Header */}
                     <DocumentHeader />
 
-                    {/* Editor Content */}
+                    {/* Editor Content with proper text wrapping */}
                     <div
                         ref={editorContentRef}
-                        className="px-16 py-2 relative"
+                        className="relative"
+                        style={{
+                            maxWidth: '100%',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word',
+                        }}
                     >
                         <BlockHandleOverlay editor={editor} containerRef={editorContainerRef} />
                         <EditorContent editor={editor} />
                     </div>
                 </div>
-
-                {/* Page gap overlays - visual only */}
-                {pageCount > 1 && Array.from({ length: pageCount - 1 }, (_, i) => (
-                    <div
-                        key={`page-gap-${i}`}
-                        className="absolute left-0 right-0 bg-[#0d1117] pointer-events-none z-40"
-                        style={{
-                            top: `${(i + 1) * PAGE_HEIGHT}px`,
-                            height: `${PAGE_GAP}px`,
-                        }}
-                    />
-                ))}
             </div>
 
             {/* Requirement Link Popup */}
