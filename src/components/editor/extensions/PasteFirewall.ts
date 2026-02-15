@@ -39,7 +39,7 @@ export interface PasteFirewallState {
 export const pasteFirewallKey = new PluginKey<PasteFirewallState>('pasteFirewall');
 
 // =============================================================================
-// HTML SANITIZER - Preserves semantic tags like <strong>, <em>, <a>
+// HTML SANITIZER - Preserves semantic structure while removing styles
 // =============================================================================
 
 function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteChange[] } {
@@ -54,6 +54,7 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
     let colorRemoved = false;
     let fontSizeRemoved = false;
     let classesRemoved = false;
+    let backgroundRemoved = false;
 
     // Strip inline styles from ALL elements
     doc.querySelectorAll('[style]').forEach(el => {
@@ -63,9 +64,13 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
             changes.push({ icon: '🔤', text: 'Font family removed' });
             fontFamilyRemoved = true;
         }
-        if ((style.includes('color') || style.includes('background')) && !colorRemoved) {
-            changes.push({ icon: '🎨', text: 'Inline colors removed' });
+        if (style.includes('color') && !colorRemoved) {
+            changes.push({ icon: '🎨', text: 'Text colors removed' });
             colorRemoved = true;
+        }
+        if (style.includes('background') && !backgroundRemoved) {
+            changes.push({ icon: '🖌️', text: 'Background colors removed' });
+            backgroundRemoved = true;
         }
         if (style.includes('font-size') && !fontSizeRemoved) {
             changes.push({ icon: '📏', text: 'Font sizes normalized' });
@@ -84,11 +89,17 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
         el.removeAttribute('class');
     });
 
-    // Strip MS Office specific elements and metadata
-    doc.querySelectorAll('meta, style, link, script, o\\:p, xml, br').forEach(el => el.remove());
+    // Remove unwanted elements
+    doc.querySelectorAll('meta, style, link, script, o\\:p, xml').forEach(el => el.remove());
+
+    // Block-level tags to preserve (semantic structure)
+    const blockTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'PRE'];
 
     // Inline tags to preserve (semantic formatting)
     const inlineTags = ['STRONG', 'B', 'EM', 'I', 'U', 'A', 'CODE', 'S', 'STRIKE', 'SUB', 'SUP'];
+
+    // Allowed tags (both block and inline)
+    const allowedTags = [...blockTags, ...inlineTags];
 
     // Function to unwrap a tag (keep children, remove tag)
     const unwrapElement = (el: Element) => {
@@ -101,20 +112,26 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
         }
     };
 
-    // Unwrap all block-level and non-semantic inline tags
-    // Keep only: strong, em, a, u, code, etc.
+    // Convert DIV and SPAN to appropriate tags or unwrap
+    doc.querySelectorAll('div, span').forEach(el => {
+        // If has block children, replace with fragment
+        // If has only inline content, unwrap to preserve text
+        unwrapElement(el);
+    });
+
+    // Remove non-semantic tags
     const allElements = Array.from(doc.body.querySelectorAll('*'));
     for (const el of allElements) {
-        if (!inlineTags.includes(el.tagName)) {
+        if (!allowedTags.includes(el.tagName)) {
             unwrapElement(el);
         }
     }
 
-    // Get final HTML - should only have text and inline formatting
+    // Get final HTML
     let result = doc.body.innerHTML;
 
-    // Clean up multiple spaces
-    result = result.replace(/\s+/g, ' ').trim();
+    // Clean up excessive whitespace but preserve structure
+    result = result.replace(/\s{2,}/g, ' ').trim();
 
     return {
         afterHtml: result,

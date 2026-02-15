@@ -119,6 +119,14 @@ export async function commitSnapshot(prepared: {
     const { docRecord, metaRecords, presentBlockIds } = prepared;
     const docId = docRecord.id;
 
+    // 🔒 TRANSACTION SAFETY: Query OUTSIDE transaction
+    // Avoids TransactionInactiveError from async reads inside write block
+    const allMeta = await db.blockMeta.where('docId').equals(docId).toArray();
+    const staleIds = allMeta
+        .filter(m => !presentBlockIds.has(m.blockId))
+        .map(m => m.id);
+
+    // 💾 Transaction: Pure writes only
     await db.transaction('rw', db.documents, db.blockMeta, async () => {
         // 1. Write doc
         await db.documents.put(docRecord);
@@ -127,11 +135,6 @@ export async function commitSnapshot(prepared: {
         await db.blockMeta.bulkPut(metaRecords);
 
         // 3. Delete absent blocks (GARBAGE COLLECTION)
-        const allMeta = await db.blockMeta.where('docId').equals(docId).toArray();
-        const staleIds = allMeta
-            .filter(m => !presentBlockIds.has(m.blockId))
-            .map(m => m.id);
-
         if (staleIds.length > 0) {
             await db.blockMeta.bulkDelete(staleIds);
         }

@@ -112,24 +112,41 @@ export const BlockIndex = Extension.create({
 
 /**
  * Get block position by ID from state
+ * Returns null if block not found or plugin not initialized
  */
 export function getBlockPosition(state: { doc: ProseMirrorNode }, blockId: string): BlockPosition | null {
-    // Need to use the plugin key to access state
-    const pluginState = BlockIndexPluginKey.getState(state as Parameters<typeof BlockIndexPluginKey.getState>[0]);
-    return pluginState?.blocks.get(blockId) ?? null;
+    // Type guard and null check
+    if (!state || !('doc' in state)) return null;
+
+    try {
+        const pluginState = BlockIndexPluginKey.getState(state as Parameters<typeof BlockIndexPluginKey.getState>[0]);
+        if (!pluginState || !pluginState.blocks) return null;
+
+        return pluginState.blocks.get(blockId) ?? null;
+    } catch {
+        // Plugin not registered or state invalid
+        return null;
+    }
 }
 
 /**
  * Get all block IDs from the document
+ * Returns empty array if plugin not initialized
  */
 export function getAllBlockIds(state: { doc: ProseMirrorNode }): string[] {
-    const pluginState = BlockIndexPluginKey.getState(state as Parameters<typeof BlockIndexPluginKey.getState>[0]);
-    if (!pluginState) return [];
+    if (!state || !('doc' in state)) return [];
 
-    const entries = Array.from(pluginState.blocks.entries());
-    entries.sort((a, b) => a[1].pos - b[1].pos);
+    try {
+        const pluginState = BlockIndexPluginKey.getState(state as Parameters<typeof BlockIndexPluginKey.getState>[0]);
+        if (!pluginState || !pluginState.blocks) return [];
 
-    return entries.map(([id]) => id);
+        const entries = Array.from(pluginState.blocks.entries());
+        entries.sort((a, b) => a[1].pos - b[1].pos);
+
+        return entries.map(([id]) => id);
+    } catch {
+        return [];
+    }
 }
 
 export default BlockIndex;

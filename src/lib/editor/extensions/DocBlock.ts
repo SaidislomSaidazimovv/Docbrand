@@ -145,9 +145,10 @@ export const DocBlock = Node.create<{
 
 /**
  * Generate a new unique block ID
+ * Uses full UUID for maximum collision resistance
  */
 export function generateBlockId(): string {
-    return `block-${uuidv4().slice(0, 8)}`;
+    return uuidv4();
 }
 
 /**

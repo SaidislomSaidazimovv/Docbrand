@@ -80,30 +80,80 @@ export default function ExportModal({ onClose }: ExportModalProps) {
 
                 const container = document.createElement('div');
                 container.innerHTML = htmlContent;
+
+                // Container base styles with proper text wrapping
+                container.style.width = '210mm'; // A4 width
+                container.style.maxWidth = '100%';
                 container.style.padding = '40px';
                 container.style.fontFamily = 'Inter, sans-serif';
                 container.style.fontSize = '14px';
                 container.style.lineHeight = '1.6';
                 container.style.color = '#1f2328';
+                container.style.wordWrap = 'break-word';
+                container.style.wordBreak = 'break-word';
+                container.style.overflowWrap = 'break-word';
+                container.style.whiteSpace = 'normal';
 
+                // Style all paragraphs
+                container.querySelectorAll('p').forEach((p) => {
+                    (p as HTMLElement).style.marginBottom = '12px';
+                    (p as HTMLElement).style.wordWrap = 'break-word';
+                    (p as HTMLElement).style.overflowWrap = 'break-word';
+                });
+
+                // Style H1
                 container.querySelectorAll('h1').forEach((h1) => {
                     (h1 as HTMLElement).style.fontSize = '28px';
                     (h1 as HTMLElement).style.fontWeight = '700';
                     (h1 as HTMLElement).style.marginBottom = '16px';
+                    (h1 as HTMLElement).style.marginTop = '24px';
+                    (h1 as HTMLElement).style.wordWrap = 'break-word';
                 });
 
+                // Style H2
                 container.querySelectorAll('h2').forEach((h2) => {
                     (h2 as HTMLElement).style.fontSize = '22px';
                     (h2 as HTMLElement).style.fontWeight = '600';
                     (h2 as HTMLElement).style.marginTop = '24px';
                     (h2 as HTMLElement).style.marginBottom = '12px';
+                    (h2 as HTMLElement).style.wordWrap = 'break-word';
+                });
+
+                // Style H3-H6
+                container.querySelectorAll('h3').forEach((h3) => {
+                    (h3 as HTMLElement).style.fontSize = '18px';
+                    (h3 as HTMLElement).style.fontWeight = '600';
+                    (h3 as HTMLElement).style.marginTop = '20px';
+                    (h3 as HTMLElement).style.marginBottom = '10px';
+                });
+
+                container.querySelectorAll('h4, h5, h6').forEach((h) => {
+                    (h as HTMLElement).style.fontSize = '16px';
+                    (h as HTMLElement).style.fontWeight = '600';
+                    (h as HTMLElement).style.marginTop = '16px';
+                    (h as HTMLElement).style.marginBottom = '8px';
+                });
+
+                // Style lists
+                container.querySelectorAll('ul, ol').forEach((list) => {
+                    (list as HTMLElement).style.marginBottom = '12px';
+                    (list as HTMLElement).style.paddingLeft = '24px';
+                });
+
+                container.querySelectorAll('li').forEach((li) => {
+                    (li as HTMLElement).style.marginBottom = '6px';
+                    (li as HTMLElement).style.wordWrap = 'break-word';
                 });
 
                 const options = {
                     margin: 10,
                     filename: fullFileName,
                     image: { type: 'jpeg' as const, quality: 0.98 },
-                    html2canvas: { scale: 2 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        letterRendering: true,
+                    },
                     jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
                 };
 
@@ -120,25 +170,121 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const children: any[] = [];
 
-                tempDiv.childNodes.forEach((node) => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const element = node as HTMLElement;
-                        const text = element.textContent || '';
+                /**
+                 * Process a node (element or text) into DOCX nodes
+                 */
+                const processNode = (node: Node, formatting: { bold?: boolean; italic?: boolean } = {}): any[] => {
+                    const results: any[] = [];
 
-                        if (element.tagName === 'H1') {
-                            children.push(
-                                new Paragraph({ text, heading: HeadingLevel.HEADING_1 })
-                            );
-                        } else if (element.tagName === 'H2') {
-                            children.push(
-                                new Paragraph({ text, heading: HeadingLevel.HEADING_2 })
-                            );
-                        } else if (element.tagName === 'P') {
-                            children.push(
-                                new Paragraph({ children: [new TextRun(text)] })
-                            );
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const text = node.textContent || '';
+                        if (text.trim()) {
+                            results.push(new TextRun({
+                                text,
+                                bold: formatting.bold,
+                                italics: formatting.italic
+                            }));
                         }
+                        return results;
                     }
+
+                    if (node.nodeType !== Node.ELEMENT_NODE) return [];
+
+                    const element = node as HTMLElement;
+
+                    // Process children with inherited formatting
+                    const processChildren = (additionalFormatting: { bold?: boolean; italic?: boolean } = {}) => {
+                        const merged = { ...formatting, ...additionalFormatting };
+                        const childResults: any[] = [];
+                        element.childNodes.forEach(child => {
+                            childResults.push(...processNode(child, merged));
+                        });
+                        return childResults;
+                    };
+
+                    switch (element.tagName) {
+                        case 'H1':
+                        case 'H2':
+                        case 'H3':
+                        case 'H4':
+                        case 'H5':
+                        case 'H6': {
+                            const level = parseInt(element.tagName[1]);
+                            const headingLevels = [
+                                HeadingLevel.HEADING_1,
+                                HeadingLevel.HEADING_2,
+                                HeadingLevel.HEADING_3,
+                                HeadingLevel.HEADING_4,
+                                HeadingLevel.HEADING_5,
+                                HeadingLevel.HEADING_6,
+                            ];
+                            children.push(new Paragraph({
+                                heading: headingLevels[level - 1],
+                                children: processChildren(),
+                            }));
+                            break;
+                        }
+                        case 'P':
+                            children.push(new Paragraph({
+                                children: processChildren(),
+                            }));
+                            break;
+                        case 'LI':
+                            // List items are handled by parent UL/OL
+                            children.push(new Paragraph({
+                                children: processChildren(),
+                                bullet: { level: 0 },
+                            }));
+                            break;
+                        case 'UL':
+                        case 'OL':
+                            // Process each list item
+                            element.querySelectorAll(':scope > li').forEach(li => {
+                                processNode(li, formatting);
+                            });
+                            break;
+                        case 'BLOCKQUOTE':
+                            children.push(new Paragraph({
+                                children: processChildren(),
+                                indent: { left: 720 }, // Indent blockquotes
+                            }));
+                            break;
+                        case 'PRE':
+                        case 'CODE':
+                            children.push(new Paragraph({
+                                children: processChildren(),
+                                style: 'code',
+                            }));
+                            break;
+                        case 'STRONG':
+                        case 'B':
+                            return processChildren({ bold: true });
+                        case 'EM':
+                        case 'I':
+                            return processChildren({ italic: true });
+                        case 'BR':
+                            results.push(new TextRun({ text: '', break: 1 }));
+                            break;
+                        case 'DIV':
+                            // DocBlock wrapper - process children as separate paragraphs
+                            if (element.classList.contains('doc-block') || element.hasAttribute('data-block-id')) {
+                                element.childNodes.forEach(child => processNode(child, formatting));
+                            } else {
+                                // Regular div - unwrap
+                                results.push(...processChildren());
+                            }
+                            break;
+                        default:
+                            // Unknown tag - process children
+                            results.push(...processChildren());
+                    }
+
+                    return results;
+                };
+
+                // Process all top-level nodes
+                tempDiv.childNodes.forEach((node) => {
+                    processNode(node);
                 });
 
                 // Step 4: Finalizing

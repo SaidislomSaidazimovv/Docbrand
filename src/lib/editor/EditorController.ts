@@ -59,24 +59,13 @@ class EditorControllerClass {
 
     /**
      * Force editor to re-render by dispatching empty transaction
-     * Also clears any stale DOM visual indicators
+     * Triggers LinkedBlockDecorator to update visual indicators
      */
     forceRefresh(): void {
         if (!this.isReady()) return;
 
-        // Clear any stale linked block indicators from DOM
-        const linkedElements = document.querySelectorAll('.block-linked, [data-linked="true"]');
-        linkedElements.forEach((el) => {
-            const htmlEl = el as HTMLElement;
-            htmlEl.style.borderLeft = '';
-            htmlEl.style.paddingLeft = '';
-            htmlEl.style.marginLeft = '';
-            htmlEl.classList.remove('block-linked');
-            htmlEl.removeAttribute('data-linked');
-            htmlEl.removeAttribute('data-block-id');
-        });
-
-        // Dispatch empty transaction to trigger re-render
+        // Dispatch empty transaction to trigger decorator re-computation
+        // This is the correct way to refresh visual state in ProseMirror
         const { state, view } = this.editor!;
         view.dispatch(state.tr);
         console.log('[EditorController] Forced refresh');
