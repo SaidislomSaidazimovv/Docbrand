@@ -12,6 +12,7 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
     const [showToolbar, setShowToolbar] = useState(false);
     const [position, setPosition] = useState({ top: 0, left: 0 });
     const [showStyleDropdown, setShowStyleDropdown] = useState(false);
+    const [, setForceUpdate] = useState(0); // Force re-render for active states
     const toolbarRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -38,13 +39,18 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
 
             setPosition({ top: Math.max(10, top), left });
             setShowToolbar(true);
+
+            // Force re-render to update button active states
+            setForceUpdate(n => n + 1);
         };
 
         editor.on('selectionUpdate', updateToolbar);
+        editor.on('transaction', updateToolbar); // Also on formatting changes
         editor.on('blur', () => setShowToolbar(false));
 
         return () => {
             editor.off('selectionUpdate', updateToolbar);
+            editor.off('transaction', updateToolbar);
             editor.off('blur', () => setShowToolbar(false));
         };
     }, [editor]);
@@ -138,8 +144,8 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
             <button
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 className={`p-2 rounded-lg transition-colors ${editor.isActive('bold')
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'hover:bg-gray-100 text-gray-600'
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'hover:bg-gray-100 text-gray-600'
                     }`}
                 title="Bold"
             >
@@ -150,8 +156,8 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
             <button
                 onClick={() => editor.chain().focus().toggleItalic().run()}
                 className={`p-2 rounded-lg transition-colors ${editor.isActive('italic')
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'hover:bg-gray-100 text-gray-600'
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'hover:bg-gray-100 text-gray-600'
                     }`}
                 title="Italic"
             >
@@ -162,8 +168,8 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
             <button
                 onClick={() => editor.chain().focus().toggleUnderline().run()}
                 className={`p-2 rounded-lg transition-colors ${editor.isActive('underline')
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'hover:bg-gray-100 text-gray-600'
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'hover:bg-gray-100 text-gray-600'
                     }`}
                 title="Underline"
             >
@@ -177,8 +183,8 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
             <button
                 onClick={handleLink}
                 className={`p-2 rounded-lg transition-colors ${editor.isActive('link')
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'hover:bg-gray-100 text-gray-600'
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'hover:bg-gray-100 text-gray-600'
                     }`}
                 title="Link"
             >
@@ -189,8 +195,8 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
             <button
                 onClick={() => editor.chain().focus().toggleCode().run()}
                 className={`p-2 rounded-lg transition-colors ${editor.isActive('code')
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'hover:bg-gray-100 text-gray-600'
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'hover:bg-gray-100 text-gray-600'
                     }`}
                 title="Code"
             >
