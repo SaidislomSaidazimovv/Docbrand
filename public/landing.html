@@ -1,0 +1,4051 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DocBrand — Professional Proposal Editor with RFP Tracking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0b;
+      --bg-secondary: #111113;
+      --bg-card: #16161a;
+      --bg-card-hover: #1c1c21;
+      --border: #222228;
+      --border-subtle: #1a1a1f;
+      --text-primary: #f0f0f2;
+      --text-secondary: #8b8b96;
+      --text-tertiary: #55555e;
+      --accent: #3fb950;
+      --accent-dim: #2ea043;
+      --accent-glow: rgba(63, 185, 80, 0.15);
+      --accent-glow-strong: rgba(63, 185, 80, 0.3);
+      --red: #f85149;
+      --yellow: #d29922;
+      --blue: #58a6ff;
+      --font-body: 'DM Sans', -apple-system, sans-serif;
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   UTILITY
+   ═══════════════════════════════════════════════════════════════ */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      line-height: 1.15;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 540px;
+      line-height: 1.7;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   SCROLL ANIMATIONS
+   ═══════════════════════════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 {
+      transition-delay: 0.1s;
+    }
+
+    .reveal-delay-2 {
+      transition-delay: 0.2s;
+    }
+
+    .reveal-delay-3 {
+      transition-delay: 0.3s;
+    }
+
+    .reveal-delay-4 {
+      transition-delay: 0.4s;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   NAVBAR
+   ═══════════════════════════════════════════════════════════════ */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background: rgba(10, 10, 11, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .navbar.scrolled {
+      border-bottom-color: var(--border);
+      background: rgba(10, 10, 11, 0.92);
+    }
+
+    .navbar .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #000;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+      font-weight: 450;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-ghost {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-weight: 500;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text-primary);
+      background: var(--bg-card);
+    }
+
+    .btn-primary {
+      font-size: 0.875rem;
+      color: #000;
+      background: var(--accent);
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:hover {
+      background: #4cc764;
+      box-shadow: 0 0 24px var(--accent-glow-strong);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary-lg {
+      padding: 14px 32px;
+      font-size: 0.95rem;
+      border-radius: 10px;
+    }
+
+    /* Mobile nav toggle */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-primary);
+      margin: 5px 0;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════════════════════ */
+    .hero {
+      padding: 160px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ambient glow */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      animation: heroGlow 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes heroGlow {
+      0% {
+        opacity: 0.5;
+        transform: translateX(-50%) scale(1);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.1);
+      }
+    }
+
+    /* Subtle grid pattern */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border-subtle) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .hero .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 16px 6px 8px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .hero-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 var(--accent-glow-strong);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px transparent;
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      line-height: 1.08;
+      font-weight: 400;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.9s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent);
+      position: relative;
+    }
+
+    .hero-title em::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+      opacity: 0.4;
+      border-radius: 2px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      animation: fadeInUp 0.9s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 64px;
+      animation: fadeInUp 0.9s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .btn-outline {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--text-tertiary);
+      background: var(--bg-card);
+    }
+
+    .btn-outline svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Hero product mockup */
+    .hero-mockup {
+      position: relative;
+      max-width: 1060px;
+      margin: 0 auto;
+      animation: fadeInUp 1s 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .hero-mockup-frame {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px var(--border),
+        0 20px 60px -12px rgba(0, 0, 0, 0.5),
+        0 0 120px -20px var(--accent-glow);
+      position: relative;
+    }
+
+    /* Window chrome */
+    .mockup-chrome {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .mockup-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .mockup-dot:nth-child(1) {
+      background: #f85149;
+    }
+
+    .mockup-dot:nth-child(2) {
+      background: #d29922;
+    }
+
+    .mockup-dot:nth-child(3) {
+      background: #3fb950;
+    }
+
+    .mockup-url {
+      flex: 1;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    /* Editor layout inside mockup */
+    .mockup-body {
+      display: grid;
+      grid-template-columns: 220px 1fr 240px;
+      min-height: 420px;
+    }
+
+    /* Left panel - RFP Requirements */
+    .mock-sidebar-left {
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      background: var(--bg-primary);
+    }
+
+    .mock-sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .mock-coverage {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mock-coverage-val {
+      font-family: var(--font-mono);
+      color: var(--red);
+      font-size: 0.85rem;
+    }
+
+    .mock-progress {
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .mock-progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--red));
+      width: 0%;
+      animation: fillProgress 2s 1.5s ease-out forwards;
+    }
+
+    @keyframes fillProgress {
+      to {
+        width: 35%;
+      }
+    }
+
+    .mock-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mock-tab {
+      flex: 1;
+      font-size: 0.65rem;
+      padding: 8px 0;
+      text-align: center;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .mock-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .mock-req-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mock-req-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.7rem;
+      opacity: 0;
+      animation: slideInLeft 0.5s ease-out forwards;
+      cursor: default;
+      transition: background 0.2s;
+    }
+
+    .mock-req-item:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .mock-req-item:nth-child(1) {
+      animation-delay: 1.8s;
+    }
+
+    .mock-req-item:nth-child(2) {
+      animation-delay: 2.0s;
+    }
+
+    .mock-req-item:nth-child(3) {
+      animation-delay: 2.2s;
+    }
+
+    .mock-req-item:nth-child(4) {
+      animation-delay: 2.4s;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .mock-req-name {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .mock-req-status {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+    }
+
+    .mock-req-status.linked {
+      color: var(--accent);
+    }
+
+    .mock-req-status.unlinked {
+      color: var(--text-tertiary);
+    }
+
+    /* Center - Editor area */
+    .mock-editor {
+      padding: 32px 48px;
+      background: var(--bg-secondary);
+      position: relative;
+    }
+
+    .mock-editor-toolbar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mock-tool-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-tertiary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+      transition: all 0.15s;
+    }
+
+    .mock-tool-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .mock-tool-btn.active-tool {
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+
+    .mock-doc {
+      background: #fff;
+      border-radius: 4px;
+      padding: 32px 40px;
+      min-height: 280px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .mock-heading {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: #111;
+      margin-bottom: 12px;
+      font-weight: 400;
+      opacity: 0;
+      animation: typeIn 0.6s 2s ease-out forwards;
+    }
+
+    .mock-para {
+      font-size: 0.78rem;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 12px;
+      opacity: 0;
+    }
+
+    .mock-para:nth-child(2) {
+      animation: typeIn 0.5s 2.3s ease-out forwards;
+    }
+
+    .mock-para:nth-child(3) {
+      animation: typeIn 0.5s 2.5s ease-out forwards;
+    }
+
+    @keyframes typeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mock-linked-block {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      background: rgba(63, 185, 80, 0.04);
+      margin: 8px 0;
+      opacity: 0;
+      animation: typeIn 0.5s 2.7s ease-out forwards;
+    }
+
+    .mock-linked-block .mock-para {
+      opacity: 1;
+      animation: none;
+      color: #333;
+    }
+
+    /* Right panel - Quality Scanner */
+    .mock-sidebar-right {
+      border-left: 1px solid var(--border);
+      padding: 16px;
+      background: var(--bg-primary);
+    }
+
+    .mock-panel-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .mock-panel-desc {
+      font-size: 0.65rem;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .mock-scan-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+    }
+
+    .mock-scan-tab {
+      font-size: 0.62rem;
+      padding: 6px 12px;
+      color: var(--text-tertiary);
+      border-bottom: 2px solid transparent;
+      font-weight: 500;
+    }
+
+    .mock-scan-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .mock-scan-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-weight: 600;
+      font-size: 0.75rem;
+      cursor: default;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .mock-scan-result {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: var(--bg-card);
+      margin-bottom: 6px;
+      font-size: 0.65rem;
+      opacity: 0;
+      animation: slideInRight 0.4s ease-out forwards;
+    }
+
+    .mock-scan-result:nth-child(1) {
+      animation-delay: 3s;
+    }
+
+    .mock-scan-result:nth-child(2) {
+      animation-delay: 3.2s;
+    }
+
+    .mock-scan-result:nth-child(3) {
+      animation-delay: 3.4s;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .scan-icon {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .scan-icon.pass {
+      background: var(--accent);
+    }
+
+    .scan-icon.warn {
+      background: var(--yellow);
+    }
+
+    .scan-icon.fail {
+      background: var(--red);
+    }
+
+    .scan-label {
+      color: var(--text-secondary);
+    }
+
+    /* Gradient fade at bottom of mockup */
+    .hero-mockup::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to top, var(--bg-primary) 10%, transparent);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   TRUSTED BY / LOGOS
+   ═══════════════════════════════════════════════════════════════ */
+    .trusted {
+      padding: 60px 0 80px;
+      text-align: center;
+      position: relative;
+    }
+
+    .trusted-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 32px;
+      font-weight: 500;
+    }
+
+    .trusted-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      opacity: 0.4;
+    }
+
+    .trusted-logo {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trusted-logo span {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      background: var(--bg-card);
+      border-radius: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   STATS STRIP
+   ═══════════════════════════════════════════════════════════════ */
+    .stats {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats .container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+
+    .stat-item {
+      padding: 20px 0;
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      color: var(--text-primary);
+      font-weight: 400;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-num .accent {
+      color: var(--accent);
+    }
+
+    .stat-desc {
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   FEATURES GRID
+   ═══════════════════════════════════════════════════════════════ */
+    .features {
+      padding: 120px 0;
+    }
+
+    .features-header {
+      margin-bottom: 64px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.35s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border);
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(63, 185, 80, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    .feature-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feature-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .feature-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* Large feature card */
+    .feature-card.large {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      padding: 40px;
+    }
+
+    .feature-card.large .feature-visual {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   WORKFLOW / HOW IT WORKS
+   ═══════════════════════════════════════════════════════════════ */
+    .workflow {
+      padding: 120px 0;
+      position: relative;
+    }
+
+    .workflow::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(ellipse 50% 40% at 80% 50%, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.3;
+    }
+
+    .workflow-header {
+      text-align: center;
+      margin-bottom: 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .workflow-header .section-desc {
+      margin: 0 auto;
+    }
+
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Connecting line */
+    .workflow-steps::before {
+      content: '';
+      position: absolute;
+      top: 36px;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), var(--border), transparent);
+    }
+
+    .step-card {
+      text-align: center;
+      position: relative;
+    }
+
+    .step-num {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s;
+    }
+
+    .step-card:hover .step-num {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .step-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   COMPARISON SECTION
+   ═══════════════════════════════════════════════════════════════ */
+    .comparison {
+      padding: 120px 0;
+    }
+
+    .comparison-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .comparison-header .section-desc {
+      margin: 0 auto;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .compare-card {
+      padding: 40px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .compare-card.old {
+      background: var(--bg-card);
+    }
+
+    .compare-card.new {
+      background: linear-gradient(135deg, rgba(63, 185, 80, 0.06), rgba(63, 185, 80, 0.02));
+      border-color: rgba(63, 185, 80, 0.2);
+    }
+
+    .compare-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .compare-card.old .compare-title {
+      color: var(--text-tertiary);
+    }
+
+    .compare-card.new .compare-title {
+      color: var(--accent);
+    }
+
+    .compare-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .compare-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .compare-card.old .compare-list li {
+      color: var(--text-tertiary);
+    }
+
+    .compare-card.new .compare-list li {
+      color: var(--text-secondary);
+    }
+
+    .compare-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      margin-top: 2px;
+    }
+
+    .compare-card.old .compare-icon {
+      background: rgba(248, 81, 73, 0.12);
+      color: var(--red);
+    }
+
+    .compare-card.new .compare-icon {
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   TECH STACK STRIP
+   ═══════════════════════════════════════════════════════════════ */
+    .tech-stack {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tech-stack .container {
+      display: flex;
+      align-items: center;
+      gap: 64px;
+    }
+
+    .tech-info {
+      flex: 1;
+    }
+
+    .tech-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tech-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.25s;
+      cursor: default;
+    }
+
+    .tech-chip:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+      background: var(--accent-glow);
+    }
+
+    .tech-chip-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   CTA SECTION
+   ═══════════════════════════════════════════════════════════════ */
+    .cta {
+      padding: 140px 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .cta .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      line-height: 1.12;
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+
+    .cta-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .cta-desc {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .cta-note {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      margin-top: 20px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════════ */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 64px 0 40px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand-desc {
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      line-height: 1.7;
+      margin-top: 16px;
+      max-width: 300px;
+    }
+
+    .footer-col-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-social a {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-tertiary);
+      transition: all 0.2s;
+    }
+
+    .footer-social a:hover {
+      color: var(--text-primary);
+      border-color: var(--text-tertiary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   ANIMATED DEMOS - SHARED
+   ═══════════════════════════════════════════════════════════════ */
+    .demo-section {
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .demo-layout.reverse {
+      direction: rtl;
+    }
+
+    .demo-layout.reverse>* {
+      direction: ltr;
+    }
+
+    .demo-info {
+      z-index: 1;
+    }
+
+    .demo-visual {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   DEMO 1: RFP REQUIREMENT LINKING
+   ═══════════════════════════════════════════════════════════════ */
+    .link-demo {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.35);
+    }
+
+    .link-demo-inner {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      min-height: 340px;
+    }
+
+    /* Left: requirement list */
+    .ld-reqs {
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      background: var(--bg-primary);
+    }
+
+    .ld-reqs-title {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+    }
+
+    .ld-req {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      border: 1px solid transparent;
+      transition: all 0.4s;
+      cursor: default;
+      position: relative;
+    }
+
+    .ld-req .ld-status {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      display: block;
+      margin-top: 3px;
+      color: var(--text-tertiary);
+      transition: color 0.4s;
+    }
+
+    /* Right: document preview */
+    .ld-doc {
+      padding: 24px 28px;
+    }
+
+    .ld-doc-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .ld-block {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 8px;
+      border-left: 3px solid transparent;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      background: transparent;
+    }
+
+    /* Animated cursor */
+    .ld-cursor {
+      position: absolute;
+      width: 18px;
+      height: 22px;
+      z-index: 10;
+      opacity: 0;
+      transition: none;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    .ld-cursor svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Link-demo animation states - triggered by .playing class */
+    .link-demo.playing .ld-cursor {
+      animation: linkCursorMove 6s ease-in-out infinite;
+    }
+
+    .link-demo.playing .ld-req:nth-child(2) {
+      animation: linkReqHighlight 6s ease-in-out infinite;
+    }
+
+    .link-demo.playing .ld-req:nth-child(2) .ld-status {
+      animation: linkStatusChange 6s ease-in-out infinite;
+    }
+
+    .link-demo.playing .ld-block:nth-child(3) {
+      animation: linkBlockActivate 6s ease-in-out infinite;
+    }
+
+    /* Coverage bar animation */
+    .ld-coverage {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .ld-cov-label {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .ld-cov-val {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .link-demo.playing .ld-cov-val {
+      animation: linkCovNum 6s ease-in-out infinite;
+    }
+
+    .ld-cov-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .ld-cov-fill {
+      height: 100%;
+      width: 25%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.6s;
+    }
+
+    .link-demo.playing .ld-cov-fill {
+      animation: linkCovBar 6s ease-in-out infinite;
+    }
+
+    @keyframes linkCursorMove {
+
+      0%,
+      5% {
+        left: 60px;
+        top: 90px;
+        opacity: 0;
+      }
+
+      10% {
+        left: 60px;
+        top: 90px;
+        opacity: 1;
+      }
+
+      20%,
+      28% {
+        left: 80px;
+        top: 80px;
+        opacity: 1;
+      }
+
+      /* hover req */
+      35% {
+        left: 80px;
+        top: 80px;
+        opacity: 1;
+      }
+
+      /* click req */
+      36% {
+        left: 80px;
+        top: 78px;
+        opacity: 1;
+      }
+
+      42%,
+      50% {
+        left: 280px;
+        top: 180px;
+        opacity: 1;
+      }
+
+      /* move to block */
+      55% {
+        left: 280px;
+        top: 178px;
+        opacity: 1;
+      }
+
+      /* click block */
+      60%,
+      85% {
+        left: 280px;
+        top: 180px;
+        opacity: 1;
+      }
+
+      90%,
+      100% {
+        left: 280px;
+        top: 180px;
+        opacity: 0;
+      }
+    }
+
+    @keyframes linkReqHighlight {
+
+      0%,
+      25% {
+        background: transparent;
+        border-color: transparent;
+      }
+
+      30%,
+      55% {
+        background: rgba(210, 153, 34, 0.1);
+        border-color: var(--yellow);
+      }
+
+      60%,
+      100% {
+        background: var(--accent-glow);
+        border-color: var(--accent);
+      }
+    }
+
+    @keyframes linkStatusChange {
+
+      0%,
+      55% {
+        color: var(--text-tertiary);
+      }
+
+      60%,
+      100% {
+        color: var(--accent);
+      }
+    }
+
+    @keyframes linkBlockActivate {
+
+      0%,
+      50% {
+        border-left-color: transparent;
+        background: transparent;
+      }
+
+      52%,
+      58% {
+        border-left-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.05);
+      }
+
+      60%,
+      100% {
+        border-left-color: var(--accent);
+        background: rgba(63, 185, 80, 0.04);
+      }
+    }
+
+    @keyframes linkCovBar {
+
+      0%,
+      55% {
+        width: 25%;
+      }
+
+      65%,
+      100% {
+        width: 50%;
+      }
+    }
+
+    @keyframes linkCovNum {
+
+      0%,
+      55% {}
+
+      60%,
+      100% {}
+    }
+
+    /* Pulse ring on click moments */
+    .ld-click-ring {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .link-demo.playing .ld-click-ring.ring1 {
+      animation: clickRing 6s ease-out infinite;
+    }
+
+    .link-demo.playing .ld-click-ring.ring2 {
+      animation: clickRing2 6s ease-out infinite;
+    }
+
+    @keyframes clickRing {
+
+      0%,
+      33% {
+        transform: scale(0);
+        opacity: 0;
+        left: 80px;
+        top: 78px;
+      }
+
+      35% {
+        transform: scale(0.5);
+        opacity: 0.8;
+        left: 80px;
+        top: 78px;
+      }
+
+      42% {
+        transform: scale(2);
+        opacity: 0;
+        left: 80px;
+        top: 78px;
+      }
+
+      43%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes clickRing2 {
+
+      0%,
+      53% {
+        transform: scale(0);
+        opacity: 0;
+        left: 280px;
+        top: 178px;
+      }
+
+      55% {
+        transform: scale(0.5);
+        opacity: 0.8;
+        left: 280px;
+        top: 178px;
+      }
+
+      62% {
+        transform: scale(2);
+        opacity: 0;
+        left: 280px;
+        top: 178px;
+      }
+
+      63%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   DEMO 2: PASTE FIREWALL
+   ═══════════════════════════════════════════════════════════════ */
+    .paste-demo {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.35);
+      min-height: 320px;
+    }
+
+    .pd-panel {
+      flex: 1;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pd-panel.dirty {
+      background: rgba(248, 81, 73, 0.03);
+    }
+
+    .pd-panel.clean {
+      background: rgba(63, 185, 80, 0.03);
+    }
+
+    .pd-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pd-panel.dirty .pd-label {
+      color: var(--red);
+    }
+
+    .pd-panel.clean .pd-label {
+      color: var(--accent);
+    }
+
+    .pd-label-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .pd-panel.dirty .pd-label-dot {
+      background: var(--red);
+    }
+
+    .pd-panel.clean .pd-label-dot {
+      background: var(--accent);
+    }
+
+    .pd-code {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      line-height: 1.8;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pd-code-line {
+      opacity: 0;
+      transform: translateX(-8px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pd-panel.dirty .pd-code-line {
+      color: var(--red);
+      opacity: 0.5;
+    }
+
+    .pd-panel.clean .pd-code-line {
+      color: var(--text-secondary);
+    }
+
+    .pd-code-line .tag {
+      color: var(--red);
+      opacity: 0.7;
+    }
+
+    .pd-code-line .attr {
+      color: var(--yellow);
+      opacity: 0.6;
+    }
+
+    .pd-code-line .val {
+      color: var(--blue);
+      opacity: 0.5;
+    }
+
+    .pd-code-line .clean-text {
+      color: var(--text-primary);
+    }
+
+    /* Firewall divider */
+    .pd-firewall {
+      width: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: var(--bg-primary);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .pd-fw-line {
+      width: 1px;
+      flex: 1;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+
+    .pd-fw-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      border: 1px solid rgba(63, 185, 80, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pd-fw-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .paste-demo.playing .pd-fw-icon {
+      animation: fwPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes fwPulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 var(--accent-glow-strong);
+      }
+
+      50% {
+        box-shadow: 0 0 20px 8px var(--accent-glow);
+      }
+    }
+
+    /* Staggered line reveal */
+    .paste-demo.playing .pd-panel.dirty .pd-code-line {
+      animation: dirtyLineIn 0.3s ease-out forwards;
+    }
+
+    .paste-demo.playing .pd-panel.clean .pd-code-line {
+      animation: cleanLineIn 0.4s ease-out forwards;
+    }
+
+    .paste-demo.playing .pd-panel.dirty .pd-code-line:nth-child(1) {
+      animation-delay: 0.2s;
+    }
+
+    .paste-demo.playing .pd-panel.dirty .pd-code-line:nth-child(2) {
+      animation-delay: 0.35s;
+    }
+
+    .paste-demo.playing .pd-panel.dirty .pd-code-line:nth-child(3) {
+      animation-delay: 0.5s;
+    }
+
+    .paste-demo.playing .pd-panel.dirty .pd-code-line:nth-child(4) {
+      animation-delay: 0.65s;
+    }
+
+    .paste-demo.playing .pd-panel.dirty .pd-code-line:nth-child(5) {
+      animation-delay: 0.8s;
+    }
+
+    .paste-demo.playing .pd-panel.dirty .pd-code-line:nth-child(6) {
+      animation-delay: 0.95s;
+    }
+
+    .paste-demo.playing .pd-panel.dirty .pd-code-line:nth-child(7) {
+      animation-delay: 1.1s;
+    }
+
+    .paste-demo.playing .pd-panel.clean .pd-code-line:nth-child(1) {
+      animation-delay: 1.6s;
+    }
+
+    .paste-demo.playing .pd-panel.clean .pd-code-line:nth-child(2) {
+      animation-delay: 1.8s;
+    }
+
+    .paste-demo.playing .pd-panel.clean .pd-code-line:nth-child(3) {
+      animation-delay: 2.0s;
+    }
+
+    .paste-demo.playing .pd-panel.clean .pd-code-line:nth-child(4) {
+      animation-delay: 2.2s;
+    }
+
+    .paste-demo.playing .pd-panel.clean .pd-code-line:nth-child(5) {
+      animation-delay: 2.4s;
+    }
+
+    /* Strikethrough on dirty lines after processing */
+    .paste-demo.playing .pd-panel.dirty .pd-code-line {
+      animation: dirtyLineIn 0.3s ease-out forwards, dirtyStrike 0.4s 1.4s ease-out forwards;
+    }
+
+    @keyframes dirtyLineIn {
+      from {
+        opacity: 0;
+        transform: translateX(-8px);
+      }
+
+      to {
+        opacity: 0.5;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes dirtyStrike {
+      to {
+        opacity: 0.15;
+        text-decoration: line-through;
+        text-decoration-color: var(--red);
+      }
+    }
+
+    @keyframes cleanLineIn {
+      from {
+        opacity: 0;
+        transform: translateX(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   DEMO 3: QUALITY SCANNER ANIMATION
+   ═══════════════════════════════════════════════════════════════ */
+    .scan-demo {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.35);
+    }
+
+    .sd-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-primary);
+    }
+
+    .sd-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .sd-toolbar-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: var(--accent-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sd-toolbar-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    .sd-score {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sd-score-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-tertiary);
+      opacity: 0;
+    }
+
+    .scan-demo.playing .sd-score-item {
+      animation: scoreIn 0.3s ease-out forwards;
+    }
+
+    .scan-demo.playing .sd-score-item:nth-child(1) {
+      animation-delay: 2.8s;
+    }
+
+    .scan-demo.playing .sd-score-item:nth-child(2) {
+      animation-delay: 3.0s;
+    }
+
+    .scan-demo.playing .sd-score-item:nth-child(3) {
+      animation-delay: 3.2s;
+    }
+
+    @keyframes scoreIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .sd-score-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .sd-score-dot.g {
+      background: var(--accent);
+    }
+
+    .sd-score-dot.y {
+      background: var(--yellow);
+    }
+
+    .sd-score-dot.r {
+      background: var(--red);
+    }
+
+    .sd-body {
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    /* Scan beam - horizontal line sweeping down */
+    .sd-beam {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 2;
+      box-shadow: 0 0 12px var(--accent-glow-strong);
+    }
+
+    .scan-demo.playing .sd-beam {
+      animation: scanBeam 3.5s 0.5s ease-in-out forwards;
+    }
+
+    @keyframes scanBeam {
+      0% {
+        top: 24px;
+        opacity: 0;
+      }
+
+      5% {
+        top: 24px;
+        opacity: 1;
+      }
+
+      90% {
+        top: 260px;
+        opacity: 0.8;
+      }
+
+      100% {
+        top: 280px;
+        opacity: 0;
+      }
+    }
+
+    .sd-line {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 2;
+      position: relative;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    .sd-issue {
+      position: relative;
+      display: inline;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+
+    .sd-issue-tag {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      font-size: 0.55rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .sd-issue-tag.warn {
+      background: rgba(210, 153, 34, 0.15);
+      color: var(--yellow);
+      border: 1px solid rgba(210, 153, 34, 0.2);
+    }
+
+    .sd-issue-tag.fail {
+      background: rgba(248, 81, 73, 0.12);
+      color: var(--red);
+      border: 1px solid rgba(248, 81, 73, 0.2);
+    }
+
+    .sd-issue-tag.pass {
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(63, 185, 80, 0.2);
+    }
+
+    /* Trigger highlights at specific times */
+    .scan-demo.playing .sd-issue.i1 {
+      animation: issueHighlightYellow 4s 1.2s ease-out forwards;
+    }
+
+    .scan-demo.playing .sd-issue.i1 .sd-issue-tag {
+      animation: tagAppear 0.4s 1.4s ease-out forwards;
+    }
+
+    .scan-demo.playing .sd-issue.i2 {
+      animation: issueHighlightRed 4s 1.8s ease-out forwards;
+    }
+
+    .scan-demo.playing .sd-issue.i2 .sd-issue-tag {
+      animation: tagAppear 0.4s 2.0s ease-out forwards;
+    }
+
+    .scan-demo.playing .sd-issue.i3 {
+      animation: issueHighlightYellow 4s 2.4s ease-out forwards;
+    }
+
+    .scan-demo.playing .sd-issue.i3 .sd-issue-tag {
+      animation: tagAppear 0.4s 2.6s ease-out forwards;
+    }
+
+    .scan-demo.playing .sd-issue.i4 {
+      animation: issueHighlightGreen 4s 2.8s ease-out forwards;
+    }
+
+    .scan-demo.playing .sd-issue.i4 .sd-issue-tag {
+      animation: tagAppear 0.4s 3.0s ease-out forwards;
+    }
+
+    @keyframes issueHighlightYellow {
+      0% {
+        border-bottom-color: transparent;
+        background: transparent;
+      }
+
+      8% {
+        border-bottom-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.06);
+      }
+
+      100% {
+        border-bottom-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.06);
+      }
+    }
+
+    @keyframes issueHighlightRed {
+      0% {
+        border-bottom-color: transparent;
+        background: transparent;
+      }
+
+      8% {
+        border-bottom-color: var(--red);
+        background: rgba(248, 81, 73, 0.06);
+      }
+
+      100% {
+        border-bottom-color: var(--red);
+        background: rgba(248, 81, 73, 0.06);
+      }
+    }
+
+    @keyframes issueHighlightGreen {
+      0% {
+        border-bottom-color: transparent;
+        background: transparent;
+      }
+
+      8% {
+        border-bottom-color: var(--accent);
+        background: rgba(63, 185, 80, 0.06);
+      }
+
+      100% {
+        border-bottom-color: var(--accent);
+        background: rgba(63, 185, 80, 0.06);
+      }
+    }
+
+    @keyframes tagAppear {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   DEMO 4: EXPORT FLOW ANIMATION
+   ═══════════════════════════════════════════════════════════════ */
+    .export-demo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      padding: 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.35);
+      min-height: 300px;
+    }
+
+    /* Source document card */
+    .ex-doc {
+      width: 160px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .ex-doc-icon {
+      width: 48px;
+      height: 60px;
+      margin: 0 auto 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .ex-doc-icon::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      clip-path: polygon(100% 0, 0 100%, 100% 100%);
+    }
+
+    .ex-doc-line {
+      width: 28px;
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+    }
+
+    .ex-doc-line.short {
+      width: 18px;
+    }
+
+    .ex-doc-name {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .ex-doc-meta {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    /* Processing arrows */
+    .ex-arrow-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ex-process-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(63, 185, 80, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ex-process-box svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .export-demo.playing .ex-process-box {
+      animation: exportSpin 2s 0.5s ease-in-out forwards;
+    }
+
+    @keyframes exportSpin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      30% {
+        transform: rotate(180deg);
+      }
+
+      50% {
+        transform: rotate(360deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .ex-arrow {
+      width: 32px;
+      height: 1px;
+      background: var(--border);
+      position: relative;
+    }
+
+    .ex-arrow::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: -3px;
+      width: 6px;
+      height: 6px;
+      border-right: 1.5px solid var(--text-tertiary);
+      border-bottom: 1.5px solid var(--text-tertiary);
+      transform: rotate(-45deg);
+    }
+
+    /* Animated data flow dots */
+    .ex-flow-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      position: absolute;
+      opacity: 0;
+    }
+
+    .export-demo.playing .ex-arrow .ex-flow-dot {
+      animation: flowDot 1.5s ease-in-out infinite;
+    }
+
+    .export-demo.playing .ex-arrow:nth-child(1) .ex-flow-dot {
+      animation-delay: 0.8s;
+    }
+
+    .export-demo.playing .ex-arrow:nth-child(3) .ex-flow-dot {
+      animation-delay: 1.6s;
+    }
+
+    @keyframes flowDot {
+      0% {
+        left: 0;
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      80% {
+        opacity: 1;
+      }
+
+      100% {
+        left: 100%;
+        opacity: 0;
+      }
+    }
+
+    /* Output cards */
+    .ex-outputs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ex-out-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      opacity: 0;
+      transform: translateX(12px);
+      transition: all 0.3s;
+    }
+
+    .export-demo.playing .ex-out-card:nth-child(1) {
+      animation: exportCardIn 0.5s 1.5s ease-out forwards;
+    }
+
+    .export-demo.playing .ex-out-card:nth-child(2) {
+      animation: exportCardIn 0.5s 1.9s ease-out forwards;
+    }
+
+    @keyframes exportCardIn {
+      from {
+        opacity: 0;
+        transform: translateX(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .ex-out-badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: 0.03em;
+    }
+
+    .ex-out-badge.pdf {
+      background: rgba(248, 81, 73, 0.12);
+      color: var(--red);
+    }
+
+    .ex-out-badge.docx {
+      background: rgba(88, 166, 255, 0.12);
+      color: var(--blue);
+    }
+
+    .ex-out-info {
+      flex: 1;
+    }
+
+    .ex-out-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .ex-out-size {
+      font-size: 0.6rem;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    .ex-out-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+    }
+
+    .export-demo.playing .ex-out-card:nth-child(1) .ex-out-check {
+      animation: checkIn 0.3s 2.1s ease-out forwards;
+    }
+
+    .export-demo.playing .ex-out-card:nth-child(2) .ex-out-check {
+      animation: checkIn 0.3s 2.5s ease-out forwards;
+    }
+
+    @keyframes checkIn {
+      from {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .ex-out-check svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2.5;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .demo-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .demo-layout.reverse {
+        direction: ltr;
+      }
+
+      .link-demo-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .ld-reqs {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .paste-demo {
+        flex-direction: column;
+      }
+
+      .pd-firewall {
+        width: 100%;
+        height: 48px;
+        flex-direction: row;
+        border-left: none;
+        border-right: none;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .pd-fw-line {
+        height: 1px;
+        width: 100%;
+      }
+
+      .export-demo {
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .ex-arrow-group {
+        flex-direction: row;
+      }
+
+      .ex-arrow {
+        width: 1px;
+        height: 24px;
+      }
+
+      .ex-arrow::after {
+        transform: rotate(45deg);
+        right: -3px;
+        top: auto;
+        bottom: -1px;
+      }
+
+      .mockup-body {
+        grid-template-columns: 1fr;
+      }
+
+      .mock-sidebar-left,
+      .mock-sidebar-right {
+        display: none;
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .feature-card.large {
+        grid-column: span 2;
+      }
+
+      .workflow-steps {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+      }
+
+      .workflow-steps::before {
+        display: none;
+      }
+
+      .tech-stack .container {
+        flex-direction: column;
+        gap: 32px;
+        text-align: center;
+      }
+
+      .tech-chips {
+        justify-content: center;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .nav-toggle {
+        display: block;
+      }
+
+      .hero {
+        padding: 130px 0 60px;
+      }
+
+      .hero-title {
+        font-size: 2.4rem;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .stats .container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-card.large {
+        grid-column: span 1;
+        grid-template-columns: 1fr;
+      }
+
+      .workflow-steps {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+   FLOATING PARTICLES (subtle)
+   ═══════════════════════════════════════════════════════════════ */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0;
+      animation: float-particle 12s infinite;
+    }
+
+    @keyframes float-particle {
+      0% {
+        opacity: 0;
+        transform: translateY(100vh) scale(0);
+      }
+
+      10% {
+        opacity: 0.3;
+      }
+
+      90% {
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-10vh) scale(1);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Subtle floating particles -->
+  <div class="particles" aria-hidden="true">
+    <div class="particle" style="left:12%;animation-delay:0s;animation-duration:14s"></div>
+    <div class="particle" style="left:28%;animation-delay:3s;animation-duration:11s"></div>
+    <div class="particle" style="left:45%;animation-delay:6s;animation-duration:13s"></div>
+    <div class="particle" style="left:65%;animation-delay:1s;animation-duration:15s"></div>
+    <div class="particle" style="left:82%;animation-delay:4s;animation-duration:12s"></div>
+    <div class="particle" style="left:93%;animation-delay:8s;animation-duration:10s"></div>
+    <div class="particle" style="left:7%;animation-delay:5s;animation-duration:16s"></div>
+    <div class="particle" style="left:55%;animation-delay:9s;animation-duration:11s"></div>
+  </div>
+
+  <!-- ═════════════ NAVBAR ═════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">D</div>
+        DocBrand
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#workflow">How It Works</a></li>
+        <li><a href="#comparison">Why DocBrand</a></li>
+        <li><a href="#tech">Tech</a></li>
+      </ul>
+      <div class="nav-cta">
+        <button class="btn-ghost">Log In</button>
+        <a href="/dashboard" class="btn-primary" style="text-decoration: none; display: inline-block;">Get Started
+          Free</a>
+      </div>
+      <button class="nav-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═════════════ HERO ═════════════ -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Now in public beta — offline-first, no signup required
+      </div>
+      <h1 class="hero-title">
+        Write proposals that<br><em>actually win</em>
+      </h1>
+      <p class="hero-desc">
+        The professional proposal editor built for RFP response teams. Link requirements, scan quality, export perfect
+        documents — all from your browser, all offline.
+      </p>
+      <div class="hero-actions">
+        <a href="/dashboard" class="btn-primary btn-primary-lg"
+          style="text-decoration: none; display: inline-block;">Start Writing Now</a>
+        <button class="btn-outline">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+          Watch Demo
+        </button>
+      </div>
+
+      <!-- Product Mockup -->
+      <div class="hero-mockup">
+        <div class="hero-mockup-frame">
+          <div class="mockup-chrome">
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <span class="mockup-url">docbrand.app/editor</span>
+          </div>
+          <div class="mockup-body">
+            <!-- Left: RFP Requirements -->
+            <div class="mock-sidebar-left">
+              <div class="mock-sidebar-header">
+                <span class="mock-coverage">RFP Coverage</span>
+                <span class="mock-coverage-val">35%</span>
+              </div>
+              <div class="mock-progress">
+                <div class="mock-progress-fill"></div>
+              </div>
+              <div class="mock-tabs">
+                <div class="mock-tab">Map</div>
+                <div class="mock-tab active">RFP</div>
+              </div>
+              <div class="mock-req-list">
+                <div class="mock-req-item">
+                  <span class="mock-req-name">Evaluation Criteria</span>
+                  <span class="mock-req-status linked">100%</span>
+                </div>
+                <div class="mock-req-item">
+                  <span class="mock-req-name">Technical Specs</span>
+                  <span class="mock-req-status unlinked">0%</span>
+                </div>
+                <div class="mock-req-item">
+                  <span class="mock-req-name">Compliance</span>
+                  <span class="mock-req-status linked">60%</span>
+                </div>
+                <div class="mock-req-item">
+                  <span class="mock-req-name">Pricing Model</span>
+                  <span class="mock-req-status unlinked">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Center: Document Editor -->
+            <div class="mock-editor">
+              <div class="mock-editor-toolbar">
+                <div class="mock-tool-btn" style="font-weight:800">B</div>
+                <div class="mock-tool-btn" style="font-style:italic">I</div>
+                <div class="mock-tool-btn" style="text-decoration:underline">U</div>
+                <div class="mock-tool-btn">H1</div>
+                <div class="mock-tool-btn">H2</div>
+                <div class="mock-tool-btn active-tool">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                  </svg>
+                </div>
+              </div>
+              <div class="mock-doc">
+                <div class="mock-heading">Executive Summary</div>
+                <div class="mock-para">
+                  Our solution delivers a comprehensive enterprise platform designed to meet all technical
+                  specifications outlined in the RFP document.
+                </div>
+                <div class="mock-linked-block">
+                  <div class="mock-para">
+                    The evaluation criteria are fully addressed through our proven methodology, with 99.5% accuracy in
+                    compliance verification across 200+ deployments.
+                  </div>
+                </div>
+                <div class="mock-para">
+                  Implementation timeline follows a phased approach with dedicated support throughout each milestone.
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Quality Scanner -->
+            <div class="mock-sidebar-right">
+              <div class="mock-panel-title">Quality Scanner</div>
+              <div class="mock-panel-desc">Analyze document for quality and completeness</div>
+              <div class="mock-scan-tabs">
+                <div class="mock-scan-tab active">Scan</div>
+                <div class="mock-scan-tab">Styles</div>
+                <div class="mock-scan-tab">Sources</div>
+              </div>
+              <div class="mock-scan-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+                Scan
+              </div>
+              <div class="mock-scan-result">
+                <span class="scan-icon pass"></span>
+                <span class="scan-label">No vague language</span>
+              </div>
+              <div class="mock-scan-result">
+                <span class="scan-icon warn"></span>
+                <span class="scan-label">1 passive voice found</span>
+              </div>
+              <div class="mock-scan-result">
+                <span class="scan-icon pass"></span>
+                <span class="scan-label">Sentence length OK</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ TRUSTED BY ═════════════ -->
+  <section class="trusted reveal">
+    <div class="container">
+      <div class="trusted-label">Trusted by proposal teams worldwide</div>
+      <div class="trusted-logos">
+        <div class="trusted-logo">Accenture <span>RFP</span></div>
+        <div class="trusted-logo">Deloitte <span>BID</span></div>
+        <div class="trusted-logo">McKinsey <span>SOW</span></div>
+        <div class="trusted-logo">Capgemini <span>RFP</span></div>
+        <div class="trusted-logo">PwC <span>DDQ</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ STATS ═════════════ -->
+  <section class="stats">
+    <div class="container">
+      <div class="stat-item reveal">
+        <div class="stat-num">10<span class="accent">x</span></div>
+        <div class="stat-desc">Faster than manual formatting</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-1">
+        <div class="stat-num">99.5<span class="accent">%</span></div>
+        <div class="stat-desc">Compliance accuracy rate</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <div class="stat-num"><span class="accent">0</span>ms</div>
+        <div class="stat-desc">Network latency — runs offline</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <div class="stat-num">20<span class="accent">+</span></div>
+        <div class="stat-desc">Editor extensions built-in</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ FEATURES ═════════════ -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="features-header reveal">
+        <div class="section-label">Features</div>
+        <h2 class="section-title">Everything you need<br>to craft winning proposals</h2>
+        <p class="section-desc">
+          Purpose-built for tender and proposal documents. Not a generic text editor wearing a suit.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1: Rich Editor (Large card) -->
+        <div class="feature-card large reveal">
+          <div>
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            </div>
+            <div class="feature-name">Word-Class Rich Text Editor</div>
+            <div class="feature-desc">
+              Built on TipTap and ProseMirror with 20+ extensions. Bold, italic, headings, tables, task lists,
+              @mentions, slash commands, and block-level controls. Google Docs fluidity with proposal-specific
+              intelligence.
+            </div>
+          </div>
+          <div class="feature-visual">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div
+                  style="width:28px;height:28px;border-radius:6px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:var(--text-secondary)">
+                  B</div>
+                <div
+                  style="width:28px;height:28px;border-radius:6px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-style:italic;color:var(--text-secondary)">
+                  I</div>
+                <div
+                  style="width:28px;height:28px;border-radius:6px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.7rem;text-decoration:underline;color:var(--text-secondary)">
+                  U</div>
+                <div style="width:1px;height:20px;background:var(--border);margin:0 4px;"></div>
+                <div
+                  style="width:28px;height:28px;border-radius:6px;background:var(--accent-glow);border:1px solid rgba(63,185,80,0.2);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:var(--accent);font-family:var(--font-mono)">
+                  H1</div>
+                <div
+                  style="width:28px;height:28px;border-radius:6px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:var(--text-tertiary);font-family:var(--font-mono)">
+                  H2</div>
+              </div>
+              <div style="margin-top:12px;">
+                <div
+                  style="font-family:var(--font-display);font-size:1rem;color:var(--text-primary);margin-bottom:6px;">/
+                  slash commands</div>
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 0;">
+                  <div
+                    style="padding:6px 14px;font-size:0.72rem;color:var(--text-secondary);display:flex;align-items:center;gap:8px;background:var(--accent-glow);border-radius:4px;margin:0 4px;">
+                    <span style="color:var(--accent);font-family:var(--font-mono);font-size:0.6rem">T</span> Text
+                  </div>
+                  <div
+                    style="padding:6px 14px;font-size:0.72rem;color:var(--text-tertiary);display:flex;align-items:center;gap:8px;">
+                    <span style="color:var(--text-tertiary);font-family:var(--font-mono);font-size:0.6rem">H</span>
+                    Heading 1
+                  </div>
+                  <div
+                    style="padding:6px 14px;font-size:0.72rem;color:var(--text-tertiary);display:flex;align-items:center;gap:8px;">
+                    <span style="color:var(--text-tertiary);font-family:var(--font-mono);font-size:0.6rem">#</span>
+                    Table
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature 2: RFP Tracking -->
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          </div>
+          <div class="feature-name">RFP Requirement Linking</div>
+          <div class="feature-desc">
+            Import RFP documents, extract requirements, and link them directly to response paragraphs. Track coverage in
+            real-time with visual indicators — green for linked, red for gaps.
+          </div>
+        </div>
+
+        <!-- Feature 3: Quality Scanner -->
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </div>
+          <div class="feature-name">Quality Scanner</div>
+          <div class="feature-desc">
+            Real-time analysis catches vague language, passive voice, long sentences, and weak wording. Visual
+            underlines show exactly where to improve before submission.
+          </div>
+        </div>
+
+        <!-- Feature 4: Paste Firewall -->
+        <div class="feature-card reveal">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <div class="feature-name">Paste Firewall</div>
+          <div class="feature-desc">
+            Copy from Word, Google Docs, or any source. The paste firewall strips garbage HTML, inline styles, and
+            broken tags — leaving clean, consistent formatting.
+          </div>
+        </div>
+
+        <!-- Feature 5: Import/Export -->
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </div>
+          <div class="feature-name">Import & Export</div>
+          <div class="feature-desc">
+            Import DOCX and PDF files directly. Export polished documents as PDF or DOCX with preserved formatting.
+            Round-trip your proposals without friction.
+          </div>
+        </div>
+
+        <!-- Feature 6: Offline-First -->
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <line x1="1" y1="1" x2="23" y2="23" />
+              <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+              <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />
+              <path d="M10.71 5.05A16 16 0 0 1 22.56 9" />
+              <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+              <line x1="12" y1="20" x2="12.01" y2="20" />
+            </svg>
+          </div>
+          <div class="feature-name">100% Offline First</div>
+          <div class="feature-desc">
+            Everything runs in your browser with IndexedDB storage. No server, no network needed. Your sensitive
+            proposal data never leaves your machine.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ DEMO 1: RFP REQUIREMENT LINKING ═════════════ -->
+  <section class="demo-section">
+    <div class="container">
+      <div class="demo-layout">
+        <div class="demo-info reveal">
+          <div class="section-label">Requirement Linking</div>
+          <h2 class="section-title">Click. Link. <em>Track.</em></h2>
+          <p class="section-desc">
+            Select a requirement from the RFP panel, click any paragraph in your response — it's linked instantly. The
+            green border confirms coverage, and your completion percentage updates in real-time.
+          </p>
+          <div style="margin-top:24px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div
+                style="width:12px;height:12px;border-radius:3px;border-left:3px solid var(--yellow);background:rgba(210,153,34,0.08);">
+              </div>
+              <span style="font-size:0.85rem;color:var(--text-secondary);">Yellow — linking mode active</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div
+                style="width:12px;height:12px;border-radius:3px;border-left:3px solid var(--accent);background:rgba(63,185,80,0.08);">
+              </div>
+              <span style="font-size:0.85rem;color:var(--text-secondary);">Green — requirement linked</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div
+                style="width:12px;height:12px;border-radius:3px;border-left:3px solid var(--red);background:rgba(248,81,73,0.08);">
+              </div>
+              <span style="font-size:0.85rem;color:var(--text-secondary);">Red — not yet addressed</span>
+            </div>
+          </div>
+        </div>
+        <div class="demo-visual reveal reveal-delay-2">
+          <div class="link-demo" id="linkDemo">
+            <!-- Animated cursor -->
+            <div class="ld-cursor">
+              <svg viewBox="0 0 24 24" fill="#fff" stroke="#000" stroke-width="1">
+                <path d="M5 3l3.5 20L12 15l8-4L5 3z" />
+              </svg>
+            </div>
+            <div class="ld-click-ring ring1"></div>
+            <div class="ld-click-ring ring2"></div>
+            <div class="link-demo-inner">
+              <div class="ld-reqs">
+                <div class="ld-reqs-title">RFP Requirements</div>
+                <div class="ld-coverage">
+                  <span class="ld-cov-label">Coverage</span>
+                  <span class="ld-cov-val">25%</span>
+                </div>
+                <div class="ld-cov-bar">
+                  <div class="ld-cov-fill"></div>
+                </div>
+                <div class="ld-req" style="background:var(--accent-glow);border-color:rgba(63,185,80,0.15);">
+                  <span style="color:var(--accent);">Evaluation Criteria</span>
+                  <span class="ld-status" style="color:var(--accent);">100%</span>
+                </div>
+                <div class="ld-req">
+                  <span>Technical Specs</span>
+                  <span class="ld-status">0% — unlinked</span>
+                </div>
+                <div class="ld-req">
+                  <span>Compliance</span>
+                  <span class="ld-status">0% — unlinked</span>
+                </div>
+              </div>
+              <div class="ld-doc">
+                <div class="ld-doc-title">Executive Summary</div>
+                <div class="ld-block" style="border-left-color:var(--accent);background:rgba(63,185,80,0.04);">
+                  Our evaluation framework exceeds all stated criteria with proven benchmarks.
+                </div>
+                <div class="ld-block">
+                  The platform architecture is built on enterprise-grade infrastructure with 99.99% uptime SLA.
+                </div>
+                <div class="ld-block">
+                  Technical specifications meet ISO 27001 and SOC 2 Type II compliance requirements fully.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ WORKFLOW ═════════════ -->
+  <section class="workflow" id="workflow">
+    <div class="container">
+      <div class="workflow-header reveal">
+        <div class="section-label" style="justify-content:center">How it works</div>
+        <h2 class="section-title">From RFP to submission<br>in four steps</h2>
+        <p class="section-desc">
+          No onboarding. No setup. Open your browser and start responding.
+        </p>
+      </div>
+
+      <div class="workflow-steps">
+        <div class="step-card reveal">
+          <div class="step-num">01</div>
+          <div class="step-title">Import the RFP</div>
+          <div class="step-desc">Upload the RFP document as PDF or DOCX. Requirements are extracted and organized
+            automatically.</div>
+        </div>
+        <div class="step-card reveal reveal-delay-1">
+          <div class="step-num">02</div>
+          <div class="step-title">Write Your Response</div>
+          <div class="step-desc">Use the rich editor with slash commands, block handles, and templates to draft your
+            proposal efficiently.</div>
+        </div>
+        <div class="step-card reveal reveal-delay-2">
+          <div class="step-num">03</div>
+          <div class="step-title">Link & Track</div>
+          <div class="step-desc">Link each requirement to response paragraphs. Watch RFP coverage grow from 0% to 100%
+            in real time.</div>
+        </div>
+        <div class="step-card reveal reveal-delay-3">
+          <div class="step-num">04</div>
+          <div class="step-title">Scan & Export</div>
+          <div class="step-desc">Run the quality scanner, fix issues, and export as a polished PDF or DOCX. Ready for
+            submission.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ DEMO 2: PASTE FIREWALL ═════════════ -->
+  <section class="demo-section">
+    <div class="container">
+      <div class="demo-layout reverse">
+        <div class="demo-info reveal">
+          <div class="section-label">Paste Firewall</div>
+          <h2 class="section-title">Paste from anywhere.<br><em>Perfectly clean.</em></h2>
+          <p class="section-desc">
+            Word and Google Docs inject hundreds of invisible style attributes, broken spans, and font tags. Our paste
+            firewall intercepts the clipboard, strips every trace of garbage HTML, and inserts pristine content.
+          </p>
+          <div style="margin-top:24px;display:flex;gap:16px;flex-wrap:wrap;">
+            <div
+              style="padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;font-size:0.75rem;color:var(--text-secondary);">
+              Microsoft Word</div>
+            <div
+              style="padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;font-size:0.75rem;color:var(--text-secondary);">
+              Google Docs</div>
+            <div
+              style="padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;font-size:0.75rem;color:var(--text-secondary);">
+              Markdown</div>
+            <div
+              style="padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;font-size:0.75rem;color:var(--text-secondary);">
+              Notion</div>
+          </div>
+        </div>
+        <div class="demo-visual reveal reveal-delay-2">
+          <div class="paste-demo" id="pasteDemo">
+            <div class="pd-panel dirty">
+              <div class="pd-label">
+                <span class="pd-label-dot"></span>
+                Raw Clipboard
+              </div>
+              <div class="pd-code">
+                <div class="pd-code-line"><span class="tag">&lt;div</span> <span class="attr">class=</span><span
+                    class="val">"MsoNormal"</span><span class="tag">&gt;</span></div>
+                <div class="pd-code-line">&nbsp;&nbsp;<span class="tag">&lt;span</span> <span
+                    class="attr">style=</span><span class="val">"font-size:11pt;</span></div>
+                <div class="pd-code-line">&nbsp;&nbsp;<span class="val">font-family:Calibri;</span></div>
+                <div class="pd-code-line">&nbsp;&nbsp;<span class="val">mso-bidi-font-size:12pt;</span></div>
+                <div class="pd-code-line">&nbsp;&nbsp;<span class="val">mso-ascii-theme-font:minor"</span><span
+                    class="tag">&gt;</span></div>
+                <div class="pd-code-line">&nbsp;&nbsp;Our solution delivers...</div>
+                <div class="pd-code-line"><span class="tag">&lt;/span&gt;&lt;/div&gt;</span></div>
+              </div>
+            </div>
+            <div class="pd-firewall">
+              <div class="pd-fw-line"></div>
+              <div class="pd-fw-icon">
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <div class="pd-fw-line"></div>
+            </div>
+            <div class="pd-panel clean">
+              <div class="pd-label">
+                <span class="pd-label-dot"></span>
+                Clean Output
+              </div>
+              <div class="pd-code">
+                <div class="pd-code-line"><span class="clean-text">&lt;p&gt;</span></div>
+                <div class="pd-code-line">&nbsp;&nbsp;<span class="clean-text">Our solution delivers</span></div>
+                <div class="pd-code-line">&nbsp;&nbsp;<span class="clean-text">enterprise-grade</span></div>
+                <div class="pd-code-line">&nbsp;&nbsp;<span class="clean-text">infrastructure...</span></div>
+                <div class="pd-code-line"><span class="clean-text">&lt;/p&gt;</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ COMPARISON ═════════════ -->
+  <section class="comparison" id="comparison">
+    <div class="container">
+      <div class="comparison-header reveal">
+        <div class="section-label" style="justify-content:center">Why DocBrand</div>
+        <h2 class="section-title">The old way is broken</h2>
+        <p class="section-desc">
+          Stop wrangling Word documents and spreadsheets. There's a better way.
+        </p>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="compare-card old reveal">
+          <div class="compare-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+            Without DocBrand
+          </div>
+          <ul class="compare-list">
+            <li>
+              <span class="compare-icon">&times;</span>
+              3+ hours manually formatting each proposal in Word
+            </li>
+            <li>
+              <span class="compare-icon">&times;</span>
+              No way to track which RFP requirements are addressed
+            </li>
+            <li>
+              <span class="compare-icon">&times;</span>
+              Copy-paste destroys formatting every single time
+            </li>
+            <li>
+              <span class="compare-icon">&times;</span>
+              Quality issues caught only after submission
+            </li>
+            <li>
+              <span class="compare-icon">&times;</span>
+              Sensitive documents uploaded to cloud servers
+            </li>
+          </ul>
+        </div>
+        <div class="compare-card new reveal reveal-delay-1">
+          <div class="compare-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            With DocBrand
+          </div>
+          <ul class="compare-list">
+            <li>
+              <span class="compare-icon">&check;</span>
+              Write, format, and structure in 10 minutes flat
+            </li>
+            <li>
+              <span class="compare-icon">&check;</span>
+              100% coverage tracking with visual requirement links
+            </li>
+            <li>
+              <span class="compare-icon">&check;</span>
+              Paste Firewall strips junk HTML automatically
+            </li>
+            <li>
+              <span class="compare-icon">&check;</span>
+              Real-time quality scanning before you export
+            </li>
+            <li>
+              <span class="compare-icon">&check;</span>
+              Fully offline — data never leaves your browser
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ DEMO 3: QUALITY SCANNER ═════════════ -->
+  <section class="demo-section">
+    <div class="container">
+      <div class="demo-layout">
+        <div class="demo-info reveal">
+          <div class="section-label">Quality Scanner</div>
+          <h2 class="section-title">Catch weak writing<br><em>before reviewers do.</em></h2>
+          <p class="section-desc">
+            The scanner beam sweeps your document in real-time, flagging vague language, passive voice, overly long
+            sentences, and weak words. Color-coded underlines show exactly where to tighten your prose.
+          </p>
+          <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:24px;height:3px;border-radius:2px;background:var(--red);"></div>
+              <span style="font-size:0.85rem;color:var(--text-secondary);">Critical — vague or weak language</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:24px;height:3px;border-radius:2px;background:var(--yellow);"></div>
+              <span style="font-size:0.85rem;color:var(--text-secondary);">Warning — passive voice, long
+                sentences</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:24px;height:3px;border-radius:2px;background:var(--accent);"></div>
+              <span style="font-size:0.85rem;color:var(--text-secondary);">Passed — strong, active writing</span>
+            </div>
+          </div>
+        </div>
+        <div class="demo-visual reveal reveal-delay-2">
+          <div class="scan-demo" id="scanDemo">
+            <div class="sd-toolbar">
+              <div class="sd-toolbar-left">
+                <div class="sd-toolbar-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                </div>
+                Quality Scanner
+              </div>
+              <div class="sd-score">
+                <div class="sd-score-item">
+                  <span class="sd-score-dot y"></span> 2 warnings
+                </div>
+                <div class="sd-score-item">
+                  <span class="sd-score-dot r"></span> 1 critical
+                </div>
+                <div class="sd-score-item">
+                  <span class="sd-score-dot g"></span> 1 passed
+                </div>
+              </div>
+            </div>
+            <div class="sd-body">
+              <div class="sd-beam"></div>
+              <p class="sd-line" style="margin-bottom:12px;">
+                Our team <span class="sd-issue i1"><span class="sd-issue-tag warn">PASSIVE VOICE</span>is believed to
+                  have</span> the expertise necessary to deliver this project within the stated timeline.
+              </p>
+              <p class="sd-line" style="margin-bottom:12px;">
+                The solution <span class="sd-issue i2"><span class="sd-issue-tag fail">VAGUE — "might"</span>might
+                  possibly</span> address all of the outlined requirements depending on final configuration parameters.
+              </p>
+              <p class="sd-line" style="margin-bottom:12px;">
+                Implementation <span class="sd-issue i3"><span class="sd-issue-tag warn">LONG SENTENCE</span>follows a
+                  structured methodology involving initial assessment, environment setup, data migration, testing phase,
+                  user acceptance testing, training sessions, and final deployment review</span> procedures.
+              </p>
+              <p class="sd-line">
+                We <span class="sd-issue i4"><span class="sd-issue-tag pass">STRONG &amp; ACTIVE</span>guarantee 99.9%
+                  uptime</span> with dedicated 24/7 enterprise support and a response SLA under 15 minutes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ DEMO 4: EXPORT FLOW ═════════════ -->
+  <section class="demo-section">
+    <div class="container">
+      <div class="demo-layout reverse">
+        <div class="demo-info reveal">
+          <div class="section-label">Import & Export</div>
+          <h2 class="section-title">In as DOCX. Out as<br><em>pixel-perfect.</em></h2>
+          <p class="section-desc">
+            Import your existing RFP documents and source files in DOCX or PDF. When your response is ready, export a
+            polished, professionally formatted document. Formatting preserved, every time.
+          </p>
+          <div style="margin-top:24px;display:flex;align-items:center;gap:12px;">
+            <div
+              style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-tertiary);padding:6px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;">
+              .docx</div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+            <div
+              style="font-family:var(--font-mono);font-size:0.7rem;color:var(--accent);padding:6px 12px;background:var(--accent-glow);border:1px solid rgba(63,185,80,0.15);border-radius:6px;">
+              DocBrand</div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+            <div
+              style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-tertiary);padding:6px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;">
+              .pdf / .docx</div>
+          </div>
+        </div>
+        <div class="demo-visual reveal reveal-delay-2">
+          <div class="export-demo" id="exportDemo">
+            <!-- Source doc -->
+            <div class="ex-doc">
+              <div class="ex-doc-icon">
+                <div class="ex-doc-line"></div>
+                <div class="ex-doc-line short"></div>
+                <div class="ex-doc-line"></div>
+                <div class="ex-doc-line short"></div>
+              </div>
+              <div class="ex-doc-name">Proposal_v3</div>
+              <div class="ex-doc-meta">12 pages &middot; 4.2KB</div>
+            </div>
+
+            <!-- Arrow + processor -->
+            <div class="ex-arrow-group">
+              <div class="ex-arrow" style="position:relative;">
+                <div class="ex-flow-dot"></div>
+              </div>
+              <div class="ex-process-box">
+                <svg viewBox="0 0 24 24">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              </div>
+              <div class="ex-arrow" style="position:relative;">
+                <div class="ex-flow-dot"></div>
+              </div>
+            </div>
+
+            <!-- Output files -->
+            <div class="ex-outputs">
+              <div class="ex-out-card">
+                <div class="ex-out-badge pdf">PDF</div>
+                <div class="ex-out-info">
+                  <div class="ex-out-name">Proposal_v3.pdf</div>
+                  <div class="ex-out-size">2.1 MB &middot; 12 pages</div>
+                </div>
+                <div class="ex-out-check">
+                  <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+              </div>
+              <div class="ex-out-card">
+                <div class="ex-out-badge docx">DOCX</div>
+                <div class="ex-out-info">
+                  <div class="ex-out-name">Proposal_v3.docx</div>
+                  <div class="ex-out-size">856 KB &middot; 12 pages</div>
+                </div>
+                <div class="ex-out-check">
+                  <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ TECH STACK ═════════════ -->
+  <section class="tech-stack" id="tech">
+    <div class="container">
+      <div class="tech-info reveal">
+        <div class="section-label">Built with</div>
+        <h2 class="section-title" style="font-size:2rem;">Modern stack, zero compromises</h2>
+        <p class="section-desc">
+          Production-grade architecture with TypeScript throughout. Every component chosen for speed, reliability, and
+          extensibility.
+        </p>
+      </div>
+      <div class="tech-chips reveal reveal-delay-1">
+        <div class="tech-chip">
+          <div class="tech-chip-icon">N</div>Next.js 16
+        </div>
+        <div class="tech-chip">
+          <div class="tech-chip-icon">R</div>React 19
+        </div>
+        <div class="tech-chip">
+          <div class="tech-chip-icon">T</div>TipTap 3
+        </div>
+        <div class="tech-chip">
+          <div class="tech-chip-icon">Z</div>Zustand
+        </div>
+        <div class="tech-chip">
+          <div class="tech-chip-icon">D</div>Dexie
+        </div>
+        <div class="tech-chip">
+          <div class="tech-chip-icon">TS</div>TypeScript
+        </div>
+        <div class="tech-chip">
+          <div class="tech-chip-icon">PM</div>ProseMirror
+        </div>
+        <div class="tech-chip">
+          <div class="tech-chip-icon">TW</div>Tailwind CSS
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ CTA ═════════════ -->
+  <section class="cta">
+    <div class="container">
+      <div class="reveal">
+        <h2 class="cta-title">Ready to write proposals<br>that <em>win deals</em>?</h2>
+        <p class="cta-desc">
+          No account required. No cloud upload. Open your browser and start building winning proposals in minutes.
+        </p>
+        <div class="cta-actions">
+          <button class="btn-primary btn-primary-lg">Launch DocBrand Editor</button>
+          <button class="btn-outline">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" y1="2" x2="12" y2="15" />
+            </svg>
+            View on GitHub
+          </button>
+        </div>
+        <p class="cta-note">Free forever. Open source. No strings attached.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ FOOTER ═════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a href="#" class="nav-logo">
+            <div class="nav-logo-icon">D</div>
+            DocBrand
+          </a>
+          <p class="footer-brand-desc">
+            Professional proposal editor with RFP requirement tracking, quality scanning, and offline-first
+            architecture. Built for teams that win.
+          </p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Templates</a></li>
+            <li><a href="#">Changelog</a></li>
+            <li><a href="#">Roadmap</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Resources</div>
+          <ul class="footer-links">
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">API Reference</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="#">About</a></li>
+            <li><a href="#">GitHub</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2025 DocBrand. All rights reserved.</span>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+          </a>
+          <a href="#" aria-label="Twitter/X">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </a>
+          <a href="#" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // SCROLL REVEAL
+    // ═══════════════════════════════════════════════════════════════
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ═══════════════════════════════════════════════════════════════
+    // DEMO ANIMATION TRIGGERS (play once on scroll into view)
+    // ═══════════════════════════════════════════════════════════════
+    const demoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.classList.contains('playing')) {
+          entry.target.classList.add('playing');
+        }
+      });
+    }, { threshold: 0.35 });
+
+    document.querySelectorAll('.link-demo, .paste-demo, .scan-demo, .export-demo').forEach(el => {
+      demoObserver.observe(el);
+    });
+
+    // Replay demos when they leave and re-enter viewport
+    const demoReplayObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting && entry.target.classList.contains('playing')) {
+          entry.target.classList.remove('playing');
+          // Force reflow to restart animations
+          void entry.target.offsetWidth;
+        }
+      });
+    }, { threshold: 0 });
+
+    document.querySelectorAll('.link-demo, .paste-demo, .scan-demo, .export-demo').forEach(el => {
+      demoReplayObserver.observe(el);
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // NAVBAR SCROLL EFFECT
+    // ═══════════════════════════════════════════════════════════════
+    const navbar = document.getElementById('navbar');
+    let lastScroll = 0;
+
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
+      if (currentScroll > 40) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+      lastScroll = currentScroll;
+    }, { passive: true });
+
+    // ═══════════════════════════════════════════════════════════════
+    // SMOOTH SCROLL FOR ANCHOR LINKS
+    // ═══════════════════════════════════════════════════════════════
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // COUNTER ANIMATION FOR STATS
+    // ═══════════════════════════════════════════════════════════════
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.counted) {
+          entry.target.dataset.counted = 'true';
+          animateCounters();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    const statsSection = document.querySelector('.stats');
+    if (statsSection) counterObserver.observe(statsSection);
+
+    function animateCounters() {
+      const nums = document.querySelectorAll('.stat-num');
+      nums.forEach(num => {
+        const text = num.textContent;
+        // Simple pulse effect
+        num.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+        num.style.transform = 'scale(1.05)';
+        setTimeout(() => { num.style.transform = 'scale(1)'; }, 400);
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // BUTTON RIPPLE EFFECT
+    // ═══════════════════════════════════════════════════════════════
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.cssText = `
+      position:absolute;
+      width:${size}px;height:${size}px;
+      left:${e.clientX - rect.left - size / 2}px;
+      top:${e.clientY - rect.top - size / 2}px;
+      background:rgba(0,0,0,0.15);
+      border-radius:50%;
+      transform:scale(0);
+      animation:ripple 0.6s ease-out;
+      pointer-events:none;
+    `;
+        this.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+
+    // Ripple keyframes
+    const rippleStyle = document.createElement('style');
+    rippleStyle.textContent = `
+  @keyframes ripple {
+    to { transform: scale(2.5); opacity: 0; }
+  }
+`;
+    document.head.appendChild(rippleStyle);
+  </script>
+
+</body>
+
+</html>
