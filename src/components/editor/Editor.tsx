@@ -177,12 +177,27 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 class: 'prose prose-slate max-w-none focus:outline-none min-h-[800px]',
                 style: 'white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word;',
             },
-            transformPastedHTML(html) {
-                return html;
-            },
-            transformPastedText(text) {
-                // Split by newlines, remove ALL empty lines, wrap non-empty lines in <p>
+            transformPastedText(text: string) {
                 const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+                if (lines.length === 0) return '<p></p>';
+                return lines.map(line => `<p>${line}</p>`).join('');
+            },
+            transformPastedHTML(html: string) {
+                // Check if the pasted HTML has real formatting tags
+                const hasFormatting = /<(h[1-6]|strong|em|b|i|ul|ol|li|table|blockquote|pre|code)\b/i.test(html);
+                if (hasFormatting) return html;
+
+                // Plain text disguised as HTML (from Notepad, browser, Word, etc.)
+                // Strip all tags, split into lines, wrap each in <p>
+                const stripped = html
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .replace(/<\/?(div|span|p|meta|html|head|body|style)[^>]*>/gi, '\n')
+                    .replace(/<[^>]+>/g, '')
+                    .replace(/&nbsp;/gi, ' ')
+                    .replace(/&amp;/gi, '&')
+                    .replace(/&lt;/gi, '<')
+                    .replace(/&gt;/gi, '>');
+                const lines = stripped.split(/\r?\n/).filter(line => line.trim().length > 0);
                 if (lines.length === 0) return '<p></p>';
                 return lines.map(line => `<p>${line}</p>`).join('');
             },

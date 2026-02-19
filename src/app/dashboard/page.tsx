@@ -37,27 +37,35 @@ export default function Dashboard() {
             {/* Main Content - 3 Column Layout */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Left Sidebar - RFP Requirements */}
-                {leftSidebarOpen && (
+                <div
+                    className="sidebar-wrapper"
+                    style={{ width: leftSidebarOpen ? 280 : 0 }}
+                >
                     <LeftSidebar onImportClick={() => setShowImportModal(true)} />
-                )}
+                </div>
 
                 {/* Center - Editor */}
                 <Editor onEditHeaderFooter={() => setShowHeaderFooterModal(true)} />
 
                 {/* Right Sidebar - Scan, Styles, Sources */}
-                {rightSidebarOpen && <RightSidebar />}
+                <div
+                    className="sidebar-wrapper"
+                    style={{ width: rightSidebarOpen ? 280 : 0 }}
+                >
+                    <RightSidebar />
+                </div>
             </div>
 
             {/* Bottom Status Bar */}
             <StatusBar onOpenShredder={() => setShowShredderModal(true)} />
 
-            {/* Modals */}
-            {showImportModal && <ImportModal onClose={() => setShowImportModal(false)} />}
-            {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} />}
-            {showHeaderFooterModal && <HeaderFooterModal onClose={() => setShowHeaderFooterModal(false)} />}
-            {showShredderModal && <ShredderModal onClose={() => setShowShredderModal(false)} />}
-            {showSearchModal && <SearchModal onClose={() => setShowSearchModal(false)} />}
-            {showSettingsModal && <SettingsModal onClose={() => setShowSettingsModal(false)} />}
+            {/* Modals - always rendered for animation */}
+            <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} />
+            <ExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
+            <HeaderFooterModal isOpen={showHeaderFooterModal} onClose={() => setShowHeaderFooterModal(false)} />
+            <ShredderModal isOpen={showShredderModal} onClose={() => setShowShredderModal(false)} />
+            <SearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
+            <SettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
         </div>
     );
 }

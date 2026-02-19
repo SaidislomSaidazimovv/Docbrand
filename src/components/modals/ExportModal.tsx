@@ -5,6 +5,7 @@ import { X, Download, FileText, Check, AlertCircle } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 
 interface ExportModalProps {
+    isOpen: boolean;
     onClose: () => void;
 }
 
@@ -17,7 +18,7 @@ interface ExportStep {
     completed: boolean;
 }
 
-export default function ExportModal({ onClose }: ExportModalProps) {
+export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
     const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('pdf');
     const [phase, setPhase] = useState<Phase>('select');
     const [fileName, setFileName] = useState('proposal');
@@ -325,9 +326,9 @@ export default function ExportModal({ onClose }: ExportModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 modal-overlay ${isOpen ? 'modal-open' : ''}`} onClick={onClose}>
             <div
-                className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden"
+                className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden modal-panel"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close button */}

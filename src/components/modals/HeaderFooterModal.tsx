@@ -5,6 +5,7 @@ import { X, Image, Building2, FileText, Calendar, Hash, Upload, AlignLeft, Align
 import { useHeaderFooterStore, TEMPLATES, Alignment, HeaderConfig, FooterConfig } from '@/store/headerFooterStore';
 
 interface HeaderFooterModalProps {
+    isOpen: boolean;
     onClose: () => void;
 }
 
@@ -157,7 +158,7 @@ function formatDate(format: 'short' | 'long' | 'iso') {
     }
 }
 
-export default function HeaderFooterModal({ onClose }: HeaderFooterModalProps) {
+export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModalProps) {
     const [activeTab, setActiveTab] = useState<Tab>('header');
     const [showPreview, setShowPreview] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -178,8 +179,8 @@ export default function HeaderFooterModal({ onClose }: HeaderFooterModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="w-full max-w-4xl max-h-[90vh] bg-[#161b22] rounded-xl shadow-2xl border border-[#30363d] flex flex-col overflow-hidden">
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm modal-overlay ${isOpen ? 'modal-open' : ''}`}>
+            <div className="w-full max-w-4xl max-h-[90vh] bg-[#161b22] rounded-xl shadow-2xl border border-[#30363d] flex flex-col overflow-hidden modal-panel">
                 {/* Modal Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363d]">
                     <div className="flex items-center gap-3">

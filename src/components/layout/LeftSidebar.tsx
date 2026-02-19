@@ -221,7 +221,7 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
     const isEmpty = requirements.length === 0;
 
     return (
-        <aside className="w-[280px] flex-shrink-0 bg-[#161b22] border-r border-[#30363d] flex flex-col h-full">
+        <aside className="w-[280px] min-w-[280px] flex-shrink-0 bg-[#161b22] border-r border-[#30363d] flex flex-col h-full">
             {/* Header with Coverage */}
             <div className="px-4 py-3 border-b border-[#21262d]">
                 <div className="flex items-center justify-between mb-2">
@@ -276,7 +276,7 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
             )}
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <div className="flex-1 overflow-y-auto sidebar-scroll">
                 {isEmpty ? (
                     /* Empty State */
                     <div className="flex flex-col items-center justify-center h-full px-6 text-center">

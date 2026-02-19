@@ -175,7 +175,7 @@ export default function RightSidebar() {
     };
 
     return (
-        <aside className="w-[280px] flex-shrink-0 bg-[#161b22] border-l border-[#30363d] flex flex-col h-full">
+        <aside className="w-[280px] min-w-[280px] flex-shrink-0 bg-[#161b22] border-l border-[#30363d] flex flex-col h-full">
             {/* Tabs */}
             <div className="flex border-b border-[#21262d]">
                 <button
@@ -211,7 +211,7 @@ export default function RightSidebar() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 p-4 overflow-y-auto">
+            <div className="flex-1 p-4 overflow-y-auto sidebar-scroll">
                 {activeTab === 'scan' && (
                     <div>
                         <h3 className="text-sm font-semibold text-[#c9d1d9] mb-3">

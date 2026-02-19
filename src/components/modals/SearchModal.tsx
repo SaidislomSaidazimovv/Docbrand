@@ -6,10 +6,11 @@ import { useLibraryStore, LibraryItem } from '@/store/libraryStore';
 import { useEditorStore } from '@/store/editorStore';
 
 interface SearchModalProps {
+    isOpen: boolean;
     onClose: () => void;
 }
 
-export default function SearchModal({ onClose }: SearchModalProps) {
+export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const [query, setQuery] = useState('');
     const [semanticMode, setSemanticMode] = useState(true);
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -131,8 +132,8 @@ export default function SearchModal({ onClose }: SearchModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="w-[700px] max-h-[80vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden">
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm modal-overlay ${isOpen ? 'modal-open' : ''}`}>
+            <div className="w-[700px] max-h-[80vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden modal-panel">
                 {/* Search Header */}
                 <div className="p-4 border-b flex items-center gap-3">
                     <Search size={20} className="text-gray-400" />

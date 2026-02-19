@@ -52,6 +52,85 @@ body {
   display: none;
 }
 
+/* Minimal scrollbar for sidebar panels */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.sidebar-scroll:hover {
+  scrollbar-color: rgba(139, 148, 158, 0.4) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+}
+
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(139, 148, 158, 0.4);
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 148, 158, 0.6);
+}
+
+/* Sidebar slide animation wrapper */
+.sidebar-wrapper {
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: width 300ms ease-in-out;
+}
+
+/* Modal slide-up animation */
+.modal-overlay {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease-in-out;
+}
+
+.modal-overlay.modal-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-panel {
+  transform: translateY(20px) scale(0.98);
+  opacity: 0;
+  transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
+}
+
+.modal-open .modal-panel {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Dropdown menu animation */
+.dropdown-menu {
+  transform-origin: top;
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.dropdown-menu.closed {
+  opacity: 0;
+  transform: scaleY(0.95);
+  pointer-events: none;
+}
+
+.dropdown-menu.open {
+  opacity: 1;
+  transform: scaleY(1);
+  pointer-events: auto;
+}
+
 /* Document editor styles */
 .document-editor {
   background: #ffffff !important;
@@ -178,13 +257,16 @@ body {
   font-family: 'Times New Roman', Times, serif !important;
   font-size: 16px !important;
   font-weight: 400 !important;
-  font-style: normal;
+  font-style: normal !important;
   line-height: 1 !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   color: #1A1A1A !important;
+}
+
+/* Override Tailwind prose sibling spacing */
+.ProseMirror > * + * {
+  margin-top: 0 !important;
 }
 
 /* Line breaks - Shift+Enter should not add extra spacing */

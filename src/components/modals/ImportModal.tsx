@@ -7,6 +7,7 @@ import { useSourcesStore } from '@/store/sourcesStore';
 import type { Requirement } from '@/types';
 
 interface ImportModalProps {
+    isOpen: boolean;
     onClose: () => void;
 }
 
@@ -22,7 +23,7 @@ interface ExtractedReq {
     reqId?: string;
 }
 
-export default function ImportModal({ onClose }: ImportModalProps) {
+export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
     const [phase, setPhase] = useState<Phase>('upload');
     const [fileName, setFileName] = useState('');
     const [fileSize, setFileSize] = useState(0);
@@ -157,8 +158,8 @@ export default function ImportModal({ onClose }: ImportModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="w-full max-w-2xl bg-[#161b22] rounded-lg shadow-2xl border border-[#30363d]">
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 modal-overlay ${isOpen ? 'modal-open' : ''}`}>
+            <div className="w-full max-w-2xl bg-[#161b22] rounded-lg shadow-2xl border border-[#30363d] modal-panel">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363d]">
                     <h2 className="text-lg font-semibold text-[#c9d1d9]">Import RFP Document</h2>

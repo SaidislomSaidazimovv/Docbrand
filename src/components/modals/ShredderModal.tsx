@@ -6,6 +6,7 @@ import { useRequirementsStore } from '@/store/requirementsStore';
 import type { Requirement } from '@/types';
 
 interface ShredderModalProps {
+    isOpen: boolean;
     onClose: () => void;
 }
 
@@ -18,7 +19,7 @@ const COLUMNS: { id: KanbanStatus; title: string; color: string }[] = [
     { id: 'complete', title: 'Complete', color: '#3fb950' },
 ];
 
-export default function ShredderModal({ onClose }: ShredderModalProps) {
+export default function ShredderModal({ isOpen, onClose }: ShredderModalProps) {
     const { requirements, setKanbanStatus } = useRequirementsStore();
     const [draggedReq, setDraggedReq] = useState<string | null>(null);
     const [dragOverColumn, setDragOverColumn] = useState<KanbanStatus | null>(null);
@@ -64,8 +65,8 @@ export default function ShredderModal({ onClose }: ShredderModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="w-[95vw] max-w-[1400px] h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden">
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm modal-overlay ${isOpen ? 'modal-open' : ''}`}>
+            <div className="w-[95vw] max-w-[1400px] h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden modal-panel">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 bg-[#1a1a2e] border-b border-[#30363d]">
                     <span className="text-lg font-semibold text-white">RFP Response Progress</span>

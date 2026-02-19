@@ -28,11 +28,11 @@ interface StyleState {
 }
 
 export const useStyleStore = create<StyleState>((set) => ({
-    fontFamily: 'Inter',
-    fontSize: 14,
-    lineHeight: 1.7,
+    fontFamily: 'Times New Roman',
+    fontSize: 16,
+    lineHeight: 1,
     spaceBefore: 0,
-    spaceAfter: 12,
+    spaceAfter: 0,
     firstLineIndent: 0,
 
     setFontFamily: (font) => set({ fontFamily: font }),

@@ -7,10 +7,11 @@ import { useRequirementsStore } from '@/store/requirementsStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 
 interface SettingsModalProps {
+    isOpen: boolean;
     onClose: () => void;
 }
 
-export default function SettingsModal({ onClose }: SettingsModalProps) {
+export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const [activeTab, setActiveTab] = useState<'history' | 'general'>('history');
 
     const { history, clearHistory, removeHistoryEntry } = useHistoryStore();
@@ -42,9 +43,9 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+        <div className={`fixed inset-0 bg-black/60 flex items-center justify-center z-50 modal-overlay ${isOpen ? 'modal-open' : ''}`} onClick={onClose}>
             <div
-                className="bg-[#161b22] rounded-xl w-[600px] max-h-[80vh] flex flex-col shadow-2xl border border-[#30363d]"
+                className="bg-[#161b22] rounded-xl w-[600px] max-h-[80vh] flex flex-col shadow-2xl border border-[#30363d] modal-panel"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
