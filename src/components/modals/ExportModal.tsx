@@ -81,58 +81,32 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                 const container = document.createElement('div');
                 container.innerHTML = htmlContent;
 
+                // Government-compliant typography styles
+                const pdfStyles = document.createElement('style');
+                pdfStyles.textContent = `
+                  * { font-family: 'Times New Roman', Times, serif !important; }
+                  h1 { font-size: 42.67px; font-weight: 700; line-height: 0.65; margin-top: 0; margin-bottom: 24pt; color: #1A1A1A; }
+                  h2 { font-size: 21.33px; font-weight: 700; line-height: 1.15; margin-top: 6pt; margin-bottom: 12pt; color: #13818A; }
+                  h3 { font-size: 18.67px; font-weight: 700; line-height: 1.15; margin-top: 14pt; margin-bottom: 6pt; color: #1A1A1A; }
+                  h4 { font-size: 17.33px; font-weight: 700; font-style: italic; line-height: 1; margin-top: 12pt; margin-bottom: 6pt; color: #1A1A1A; }
+                  h5 { font-size: 14.67px; font-weight: 400; line-height: 1; margin-top: 0; margin-bottom: 4pt; color: #1A1A1A; }
+                  h6 { font-size: 16px; font-weight: 400; line-height: 1.5; margin-top: 0; margin-bottom: 6pt; color: #1A1A1A; }
+                  p  { font-size: 16px; font-weight: 400; line-height: 1; margin-top: 0; margin-bottom: 6pt; color: #1A1A1A; }
+                `;
+                container.prepend(pdfStyles);
+
                 // Container base styles with proper text wrapping
                 container.style.width = '210mm'; // A4 width
                 container.style.maxWidth = '100%';
                 container.style.padding = '40px';
-                container.style.fontFamily = 'Inter, sans-serif';
-                container.style.fontSize = '14px';
-                container.style.lineHeight = '1.6';
-                container.style.color = '#1f2328';
+                container.style.fontFamily = "'Times New Roman', Times, serif";
+                container.style.fontSize = '16px';
+                container.style.lineHeight = '1';
+                container.style.color = '#1A1A1A';
                 container.style.wordWrap = 'break-word';
                 container.style.wordBreak = 'break-word';
                 container.style.overflowWrap = 'break-word';
                 container.style.whiteSpace = 'normal';
-
-                // Style all paragraphs
-                container.querySelectorAll('p').forEach((p) => {
-                    (p as HTMLElement).style.marginBottom = '12px';
-                    (p as HTMLElement).style.wordWrap = 'break-word';
-                    (p as HTMLElement).style.overflowWrap = 'break-word';
-                });
-
-                // Style H1
-                container.querySelectorAll('h1').forEach((h1) => {
-                    (h1 as HTMLElement).style.fontSize = '28px';
-                    (h1 as HTMLElement).style.fontWeight = '700';
-                    (h1 as HTMLElement).style.marginBottom = '16px';
-                    (h1 as HTMLElement).style.marginTop = '24px';
-                    (h1 as HTMLElement).style.wordWrap = 'break-word';
-                });
-
-                // Style H2
-                container.querySelectorAll('h2').forEach((h2) => {
-                    (h2 as HTMLElement).style.fontSize = '22px';
-                    (h2 as HTMLElement).style.fontWeight = '600';
-                    (h2 as HTMLElement).style.marginTop = '24px';
-                    (h2 as HTMLElement).style.marginBottom = '12px';
-                    (h2 as HTMLElement).style.wordWrap = 'break-word';
-                });
-
-                // Style H3-H6
-                container.querySelectorAll('h3').forEach((h3) => {
-                    (h3 as HTMLElement).style.fontSize = '18px';
-                    (h3 as HTMLElement).style.fontWeight = '600';
-                    (h3 as HTMLElement).style.marginTop = '20px';
-                    (h3 as HTMLElement).style.marginBottom = '10px';
-                });
-
-                container.querySelectorAll('h4, h5, h6').forEach((h) => {
-                    (h as HTMLElement).style.fontSize = '16px';
-                    (h as HTMLElement).style.fontWeight = '600';
-                    (h as HTMLElement).style.marginTop = '16px';
-                    (h as HTMLElement).style.marginBottom = '8px';
-                });
 
                 // Style lists
                 container.querySelectorAll('ul, ol').forEach((list) => {
@@ -173,7 +147,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                 /**
                  * Process a node (element or text) into DOCX nodes
                  */
-                const processNode = (node: Node, formatting: { bold?: boolean; italic?: boolean } = {}): any[] => {
+                const processNode = (node: Node, formatting: { bold?: boolean; italic?: boolean; size?: number; color?: string; font?: string } = {}): any[] => {
                     const results: any[] = [];
 
                     if (node.nodeType === Node.TEXT_NODE) {
@@ -182,7 +156,10 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                             results.push(new TextRun({
                                 text,
                                 bold: formatting.bold,
-                                italics: formatting.italic
+                                italics: formatting.italic,
+                                size: formatting.size,
+                                color: formatting.color,
+                                font: formatting.font || 'Times New Roman',
                             }));
                         }
                         return results;
@@ -193,7 +170,7 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                     const element = node as HTMLElement;
 
                     // Process children with inherited formatting
-                    const processChildren = (additionalFormatting: { bold?: boolean; italic?: boolean } = {}) => {
+                    const processChildren = (additionalFormatting: { bold?: boolean; italic?: boolean; size?: number; color?: string; font?: string } = {}) => {
                         const merged = { ...formatting, ...additionalFormatting };
                         const childResults: any[] = [];
                         element.childNodes.forEach(child => {
@@ -203,30 +180,65 @@ export default function ExportModal({ onClose }: ExportModalProps) {
                     };
 
                     switch (element.tagName) {
-                        case 'H1':
-                        case 'H2':
-                        case 'H3':
-                        case 'H4':
-                        case 'H5':
-                        case 'H6': {
-                            const level = parseInt(element.tagName[1]);
-                            const headingLevels = [
-                                HeadingLevel.HEADING_1,
-                                HeadingLevel.HEADING_2,
-                                HeadingLevel.HEADING_3,
-                                HeadingLevel.HEADING_4,
-                                HeadingLevel.HEADING_5,
-                                HeadingLevel.HEADING_6,
-                            ];
+                        case 'H1': {
+                            // Title: 32pt (size=64 half-pts), bold, #1A1A1A, after=480twips
                             children.push(new Paragraph({
-                                heading: headingLevels[level - 1],
-                                children: processChildren(),
+                                heading: HeadingLevel.HEADING_1,
+                                children: processChildren({ bold: true, size: 64, color: '1A1A1A', font: 'Times New Roman' }),
+                                spacing: { before: 0, after: 480, line: 240 },
+                            }));
+                            break;
+                        }
+                        case 'H2': {
+                            // Section: 16pt (size=32), bold, #13818A, before=120 after=240
+                            children.push(new Paragraph({
+                                heading: HeadingLevel.HEADING_2,
+                                children: processChildren({ bold: true, size: 32, color: '13818A', font: 'Times New Roman' }),
+                                spacing: { before: 120, after: 240, line: 276 },
+                            }));
+                            break;
+                        }
+                        case 'H3': {
+                            // Subsection: 14pt (size=28), bold, #1A1A1A, before=280 after=120
+                            children.push(new Paragraph({
+                                heading: HeadingLevel.HEADING_3,
+                                children: processChildren({ bold: true, size: 28, color: '1A1A1A', font: 'Times New Roman' }),
+                                spacing: { before: 280, after: 120, line: 276 },
+                            }));
+                            break;
+                        }
+                        case 'H4': {
+                            // Sub-subsection: 13pt (size=26), bold italic, #1A1A1A, before=240 after=120
+                            children.push(new Paragraph({
+                                heading: HeadingLevel.HEADING_4,
+                                children: processChildren({ bold: true, italic: true, size: 26, color: '1A1A1A', font: 'Times New Roman' }),
+                                spacing: { before: 240, after: 120, line: 240 },
+                            }));
+                            break;
+                        }
+                        case 'H5': {
+                            // Callout: 11pt (size=22), regular, #1A1A1A, after=80
+                            children.push(new Paragraph({
+                                heading: HeadingLevel.HEADING_5,
+                                children: processChildren({ size: 22, color: '1A1A1A', font: 'Times New Roman' }),
+                                spacing: { before: 0, after: 80, line: 240 },
+                            }));
+                            break;
+                        }
+                        case 'H6': {
+                            // Lead: 12pt (size=24), regular, #1A1A1A, after=120
+                            children.push(new Paragraph({
+                                heading: HeadingLevel.HEADING_6,
+                                children: processChildren({ size: 24, color: '1A1A1A', font: 'Times New Roman' }),
+                                spacing: { before: 0, after: 120, line: 360 },
                             }));
                             break;
                         }
                         case 'P':
+                            // Body: 12pt (size=24), regular, #1A1A1A, after=120
                             children.push(new Paragraph({
-                                children: processChildren(),
+                                children: processChildren({ size: 24, color: '1A1A1A', font: 'Times New Roman' }),
+                                spacing: { before: 0, after: 120, line: 240 },
                             }));
                             break;
                         case 'LI':

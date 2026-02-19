@@ -177,6 +177,15 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 class: 'prose prose-slate max-w-none focus:outline-none min-h-[800px]',
                 style: 'white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word;',
             },
+            transformPastedHTML(html) {
+                return html;
+            },
+            transformPastedText(text) {
+                // Split by newlines, remove ALL empty lines, wrap non-empty lines in <p>
+                const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+                if (lines.length === 0) return '<p></p>';
+                return lines.map(line => `<p>${line}</p>`).join('');
+            },
         },
     });
 
@@ -216,8 +225,8 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 font-family: '${fontFamily}', sans-serif !important;
                 font-size: ${fontSize}px !important;
                 line-height: ${lineHeight} !important;
-                margin-top: 0 !important;
-                margin-bottom: 0 !important;
+                margin-top: ${spaceBefore}pt !important;
+                margin-bottom: ${spaceAfter}pt !important;
                 text-indent: ${firstLineIndent}in !important;
                 position: relative;
             }

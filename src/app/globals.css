@@ -86,7 +86,8 @@ body {
 .ProseMirror {
   outline: none;
   min-height: 100%;
-  color: #37352f;
+  color: #1A1A1A;
+  font-weight: 400;
   /* Proper text wrapping - no horizontal scroll */
   white-space: pre-wrap;
   /* Preserves line breaks but wraps at container edge */
@@ -95,43 +96,95 @@ body {
   word-break: break-word;
   /* Break long URLs/text */
   max-width: 100%;
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, 'Apple Color Emoji', Arial, sans-serif;
+  font-family: 'Times New Roman', Times, serif;
   font-size: 16px;
-  line-height: 1.5;
-  caret-color: #37352f;
+  line-height: 1;
+  caret-color: #1A1A1A;
   cursor: text;
 }
 
-/* H1 - Heading 1 (Notion: 30px) */
+/* H1 - Section Heading (Government: 16pt) */
 .ProseMirror h1 {
-  font-size: 1.875rem;
+  font-size: 21.33px;
   font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
-  margin-top: 2em;
-  margin-bottom: 4px;
-  color: #37352f;
+  line-height: 1.15;
+  margin-top: 6pt;
+  margin-bottom: 12pt;
+  color: #13818A;
+  font-family: 'Times New Roman', Times, serif;
 }
 
-/* H2 - Heading 2 (Notion: 24px) */
+/* H2 - Subsection (Government: 14pt) */
 .ProseMirror h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  line-height: 1.3;
-  margin: 0;
-  margin-top: 1.4em;
-  margin-bottom: 1px;
-  color: #37352f;
+  font-size: 18.67px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-top: 14pt;
+  margin-bottom: 6pt;
+  color: #1A1A1A;
+  font-family: 'Times New Roman', Times, serif;
 }
 
-/* P - Body Text - Clean spacing for infinite scroll */
-.ProseMirror p {
-  font-size: 1rem;
+/* H3 - Sub-subsection (Government: 13pt) */
+.ProseMirror h3 {
+  font-size: 17.33px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  margin-top: 12pt;
+  margin-bottom: 6pt;
+  color: #1A1A1A;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* H4 - Sub-subsection (Government: 13pt) */
+.ProseMirror h4 {
+  font-size: 17.33px;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  margin-top: 12pt;
+  margin-bottom: 6pt;
+  color: #1A1A1A;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* H5 - Callout (Government: 11pt) */
+.ProseMirror h5 {
+  font-size: 14.67px;
   font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+  margin-top: 0;
+  margin-bottom: 4pt;
+  color: #1A1A1A;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* H6 - Lead (Government: 12pt) */
+.ProseMirror h6 {
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
   line-height: 1.5;
-  margin: 0;
-  padding: 0;
-  color: #37352f;
+  margin-top: 0;
+  margin-bottom: 6pt;
+  color: #1A1A1A;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* P - Body Text (Government: 12pt) */
+.ProseMirror p {
+  font-family: 'Times New Roman', Times, serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  font-style: normal;
+  line-height: 1 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  color: #1A1A1A !important;
 }
 
 /* Line breaks - Shift+Enter should not add extra spacing */
@@ -172,14 +225,19 @@ body {
   font-style: italic;
 }
 
-/* Caption style */
+/* Caption style (Government: 10pt) */
 .ProseMirror .caption,
-.ProseMirror small {
-  font-family: var(--doc-font-family);
-  font-size: calc(var(--doc-font-size) * 0.85);
-  font-weight: 300;
-  line-height: 1.5;
-  color: #6b7280;
+.ProseMirror small,
+.ProseMirror p.caption,
+.ProseMirror figcaption {
+  font-size: 13.33px;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1;
+  margin-top: 6pt;
+  margin-bottom: 4pt;
+  color: #616366;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 /* Placeholder */
@@ -241,7 +299,10 @@ body {
 .ProseMirror ul,
 .ProseMirror ol {
   padding-left: 1.5em;
-  margin: 0;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .ProseMirror ul {
@@ -253,12 +314,17 @@ body {
 }
 
 .ProseMirror li {
-  padding: 3px 2px;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
-.ProseMirror li p {
-  margin: 0;
-  padding: 0;
+.ProseMirror li > p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 /* Horizontal rule - Notion style */
