@@ -7,6 +7,7 @@ import { useSourcesStore } from '@/store/sourcesStore';
 import { useHistoryStore } from '@/store/historyStore';
 import { EditorController } from '@/lib/editor';
 import { unmarkBlockAsLinked } from '@/lib/editor/plugins/LinkedBlockDecorator';
+import ConfirmModal from '@/components/modals/ConfirmModal';
 import type { Requirement } from '@/types';
 
 interface LeftSidebarProps {
@@ -23,6 +24,7 @@ interface Section {
 export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<'map' | 'rfp'>('rfp');
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
 
     const { requirements, activeLinkingReqId, setLinkingMode, clearRequirements, unlinkFromBlock } = useRequirementsStore();
     const { sources, clearSources } = useSourcesStore();
@@ -33,17 +35,20 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
         if (requirements.length === 0 && sources.length === 0) {
             return;
         }
-        if (confirm('Clear all imported data? This will be saved to history.')) {
-            const linkedCount = requirements.filter(r => r.status === 'linked').length;
-            addToHistory({
-                sources: [...sources],
-                requirements: [...requirements],
-                linkedCount,
-                totalCount: requirements.length,
-            });
-            clearRequirements();
-            clearSources();
-        }
+        setShowClearConfirm(true);
+    };
+
+    const confirmClearAll = () => {
+        const linkedCount = requirements.filter(r => r.status === 'linked').length;
+        addToHistory({
+            sources: [...sources],
+            requirements: [...requirements],
+            linkedCount,
+            totalCount: requirements.length,
+        });
+        clearRequirements();
+        clearSources();
+        setShowClearConfirm(false);
     };
 
     const toggleSection = (section: string) => {
@@ -457,6 +462,16 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                     </div>
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={showClearConfirm}
+                title="Clear All"
+                message="Clear all imported data? This will be saved to history."
+                confirmLabel="OK"
+                cancelLabel="Cancel"
+                onConfirm={confirmClearAll}
+                onCancel={() => setShowClearConfirm(false)}
+            />
         </aside>
     );
 }

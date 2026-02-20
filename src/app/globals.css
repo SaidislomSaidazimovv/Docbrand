@@ -184,29 +184,29 @@ body {
 
 /* H1 - Section Heading (Government: 16pt) */
 .ProseMirror h1 {
-  font-size: 21.33px;
+  font-size: 42.67px;
   font-weight: 700;
   line-height: 1.15;
   margin-top: 6pt;
   margin-bottom: 12pt;
-  color: #13818A;
+  color: #1A1A1A;
   font-family: 'Times New Roman', Times, serif;
 }
 
 /* H2 - Subsection (Government: 14pt) */
 .ProseMirror h2 {
-  font-size: 18.67px;
+  font-size: 21.33px;
   font-weight: 700;
   line-height: 1.15;
   margin-top: 14pt;
   margin-bottom: 6pt;
-  color: #1A1A1A;
+  color: #13818A;
   font-family: 'Times New Roman', Times, serif;
 }
 
-/* H3 - Sub-subsection (Government: 13pt) */
+/* H3 - Sub-subsection (Government: 14pt) */
 .ProseMirror h3 {
-  font-size: 17.33px;
+  font-size: 18.67px;
   font-weight: 700;
   font-style: italic;
   line-height: 1;

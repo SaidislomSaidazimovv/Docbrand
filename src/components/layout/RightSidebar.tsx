@@ -100,13 +100,10 @@ export default function RightSidebar() {
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     };
 
-    // Handle font change - also apply to editor selection
+    // Handle font change - updates store → dynamic CSS applies globally
     const handleFontChange = (font: string) => {
         setFontFamily(font);
         setShowFontDropdown(false);
-        if (editor) {
-            editor.chain().focus().setFontFamily(font).run();
-        }
     };
 
     // Handle preset with editor command - ONLY affects current paragraph (where cursor is)

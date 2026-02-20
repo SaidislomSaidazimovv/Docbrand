@@ -24,6 +24,8 @@ import { MarkdownPasteHandler } from './extensions/MarkdownPasteHandler';
 import { mentionSuggestion } from './extensions/MentionSuggestion';
 import { SlashCommands } from './extensions/SlashCommands';
 import { QualityScanner } from './extensions/QualityScanner';
+import { FontSize } from './extensions/FontSize';
+import { LineHeight } from './extensions/LineHeight';
 import SlashCommandsMenu, { getSuggestionItems } from './SlashCommandsMenu';
 import FloatingToolbar from './FloatingToolbar';
 import BlockHandleOverlay from './BlockHandleOverlay';
@@ -77,6 +79,8 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             }),
             TextStyle,
             FontFamily,
+            FontSize,
+            LineHeight,
             Underline,
             Link.configure({
                 openOnClick: false,
@@ -224,7 +228,6 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             document.head.appendChild(styleRef.current);
         }
 
-        // Generate CSS rules including red line indicator
         const css = `
             .ProseMirror {
                 font-family: '${fontFamily}', sans-serif !important;
@@ -247,15 +250,11 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             }
             .ProseMirror h1 {
                 font-family: '${fontFamily}', sans-serif !important;
-                font-size: ${Math.round(fontSize * 2.3)}px !important;
-                line-height: 1.2 !important;
                 margin-top: ${spaceBefore}pt !important;
                 margin-bottom: ${spaceAfter}pt !important;
             }
             .ProseMirror h2 {
                 font-family: '${fontFamily}', sans-serif !important;
-                font-size: ${Math.round(fontSize * 1.7)}px !important;
-                line-height: 1.3 !important;
                 margin-top: ${spaceBefore}pt !important;
                 margin-bottom: ${spaceAfter}pt !important;
             }

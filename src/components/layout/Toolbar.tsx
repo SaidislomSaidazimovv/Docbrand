@@ -31,6 +31,7 @@ import { useRequirementsStore } from '@/store/requirementsStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useUIStore } from '@/store/uiStore';
 import { useHistoryStore } from '@/store/historyStore';
+import ConfirmModal from '@/components/modals/ConfirmModal';
 
 interface ToolbarProps {
     documentTitle?: string;
@@ -50,6 +51,7 @@ export default function Toolbar({
     onSettingsClick,
 }: ToolbarProps) {
     const [openMenu, setOpenMenu] = useState<MenuType>(null);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
     const editor = useEditorStore((state) => state.editor);
 
     // Requirements store
@@ -85,29 +87,27 @@ export default function Toolbar({
     // Clear All - saves to history before clearing
     const handleClearAll = () => {
         if (requirements.length === 0 && sources.length === 0) {
-            alert('Nothing to clear.');
             closeMenus();
             return;
         }
-
-        if (confirm('Clear all imported data? This will be saved to history.')) {
-            // Save to history before clearing
-            const linkedCount = requirements.filter(r => r.status === 'linked').length;
-            addToHistory({
-                sources: [...sources],
-                requirements: [...requirements],
-                linkedCount,
-                totalCount: requirements.length,
-            });
-
-            // Clear everything
-            clearRequirements();
-            clearSources();
-            if (editor) {
-                editor.commands.clearContent();
-            }
-        }
+        setShowClearConfirm(true);
         closeMenus();
+    };
+
+    const confirmClearAll = () => {
+        const linkedCount = requirements.filter(r => r.status === 'linked').length;
+        addToHistory({
+            sources: [...sources],
+            requirements: [...requirements],
+            linkedCount,
+            totalCount: requirements.length,
+        });
+        clearRequirements();
+        clearSources();
+        if (editor) {
+            editor.commands.clearContent();
+        }
+        setShowClearConfirm(false);
     };
 
     const handleUndo = () => {
@@ -376,6 +376,16 @@ export default function Toolbar({
             {openMenu && (
                 <div className="fixed inset-0 z-40" onClick={closeMenus} />
             )}
+
+            <ConfirmModal
+                isOpen={showClearConfirm}
+                title="Clear All"
+                message="Clear all imported data? This will be saved to history."
+                confirmLabel="OK"
+                cancelLabel="Cancel"
+                onConfirm={confirmClearAll}
+                onCancel={() => setShowClearConfirm(false)}
+            />
         </header>
     );
 }

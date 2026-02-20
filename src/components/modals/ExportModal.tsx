@@ -138,7 +138,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
                 await html2pdf().set(options).from(container).save();
             } else {
-                const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx');
+                const { Document, Packer, Paragraph, TextRun, HeadingLevel, LevelFormat, AlignmentType } = await import('docx');
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = htmlContent;
 
@@ -242,16 +242,60 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                 spacing: { before: 0, after: 120, line: 240 },
                             }));
                             break;
-                        case 'LI':
-                            // List items are handled by parent UL/OL
-                            children.push(new Paragraph({
-                                children: processChildren(),
-                                bullet: { level: 0 },
-                            }));
+                        case 'LI': {
+                            // TipTap wraps list item text in <p> inside <li>
+                            // Extract text runs directly, skipping the <p> wrapper
+                            // to avoid creating an extra body paragraph
+                            const liRuns: any[] = [];
+                            element.childNodes.forEach(child => {
+                                if (child.nodeType === Node.TEXT_NODE) {
+                                    const text = child.textContent || '';
+                                    if (text.trim()) {
+                                        liRuns.push(new TextRun({
+                                            text,
+                                            font: formatting.font || 'Times New Roman',
+                                            size: formatting.size || 24,
+                                            color: formatting.color || '1A1A1A',
+                                            bold: formatting.bold,
+                                            italics: formatting.italic,
+                                        }));
+                                    }
+                                } else if (child.nodeType === Node.ELEMENT_NODE) {
+                                    const el = child as HTMLElement;
+                                    if (el.tagName === 'P') {
+                                        // Unwrap <p> — extract its inline content as TextRuns
+                                        el.childNodes.forEach(pChild => {
+                                            liRuns.push(...processNode(pChild, {
+                                                ...formatting,
+                                                size: formatting.size || 24,
+                                                color: formatting.color || '1A1A1A',
+                                                font: formatting.font || 'Times New Roman',
+                                            }));
+                                        });
+                                    } else {
+                                        // Inline elements (STRONG, EM, etc.)
+                                        liRuns.push(...processNode(child, formatting));
+                                    }
+                                }
+                            });
+
+                            const isOrdered = element.parentElement?.tagName === 'OL';
+                            if (isOrdered) {
+                                children.push(new Paragraph({
+                                    children: liRuns,
+                                    numbering: { reference: 'ordered-list', level: 0 },
+                                }));
+                            } else {
+                                children.push(new Paragraph({
+                                    children: liRuns,
+                                    bullet: { level: 0 },
+                                }));
+                            }
                             break;
+                        }
                         case 'UL':
                         case 'OL':
-                            // Process each list item
+                            // Process each direct child list item
                             element.querySelectorAll(':scope > li').forEach(li => {
                                 processNode(li, formatting);
                             });
@@ -304,7 +348,20 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 await new Promise(resolve => setTimeout(resolve, 300));
                 completeStep('finalize');
 
-                const doc = new Document({ sections: [{ children }] });
+                const doc = new Document({
+                    numbering: {
+                        config: [{
+                            reference: 'ordered-list',
+                            levels: [{
+                                level: 0,
+                                format: LevelFormat.DECIMAL,
+                                text: '%1.',
+                                alignment: AlignmentType.START,
+                            }],
+                        }],
+                    },
+                    sections: [{ children }],
+                });
                 const blob = await Packer.toBlob(doc);
                 setDownloadBlob(blob);
             }
