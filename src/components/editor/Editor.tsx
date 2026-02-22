@@ -33,6 +33,7 @@ import { Edit3, Link2 } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
+import { useUIStore } from '@/store/uiStore';
 import { DocumentHeader } from './DocumentHeaderFooter';
 import RequirementLinkPopup from './RequirementLinkPopup';
 // Removed PageBreakExtension - using infinite scroll instead
@@ -56,6 +57,10 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     // Get style values from store
     const { fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent } = useStyleStore();
 
+    // Auto-heading toast
+    const autoHeadingToast = useUIStore((state) => state.autoHeadingToast);
+    const hideAutoHeadingToast = useUIStore((state) => state.hideAutoHeadingToast);
+
     // Ref for dynamic style element
     const styleRef = useRef<HTMLStyleElement | null>(null);
     const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -72,7 +77,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 heading: false,
             }),
             Heading.configure({
-                levels: [1, 2],
+                levels: [1, 2, 3],
             }),
             Placeholder.configure({
                 placeholder: 'Start writing your proposal...',
@@ -181,30 +186,6 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 class: 'prose prose-slate max-w-none focus:outline-none min-h-[800px]',
                 style: 'white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word;',
             },
-            transformPastedText(text: string) {
-                const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
-                if (lines.length === 0) return '<p></p>';
-                return lines.map(line => `<p>${line}</p>`).join('');
-            },
-            transformPastedHTML(html: string) {
-                // Check if the pasted HTML has real formatting tags
-                const hasFormatting = /<(h[1-6]|strong|em|b|i|ul|ol|li|table|blockquote|pre|code)\b/i.test(html);
-                if (hasFormatting) return html;
-
-                // Plain text disguised as HTML (from Notepad, browser, Word, etc.)
-                // Strip all tags, split into lines, wrap each in <p>
-                const stripped = html
-                    .replace(/<br\s*\/?>/gi, '\n')
-                    .replace(/<\/?(div|span|p|meta|html|head|body|style)[^>]*>/gi, '\n')
-                    .replace(/<[^>]+>/g, '')
-                    .replace(/&nbsp;/gi, ' ')
-                    .replace(/&amp;/gi, '&')
-                    .replace(/&lt;/gi, '<')
-                    .replace(/&gt;/gi, '>');
-                const lines = stripped.split(/\r?\n/).filter(line => line.trim().length > 0);
-                if (lines.length === 0) return '<p></p>';
-                return lines.map(line => `<p>${line}</p>`).join('');
-            },
         },
     });
 
@@ -230,7 +211,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
 
         const css = `
             .ProseMirror {
-                font-family: '${fontFamily}', sans-serif !important;
+                font-family: '${fontFamily}', Times, serif !important;
                 font-size: ${fontSize}px !important;
                 line-height: ${lineHeight} !important;
                 position: relative;
@@ -240,7 +221,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 max-width: 100%;
             }
             .ProseMirror p {
-                font-family: '${fontFamily}', sans-serif !important;
+                font-family: '${fontFamily}', Times, serif !important;
                 font-size: ${fontSize}px !important;
                 line-height: ${lineHeight} !important;
                 margin-top: ${spaceBefore}pt !important;
@@ -249,14 +230,10 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 position: relative;
             }
             .ProseMirror h1 {
-                font-family: '${fontFamily}', sans-serif !important;
-                margin-top: ${spaceBefore}pt !important;
-                margin-bottom: ${spaceAfter}pt !important;
+                font-family: '${fontFamily}', Times, serif !important;
             }
             .ProseMirror h2 {
-                font-family: '${fontFamily}', sans-serif !important;
-                margin-top: ${spaceBefore}pt !important;
-                margin-bottom: ${spaceAfter}pt !important;
+                font-family: '${fontFamily}', Times, serif !important;
             }
         `;
 
@@ -363,6 +340,18 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
         setShowPopup(true);
     }, []);
 
+    // Auto-heading toast: auto-dismiss after 5 seconds
+    useEffect(() => {
+        if (!autoHeadingToast) return;
+        const timer = setTimeout(() => hideAutoHeadingToast(), 5000);
+        return () => clearTimeout(timer);
+    }, [autoHeadingToast, hideAutoHeadingToast]);
+
+    const handleAutoHeadingUndo = useCallback(() => {
+        if (editor) editor.commands.undo();
+        hideAutoHeadingToast();
+    }, [editor, hideAutoHeadingToast]);
+
     const isLinkingMode = !!activeLinkingReqId;
 
     return (
@@ -377,6 +366,28 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                         className="ml-2 text-xs text-[#8b949e] hover:text-white"
                     >
                         Cancel
+                    </button>
+                </div>
+            )}
+
+            {/* Auto-Heading Toast */}
+            {autoHeadingToast && (
+                <div className="mb-4 flex items-center gap-2 px-4 py-2 bg-[#3fb95022] border border-[#3fb950] rounded-lg">
+                    <span className="text-sm text-[#3fb950]">
+                        Converted {autoHeadingToast.count} line{autoHeadingToast.count !== 1 ? 's' : ''} to Headings
+                    </span>
+                    <span className="text-[#484f58]">—</span>
+                    <button
+                        onClick={handleAutoHeadingUndo}
+                        className="text-sm text-[#388bfd] hover:text-[#58a6ff] underline"
+                    >
+                        Undo
+                    </button>
+                    <button
+                        onClick={hideAutoHeadingToast}
+                        className="ml-auto text-xs text-[#8b949e] hover:text-white"
+                    >
+                        Dismiss
                     </button>
                 </div>
             )}

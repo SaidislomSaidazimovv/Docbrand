@@ -13,6 +13,11 @@ interface UIState {
     toggleRightSidebar: () => void;
     setLeftSidebar: (open: boolean) => void;
     setRightSidebar: (open: boolean) => void;
+
+    // Auto-heading toast
+    autoHeadingToast: { count: number } | null;
+    showAutoHeadingToast: (count: number) => void;
+    hideAutoHeadingToast: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -23,4 +28,8 @@ export const useUIStore = create<UIState>((set) => ({
     toggleRightSidebar: () => set((state) => ({ rightSidebarOpen: !state.rightSidebarOpen })),
     setLeftSidebar: (open) => set({ leftSidebarOpen: open }),
     setRightSidebar: (open) => set({ rightSidebarOpen: open }),
+
+    autoHeadingToast: null,
+    showAutoHeadingToast: (count) => set({ autoHeadingToast: { count } }),
+    hideAutoHeadingToast: () => set({ autoHeadingToast: null }),
 }));

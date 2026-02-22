@@ -45,16 +45,16 @@ export const useStyleStore = create<StyleState>((set) => ({
     applyPreset: (preset) => {
         switch (preset) {
             case 'h1':
-                set({ fontSize: 32, lineHeight: 1.2 });
+                set({ fontFamily: 'Times New Roman', fontSize: 42.67, lineHeight: 1.15 });
                 break;
             case 'h2':
-                set({ fontSize: 24, lineHeight: 1.3 });
+                set({ fontFamily: 'Times New Roman', fontSize: 21.33, lineHeight: 1.15 });
                 break;
             case 'body':
-                set({ fontSize: 14, lineHeight: 1.7 });
+                set({ fontFamily: 'Times New Roman', fontSize: 16, lineHeight: 1 });
                 break;
             case 'caption':
-                set({ fontSize: 12, lineHeight: 1.5 });
+                set({ fontFamily: 'Times New Roman', fontSize: 13.33, lineHeight: 1 });
                 break;
         }
     },

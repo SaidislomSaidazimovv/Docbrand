@@ -2,6 +2,7 @@
 
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { useUIStore } from '@/store/uiStore';
 
 const markdownPasteKey = new PluginKey('markdownPaste');
 
@@ -10,8 +11,9 @@ const markdownPasteKey = new PluginKey('markdownPaste');
 // =============================================================================
 
 interface ParsedBlock {
-    type: 'heading' | 'paragraph' | 'bulletList' | 'orderedList' | 'horizontalRule' | 'emptyLine' | 'blockquote';
+    type: 'heading' | 'paragraph' | 'bulletList' | 'orderedList' | 'horizontalRule' | 'emptyLine' | 'blockquote' | 'codeBlock';
     level?: number;
+    language?: string;
     content: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     textNodes?: any[];
@@ -102,17 +104,77 @@ function parseInlineMarkdown(text: string): any[] {
 }
 
 // =============================================================================
+// Semantic Auto-Heading Detection (conservative heuristic)
+// =============================================================================
+
+// Unicode-safe ALL CAPS: uppercase letters (Latin, Cyrillic, etc.), digits, spaces
+const ALL_CAPS_PATTERN = /^[\p{Lu}\d\s]+$/u;
+const HAS_LETTER_PATTERN = /\p{Lu}/u;
+const HEADING_KEYWORD_PATTERN = /^(Chapter|Section|Appendix|Introduction|Overview|Summary|Background|Scope|Objectives?|Goals?)\b/i;
+const NUMBERED_HEADING_PATTERN = /^\d+(\.\d+)*\.?\s+\S.+/;
+const TRAILING_PUNCTUATION = /[.;:,]$/;
+
+function detectAutoHeading(
+    line: string,
+    prevLineEmpty: boolean,
+    isFirstLine: boolean,
+    nextBodyLine: string | null,
+): 'allCaps' | 'keyword' | 'numbered' | null {
+    if (line.length > 60 || line.length < 2) return null;
+    if (TRAILING_PUNCTUATION.test(line)) return null;
+    // Context: must be preceded by empty line or be first line
+    if (!prevLineEmpty && !isFirstLine) return null;
+    // Context: next non-empty line must exist and NOT be ALL CAPS (heading must stand out)
+    if (nextBodyLine === null) return null;
+    if (ALL_CAPS_PATTERN.test(nextBodyLine) && HAS_LETTER_PATTERN.test(nextBodyLine)) return null;
+
+    // ALL CAPS (must contain at least one letter)
+    if (ALL_CAPS_PATTERN.test(line) && HAS_LETTER_PATTERN.test(line)) return 'allCaps';
+    if (HEADING_KEYWORD_PATTERN.test(line)) return 'keyword';
+    // Numbered heading: only if next line is NOT also numbered (avoid converting lists)
+    if (NUMBERED_HEADING_PATTERN.test(line) && !NUMBERED_HEADING_PATTERN.test(nextBodyLine!)) return 'numbered';
+
+    return null;
+}
+
+// =============================================================================
 // Block Parser
 // =============================================================================
 
-function parseMarkdownToBlocks(text: string): ParsedBlock[] {
+interface ParseResult {
+    blocks: ParsedBlock[];
+    autoHeadingCount: number;
+}
+
+function parseMarkdownToBlocks(text: string): ParseResult {
     // Normalize line endings
     const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     const lines = normalizedText.split('\n');
     const blocks: ParsedBlock[] = [];
+    let autoHeadingCount = 0;
+    let hasAnyHeading = false;
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
+
+        // Fenced code block (``` with optional language)
+        const fenceMatch = line.match(/^```(\w*)$/);
+        if (fenceMatch) {
+            const language = fenceMatch[1] || '';
+            const codeLines: string[] = [];
+            i++;
+            while (i < lines.length) {
+                if (lines[i].trim() === '```') break;
+                codeLines.push(lines[i]);
+                i++;
+            }
+            blocks.push({
+                type: 'codeBlock',
+                language,
+                content: codeLines.join('\n'),
+            });
+            continue;
+        }
 
         // Empty line
         if (!line) {
@@ -129,9 +191,10 @@ function parseMarkdownToBlocks(text: string): ParsedBlock[] {
             continue;
         }
 
-        // Heading
+        // Markdown heading (# syntax)
         const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
         if (headingMatch) {
+            hasAnyHeading = true;
             blocks.push({
                 type: 'heading',
                 level: headingMatch[1].length as 1 | 2 | 3 | 4 | 5 | 6,
@@ -163,6 +226,33 @@ function parseMarkdownToBlocks(text: string): ParsedBlock[] {
             continue;
         }
 
+        // Semantic auto-heading detection (before ordered list so "1. Scope" can be a heading)
+        const isFirstLine = blocks.length === 0;
+        const prevBlockIsEmpty = blocks.length > 0 && blocks[blocks.length - 1].type === 'emptyLine';
+        let nextBodyLine: string | null = null;
+        for (let j = i + 1; j < lines.length; j++) {
+            const next = lines[j].trim();
+            if (next) { nextBodyLine = next; break; }
+        }
+        const autoType = detectAutoHeading(line, prevBlockIsEmpty, isFirstLine, nextBodyLine);
+        if (autoType) {
+            let level: number;
+            if (!hasAnyHeading) {
+                level = 1;
+            } else {
+                level = 2;
+            }
+            hasAnyHeading = true;
+            autoHeadingCount++;
+            blocks.push({
+                type: 'heading',
+                level,
+                content: line,
+                textNodes: parseInlineMarkdown(line),
+            });
+            continue;
+        }
+
         // Ordered list
         const orderedMatch = line.match(/^\d+\.\s+(.+)$/);
         if (orderedMatch) {
@@ -182,7 +272,7 @@ function parseMarkdownToBlocks(text: string): ParsedBlock[] {
         });
     }
 
-    return blocks;
+    return { blocks, autoHeadingCount };
 }
 
 // =============================================================================
@@ -279,6 +369,16 @@ function blocksToTipTapContent(blocks: ParsedBlock[]): any[] {
             case 'horizontalRule':
                 content.push({ type: 'horizontalRule' });
                 break;
+
+            case 'codeBlock':
+                content.push({
+                    type: 'codeBlock',
+                    attrs: { language: block.language || '' },
+                    content: block.content
+                        ? [{ type: 'text', text: block.content }]
+                        : [],
+                });
+                break;
         }
     }
 
@@ -317,10 +417,10 @@ export const MarkdownPasteHandler = Extension.create({
                         if (!plainText) return false;
 
                         // Parse markdown
-                        const blocks = parseMarkdownToBlocks(plainText);
+                        const { blocks, autoHeadingCount } = parseMarkdownToBlocks(plainText);
                         if (blocks.length === 0) return false;
 
-                        console.log('[MarkdownPaste] Converted', blocks.length, 'blocks');
+                        console.log('[MarkdownPaste] Converted', blocks.length, 'blocks', autoHeadingCount, 'auto-headings');
 
                         // Convert to TipTap format
                         const tipTapContent = blocksToTipTapContent(blocks);
@@ -329,10 +429,20 @@ export const MarkdownPasteHandler = Extension.create({
                         event.preventDefault();
                         try {
                             editor.commands.insertContent(tipTapContent);
-                            view.dispatch(view.state.tr.setMeta(markdownPasteKey, {
-                                lastPasteWasMarkdown: true,
-                                blockCount: blocks.length,
-                            }));
+                            view.dispatch(
+                                view.state.tr
+                                    .setMeta(markdownPasteKey, {
+                                        lastPasteWasMarkdown: true,
+                                        blockCount: blocks.length,
+                                    })
+                                    .setMeta('addToHistory', false)
+                            );
+
+                            // Show undo toast if auto-headings were detected
+                            if (autoHeadingCount > 0) {
+                                useUIStore.getState().showAutoHeadingToast(autoHeadingCount);
+                            }
+
                             return true;
                         } catch (error) {
                             console.error('[MarkdownPaste] Error:', error);
