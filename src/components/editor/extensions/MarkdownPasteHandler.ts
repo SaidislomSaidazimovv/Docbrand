@@ -122,19 +122,91 @@ function detectAutoHeading(
 ): 'allCaps' | 'keyword' | 'numbered' | null {
     if (line.length > 60 || line.length < 2) return null;
     if (TRAILING_PUNCTUATION.test(line)) return null;
-    // Context: must be preceded by empty line or be first line
-    if (!prevLineEmpty && !isFirstLine) return null;
     // Context: next non-empty line must exist and NOT be ALL CAPS (heading must stand out)
     if (nextBodyLine === null) return null;
     if (ALL_CAPS_PATTERN.test(nextBodyLine) && HAS_LETTER_PATTERN.test(nextBodyLine)) return null;
 
-    // ALL CAPS (must contain at least one letter)
-    if (ALL_CAPS_PATTERN.test(line) && HAS_LETTER_PATTERN.test(line)) return 'allCaps';
-    if (HEADING_KEYWORD_PATTERN.test(line)) return 'keyword';
-    // Numbered heading: only if next line is NOT also numbered (avoid converting lists)
-    if (NUMBERED_HEADING_PATTERN.test(line) && !NUMBERED_HEADING_PATTERN.test(nextBodyLine!)) return 'numbered';
+    // ALL CAPS and keyword headings: require empty line before or first line
+    if (prevLineEmpty || isFirstLine) {
+        if (ALL_CAPS_PATTERN.test(line) && HAS_LETTER_PATTERN.test(line)) return 'allCaps';
+        if (HEADING_KEYWORD_PATTERN.test(line)) return 'keyword';
+    }
+
+    // Numbered heading: relaxed — does NOT require prevLineEmpty
+    // Stricter length (<=50) and next line must NOT also be numbered (avoid lists)
+    if (line.length <= 50 && NUMBERED_HEADING_PATTERN.test(line) && !NUMBERED_HEADING_PATTERN.test(nextBodyLine!)) return 'numbered';
 
     return null;
+}
+
+// =============================================================================
+// Code Detection Helpers
+// =============================================================================
+
+function stripFragmentMarkers(text: string): string {
+    return text
+        .replace(/<!--StartFragment-->/g, '')
+        .replace(/<!--EndFragment-->/g, '')
+        .trim();
+}
+
+function htmlContainsCode(html: string): boolean {
+    if (!html) return false;
+    return /<pre[\s>]/i.test(html) || /<code[\s>]/i.test(html);
+}
+
+function looksLikeCode(text: string): boolean {
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length < 2) return false;
+
+    let codeSignals = 0;
+    const trimmed = text.trim();
+
+    // --- Language-specific detectors (strong = 2 points) ---
+
+    // JSON: starts with { or [, has 2+ key patterns
+    if (/^[\[{]/.test(trimmed) && (trimmed.match(/"[^"]+"\s*:/g) || []).length >= 2) codeSignals += 2;
+
+    // HTML: paired tags OR 2+ lines starting with '<'
+    if (/<([a-z][a-z0-9-]*)\b[^>]*>[\s\S]*<\/\1>/i.test(trimmed)) codeSignals += 2;
+    else if (lines.filter(l => /^\s*</.test(l)).length >= 2) codeSignals += 2;
+
+    // CSS: braces + property: value; pattern
+    if (/[{]/.test(trimmed) && /[}]/.test(trimmed) && /[a-z-]+\s*:\s*[^;]+;/i.test(trimmed)) codeSignals += 2;
+
+    // SQL: starts with keyword + contains complement
+    if (/^\s*(SELECT|INSERT|UPDATE|DELETE|WITH|CREATE|ALTER|DROP)\b/im.test(trimmed) &&
+        /\b(FROM|WHERE|VALUES|SET|ORDER\s+BY|GROUP\s+BY|INTO|TABLE|AS)\b/i.test(trimmed)) codeSignals += 2;
+
+    // Bash: 2+ lines starting with "$ " or common CLI commands
+    const bashLines = lines.filter(l => /^\s*\$\s/.test(l) ||
+        /^\s*(git|npm|pnpm|yarn|cd|ls|mkdir|rm|cat|curl|chmod|sudo|echo|docker|pip|python|node)\s/i.test(l)).length;
+    if (bashLines >= 2) codeSignals += 2;
+
+    // --- Generic code signals (JS/TS) ---
+
+    // JS/TS keywords
+    if (/\b(function|const|let|var|import|export|class|return|if|else|for|while)\s/m.test(text)) codeSignals += 2;
+    if (/=>/m.test(text)) codeSignals += 2;
+    if (/console\.\w+\s*\(/m.test(text)) codeSignals += 2;
+
+    // --- Medium signals (1 point) ---
+
+    // Indentation ratio >= 15%
+    const indentedLines = lines.filter(l => /^(\t|  )/.test(l)).length;
+    if (indentedLines / lines.length >= 0.15) codeSignals += 1;
+
+    // Semicolons at end of lines
+    const semicolonLines = lines.filter(l => /;\s*$/.test(l)).length;
+    if (semicolonLines / lines.length > 0.2) codeSignals += 1;
+
+    // Brace lines
+    const braceLines = lines.filter(l => /[{}]/.test(l)).length;
+    if (braceLines >= 2) codeSignals += 1;
+
+    // Adaptive threshold: 3+ lines need 2 points, <3 lines need 3 points
+    const threshold = lines.length >= 3 ? 2 : 3;
+    return codeSignals >= threshold;
 }
 
 // =============================================================================
@@ -235,7 +307,8 @@ function parseMarkdownToBlocks(text: string): ParseResult {
             if (next) { nextBodyLine = next; break; }
         }
         const autoType = detectAutoHeading(line, prevBlockIsEmpty, isFirstLine, nextBodyLine);
-        if (autoType) {
+        const prevNonEmpty = [...blocks].reverse().find(b => b.type !== 'emptyLine');
+        if (autoType && !(autoType === 'numbered' && prevNonEmpty?.type === 'orderedList')) {
             let level: number;
             if (!hasAnyHeading) {
                 level = 1;
@@ -412,11 +485,36 @@ export const MarkdownPasteHandler = Extension.create({
 
                 props: {
                     handlePaste: (view, event) => {
-                        const plainText = event.clipboardData?.getData('text/plain') || '';
+                        const rawText = event.clipboardData?.getData('text/plain') || '';
+                        const html = event.clipboardData?.getData('text/html') || '';
 
+                        if (!rawText) return false;
+
+                        // Strip clipboard fragment markers
+                        const plainText = stripFragmentMarkers(rawText);
                         if (!plainText) return false;
 
-                        // Parse markdown
+                        // Detect code: from HTML clipboard or plain text heuristic
+                        const codeFromHtml = htmlContainsCode(html);
+                        const codeFromText = !codeFromHtml && looksLikeCode(plainText);
+
+                        if (codeFromHtml || codeFromText) {
+                            console.log('[MarkdownPaste] Detected code:', codeFromHtml ? 'HTML <pre>/<code>' : 'text heuristic');
+                            event.preventDefault();
+                            try {
+                                editor.commands.insertContent({
+                                    type: 'codeBlock',
+                                    attrs: { language: '' },
+                                    content: [{ type: 'text', text: plainText }],
+                                });
+                                return true;
+                            } catch (error) {
+                                console.error('[MarkdownPaste] Error inserting code block:', error);
+                                return false;
+                            }
+                        }
+
+                        // Parse markdown (existing behavior)
                         const { blocks, autoHeadingCount } = parseMarkdownToBlocks(plainText);
                         if (blocks.length === 0) return false;
 
