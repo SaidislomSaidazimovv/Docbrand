@@ -444,7 +444,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                             wordBreak: 'break-word',
                         }}
                     >
-                        <BlockHandleOverlay editor={editor} containerRef={editorContainerRef} />
+                        <BlockHandleOverlay editor={editor} containerRef={editorContentRef} />
                         <EditorContent editor={editor} />
                     </div>
                 </div>

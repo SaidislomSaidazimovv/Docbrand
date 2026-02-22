@@ -28,6 +28,13 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
     const menuRef = useRef<HTMLDivElement>(null);
     const handleContainerRef = useRef<HTMLDivElement>(null);
     const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    // Ref mirrors isLocked state for synchronous access in timeouts/closures
+    const isLockedRef = useRef(false);
+
+    const setLockedState = useCallback((locked: boolean) => {
+        isLockedRef.current = locked;
+        setIsLocked(locked);
+    }, []);
 
     const clearHideTimeout = useCallback(() => {
         if (hideTimeoutRef.current) {
@@ -39,11 +46,15 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
     const scheduleHide = useCallback(() => {
         clearHideTimeout();
         hideTimeoutRef.current = setTimeout(() => {
-            if (!isLocked && !showMenu) {
+            // Use ref for synchronous read — avoids stale closure from setState batching
+            if (!isLockedRef.current && !showMenu) {
                 setHandlePosition(null);
             }
-        }, 200);
-    }, [clearHideTimeout, isLocked, showMenu]);
+        }, 100);
+    }, [clearHideTimeout, showMenu]);
+
+    // Block-level tags for traversal
+    const BLOCK_TAGS = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE'];
 
     const updateHandlePosition = useCallback((block: HTMLElement, pos: number) => {
         const container = containerRef.current;
@@ -52,17 +63,9 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
         const blockRect = block.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
 
-        // Calculate handle top - account for 72px padding added to container
-        // BlockHandleOverlay renders inside editorContentRef, which is already inside padding
-        // So we subtract padding to get position relative to editorContentRef
-        const CONTAINER_PADDING = 72;
-
-        // No vertical offset needed since paragraph padding is now 0
-        const handleTop = blockRect.top - containerRect.top - CONTAINER_PADDING;
-
-        // Handles should appear to the LEFT of content
-        // Since we're inside editorContentRef (which is inside padding),
-        // use NEGATIVE value to position handles to the left
+        // containerRef now points to editorContentRef (position: relative)
+        // so positioning is directly relative — no padding offset needed
+        const handleTop = blockRect.top - containerRect.top;
         const handleLeft = -56;
 
         setHandlePosition({
@@ -75,7 +78,7 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
     }, [containerRef, clearHideTimeout]);
 
     const handleMouseMove = useCallback((event: MouseEvent) => {
-        if (!editor || showMenu || isLocked) return;
+        if (!editor || showMenu || isLockedRef.current) return;
 
         const container = containerRef.current;
         if (!container) return;
@@ -107,14 +110,20 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
             block = table;
         } else {
             // Find standard block element
-            const blockTags = ['P', 'H1', 'H2', 'H3', 'BLOCKQUOTE', 'PRE'];
-            while (block && block !== proseMirror && !blockTags.includes(block.tagName)) {
+            while (block && block !== proseMirror && !BLOCK_TAGS.includes(block.tagName)) {
                 block = block.parentElement;
             }
         }
 
         // Validate block is found and not ProseMirror itself
         if (!block || block === proseMirror) {
+            scheduleHide();
+            return;
+        }
+
+        // Boundary check: mouse must be within the block's vertical bounds
+        const blockRect = block.getBoundingClientRect();
+        if (event.clientY < blockRect.top || event.clientY > blockRect.bottom) {
             scheduleHide();
             return;
         }
@@ -130,7 +139,7 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
         } else {
             scheduleHide();
         }
-    }, [editor, containerRef, showMenu, isLocked, clearHideTimeout, scheduleHide, updateHandlePosition]);
+    }, [editor, containerRef, showMenu, clearHideTimeout, scheduleHide, updateHandlePosition, BLOCK_TAGS]);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -144,7 +153,7 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
             if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
                 setShowMenu(false);
                 setShowTurnIntoMenu(false);
-                setIsLocked(false);
+                setLockedState(false);
             }
         };
         document.addEventListener('mousedown', handleClick);
@@ -158,7 +167,7 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
     const closeMenu = () => {
         setShowMenu(false);
         setShowTurnIntoMenu(false);
-        setIsLocked(false);
+        setLockedState(false);
     };
 
     // Actions
@@ -247,10 +256,10 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
                 }}
                 onMouseEnter={() => {
                     clearHideTimeout();
-                    setIsLocked(true);
+                    setLockedState(true);
                 }}
                 onMouseLeave={() => {
-                    setIsLocked(false);
+                    setLockedState(false);
                     if (!showMenu) {
                         scheduleHide();
                     }
@@ -267,7 +276,7 @@ export default function BlockHandleOverlay({ editor, containerRef }: BlockHandle
                     onClick={() => {
                         setShowMenu(!showMenu);
                         setShowTurnIntoMenu(false);
-                        setIsLocked(true);
+                        setLockedState(true);
                     }}
                     className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-grab transition-colors"
                     title="Menu"
