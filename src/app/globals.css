@@ -182,31 +182,26 @@ body {
   cursor: text;
 }
 
-/* H1 - Section Heading (Government: 16pt) */
+/* H1 - Section Heading */
 .ProseMirror h1 {
-  font-size: 42.67px;
   font-weight: 700;
   line-height: 1.15;
   margin-top: 6pt;
   margin-bottom: 12pt;
-  color: #1A1A1A;
   font-family: 'Times New Roman', Times, serif;
 }
 
-/* H2 - Subsection (Government: 14pt) */
+/* H2 - Subsection */
 .ProseMirror h2 {
-  font-size: 21.33px;
   font-weight: 700;
   line-height: 1.15;
   margin-top: 14pt;
   margin-bottom: 6pt;
-  color: #13818A;
   font-family: 'Times New Roman', Times, serif;
 }
 
-/* H3 - Sub-subsection (Government: 14pt) */
+/* H3 - Sub-subsection */
 .ProseMirror h3 {
-  font-size: 18.67px;
   font-weight: 700;
   font-style: italic;
   line-height: 1;
@@ -261,7 +256,6 @@ body {
   line-height: 1 !important;
   margin: 0 !important;
   padding: 0 !important;
-  color: #1A1A1A !important;
 }
 
 /* Override Tailwind prose sibling spacing */

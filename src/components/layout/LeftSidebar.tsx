@@ -5,6 +5,8 @@ import { ChevronDown, ChevronRight, Upload, FileText, Map, Trash2, Folder, Exter
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useHistoryStore } from '@/store/historyStore';
+import { useStyleStore } from '@/store/styleStore';
+import { useEditorStore } from '@/store/editorStore';
 import { EditorController } from '@/lib/editor';
 import { unmarkBlockAsLinked } from '@/lib/editor/plugins/LinkedBlockDecorator';
 import ConfirmModal from '@/components/modals/ConfirmModal';
@@ -32,7 +34,9 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
 
     // Clear All handler
     const handleClearAll = () => {
-        if (requirements.length === 0 && sources.length === 0) {
+        const editor = useEditorStore.getState().editor;
+        const hasEditorContent = editor ? !editor.isEmpty : false;
+        if (requirements.length === 0 && sources.length === 0 && !hasEditorContent) {
             return;
         }
         setShowClearConfirm(true);
@@ -48,6 +52,11 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
         });
         clearRequirements();
         clearSources();
+        useStyleStore.getState().resetToDefaults();
+        const editor = useEditorStore.getState().editor;
+        if (editor) {
+            editor.commands.clearContent();
+        }
         setShowClearConfirm(false);
     };
 

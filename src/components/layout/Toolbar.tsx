@@ -31,6 +31,7 @@ import { useRequirementsStore } from '@/store/requirementsStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useUIStore } from '@/store/uiStore';
 import { useHistoryStore } from '@/store/historyStore';
+import { useStyleStore } from '@/store/styleStore';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 
 interface ToolbarProps {
@@ -86,7 +87,8 @@ export default function Toolbar({
 
     // Clear All - saves to history before clearing
     const handleClearAll = () => {
-        if (requirements.length === 0 && sources.length === 0) {
+        const hasEditorContent = editor ? !editor.isEmpty : false;
+        if (requirements.length === 0 && sources.length === 0 && !hasEditorContent) {
             closeMenus();
             return;
         }
@@ -104,6 +106,7 @@ export default function Toolbar({
         });
         clearRequirements();
         clearSources();
+        useStyleStore.getState().resetToDefaults();
         if (editor) {
             editor.commands.clearContent();
         }

@@ -55,7 +55,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
 
     // Get style values from store
-    const { fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent } = useStyleStore();
+    const { fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, bodyColor, h1FontSize, h2FontSize } = useStyleStore();
 
     // Auto-heading toast
     const autoHeadingToast = useUIStore((state) => state.autoHeadingToast);
@@ -231,9 +231,25 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             }
             .ProseMirror h1 {
                 font-family: '${fontFamily}', Times, serif !important;
+                font-size: ${h1FontSize ? h1FontSize + 'px' : Math.round(fontSize * 2) + 'px'} !important;
+                color: ${h1Color} !important;
+                margin-top: ${spaceBefore}pt !important;
+                margin-bottom: ${spaceAfter}pt !important;
             }
             .ProseMirror h2 {
                 font-family: '${fontFamily}', Times, serif !important;
+                font-size: ${h2FontSize ? h2FontSize + 'px' : Math.round(fontSize * 1.5) + 'px'} !important;
+                color: ${h2Color} !important;
+                margin-top: ${spaceBefore}pt !important;
+                margin-bottom: ${spaceAfter}pt !important;
+            }
+            .ProseMirror h3 {
+                font-size: ${Math.round(fontSize * 1.25)}px !important;
+                margin-top: ${spaceBefore}pt !important;
+                margin-bottom: ${spaceAfter}pt !important;
+            }
+            .ProseMirror p {
+                color: ${bodyColor} !important;
             }
         `;
 
@@ -245,7 +261,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 styleRef.current = null;
             }
         };
-    }, [fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent]);
+    }, [fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, bodyColor, h1FontSize, h2FontSize]);
 
     // Handle click to link requirement to block
     const handleEditorClick = useCallback(() => {
