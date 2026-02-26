@@ -12,6 +12,7 @@ import HeaderFooterModal from '@/components/modals/HeaderFooterModal';
 import ShredderModal from '@/components/modals/ShredderModal';
 import SearchModal from '@/components/modals/SearchModal';
 import SettingsModal from '@/components/modals/SettingsModal';
+import DocumentSettingsModal from '@/components/modals/DocumentSettingsModal';
 import { useUIStore } from '@/store/uiStore';
 
 export default function Dashboard() {
@@ -21,6 +22,7 @@ export default function Dashboard() {
     const [showShredderModal, setShowShredderModal] = useState(false);
     const [showSearchModal, setShowSearchModal] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const [showDocSettingsModal, setShowDocSettingsModal] = useState(false);
 
     const { leftSidebarOpen, rightSidebarOpen } = useUIStore();
 
@@ -32,6 +34,7 @@ export default function Dashboard() {
                 onExportClick={() => setShowExportModal(true)}
                 onSearchClick={() => setShowSearchModal(true)}
                 onSettingsClick={() => setShowSettingsModal(true)}
+                onDocSettingsClick={() => setShowDocSettingsModal(true)}
             />
 
             {/* Main Content - 3 Column Layout */}
@@ -66,6 +69,7 @@ export default function Dashboard() {
             <ShredderModal isOpen={showShredderModal} onClose={() => setShowShredderModal(false)} />
             <SearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
             <SettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
+            <DocumentSettingsModal isOpen={showDocSettingsModal} onClose={() => setShowDocSettingsModal(false)} />
         </div>
     );
 }

@@ -97,6 +97,33 @@ export function applyNormalizedImport(
     }
 
     // -----------------------------------------------------------------
+    // 1b. Page margins + page size → styleStore
+    // -----------------------------------------------------------------
+    if (payload.margins) {
+        const m = payload.margins;
+        // margins are in pt (from twipsToPt). Convert pt → px: 1pt = 96/72 px
+        const store = useStyleStore.getState();
+        store.setMargins({
+            top: Math.round(m.top * 96 / 72),
+            bottom: Math.round(m.bottom * 96 / 72),
+            left: Math.round(m.left * 96 / 72),
+            right: Math.round(m.right * 96 / 72),
+        });
+        result.brandFields.push(`Margins: ${m.top}pt / ${m.bottom}pt / ${m.left}pt / ${m.right}pt`);
+    }
+
+    if (payload.pageSize) {
+        const ps = payload.pageSize;
+        // pageSize is in pt. Convert pt → px: 1pt = 96/72 px
+        const store = useStyleStore.getState();
+        store.setPageSize({
+            width: Math.round(ps.width * 96 / 72),
+            height: Math.round(ps.height * 96 / 72),
+        });
+        result.brandFields.push(`Page: ${ps.width}pt × ${ps.height}pt ${ps.orientation}`);
+    }
+
+    // -----------------------------------------------------------------
     // 2. Document content → TipTap editor
     // -----------------------------------------------------------------
     const doc = coerceToDoc(payload.document);

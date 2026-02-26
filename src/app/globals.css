@@ -513,6 +513,29 @@ body {
   pointer-events: none;
 }
 
+/* Basis of Estimate indicator on table cells */
+.ProseMirror td[data-boe],
+.ProseMirror th[data-boe] {
+  background-color: rgba(59, 130, 246, 0.04);
+}
+
+.ProseMirror td[data-boe]::after,
+.ProseMirror th[data-boe]::after {
+  content: '\1F4CB';
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 10px;
+  opacity: 0.5;
+  cursor: help;
+  line-height: 1;
+}
+
+.ProseMirror td[data-boe]:hover::after,
+.ProseMirror th[data-boe]:hover::after {
+  opacity: 0.9;
+}
+
 /* ========================================
    Block Handle / Drag Handle Styles
    ======================================== */

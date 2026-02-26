@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState, ReactNode, cloneElement, isValidElement } from 'react';
+import { useStyleStore } from '@/store/styleStore';
 
-// A4 page dimensions
-const PAGE_WIDTH = 800; // px
-const PAGE_HEIGHT = 1000; // px - visible content area per page
+// Default page dimensions (fallback)
+const DEFAULT_PAGE_WIDTH = 800; // px
 const PAGE_GAP = 40; // px - gap between pages
 
 interface MultiPageContainerProps {
@@ -19,6 +19,10 @@ interface MultiPageContainerProps {
  * to show the appropriate portion. This creates the illusion of separate pages.
  */
 export default function MultiPageContainer({ children, onPageCountChange }: MultiPageContainerProps) {
+    const { pageWidth: storePageWidth, pageHeight: storePageHeight } = useStyleStore();
+    const PAGE_WIDTH = storePageWidth || DEFAULT_PAGE_WIDTH;
+    const PAGE_HEIGHT = storePageHeight || 1000;
+
     const [pageCount, setPageCount] = useState(1);
     const [contentHeight, setContentHeight] = useState(0);
     const measureRef = useRef<HTMLDivElement>(null);
@@ -116,11 +120,7 @@ export default function MultiPageContainer({ children, onPageCountChange }: Mult
             >
                 {/* Spacers for each page break to push content down */}
                 <style jsx global>{`
-                    .multi-page-editor .ProseMirror {
-                        padding: 2rem 4rem;
-                    }
-                    
-                    /* Add visual page breaks by inserting margin at page boundaries */
+                    /* Page break spacers — padding handled by editor container margins */
                     .multi-page-editor .page-break-spacer {
                         height: ${PAGE_GAP}px;
                         background: transparent;
@@ -134,4 +134,4 @@ export default function MultiPageContainer({ children, onPageCountChange }: Mult
     );
 }
 
-export { PAGE_HEIGHT, PAGE_WIDTH, PAGE_GAP };
+export { DEFAULT_PAGE_WIDTH, PAGE_GAP };

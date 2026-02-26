@@ -438,11 +438,19 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             <input
                                                 type="number"
                                                 value={footer.fontSize}
-                                                onChange={(e) => updateFooter({ fontSize: parseInt(e.target.value) || 10 })}
+                                                onChange={(e) => {
+                                                    const val = parseInt(e.target.value) || 12;
+                                                    if (val < 12) {
+                                                        updateFooter({ fontSize: 12 });
+                                                        return;
+                                                    }
+                                                    updateFooter({ fontSize: val });
+                                                }}
                                                 className="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
-                                                min={8}
+                                                min={12}
                                                 max={16}
                                             />
+                                            <p className="text-[10px] text-[#6e7681] mt-1">Min 12pt for GovCon compliance</p>
                                         </div>
                                         <div>
                                             <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">

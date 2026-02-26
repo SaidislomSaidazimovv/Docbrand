@@ -83,7 +83,7 @@ const defaultFooter: FooterConfig = {
     dateFormat: 'long',
     alignment: 'center',
     fontFamily: 'Inter',
-    fontSize: 10,
+    fontSize: 12,
     textColor: '#6b7280',
     showBorder: true,
 };

@@ -8,6 +8,7 @@ import {
     Upload,
     Download,
     Settings,
+    Ruler,
     ChevronDown,
     FileDown,
     FilePlus,
@@ -40,6 +41,7 @@ interface ToolbarProps {
     onExportClick?: () => void;
     onSearchClick?: () => void;
     onSettingsClick?: () => void;
+    onDocSettingsClick?: () => void;
 }
 
 type MenuType = 'file' | 'edit' | 'view' | 'tools' | null;
@@ -50,6 +52,7 @@ export default function Toolbar({
     onExportClick,
     onSearchClick,
     onSettingsClick,
+    onDocSettingsClick,
 }: ToolbarProps) {
     const [openMenu, setOpenMenu] = useState<MenuType>(null);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -355,6 +358,14 @@ export default function Toolbar({
                 >
                     <Download size={14} />
                     Export
+                </button>
+
+                <button
+                    onClick={onDocSettingsClick}
+                    className="p-2 hover:bg-[#21262d] rounded transition-colors"
+                    title="Document Settings"
+                >
+                    <Ruler size={16} className="text-[#8b949e]" />
                 </button>
 
                 <button

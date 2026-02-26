@@ -43,7 +43,20 @@ export const FontSize = Extension.create({
         return {
             setFontSize:
                 (fontSize: string) =>
-                ({ chain }) => {
+                ({ chain, editor }) => {
+                    // GovCon compliance: min 8pt inside table cells
+                    const inTable = editor.isActive('table');
+                    if (inTable) {
+                        const num = parseFloat(fontSize);
+                        if (!isNaN(num)) {
+                            const unit = fontSize.replace(String(num), '').trim() || 'px';
+                            const ptSize = unit === 'pt' ? num : num * 0.75; // px→pt
+                            if (ptSize < 8) {
+                                const minPx = unit === 'pt' ? '8pt' : `${Math.ceil(8 / 0.75)}px`;
+                                fontSize = minPx;
+                            }
+                        }
+                    }
                     return chain().setMark('textStyle', { fontSize }).run();
                 },
             unsetFontSize:

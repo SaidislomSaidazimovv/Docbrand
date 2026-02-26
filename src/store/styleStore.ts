@@ -33,6 +33,16 @@ const DEFAULTS = {
     h3FontSize: null as number | null,
     h3SpaceBefore: null as number | null,
     h3SpaceAfter: null as number | null,
+    // Page margins (px) — 96px = 1 inch
+    marginTop: 96,
+    marginBottom: 96,
+    marginLeft: 96,
+    marginRight: 96,
+    // Page dimensions (px) — US Letter at 96 DPI
+    pageWidth: 816,
+    pageHeight: 1056,
+    // Margin guide visibility
+    showMarginGuides: true,
 };
 
 // ---------------------------------------------------------------------------
@@ -71,6 +81,19 @@ interface StyleState {
     h3Color: string | null;
     bodyColor: string;
 
+    // Page margins (px)
+    marginTop: number;
+    marginBottom: number;
+    marginLeft: number;
+    marginRight: number;
+
+    // Page dimensions (px)
+    pageWidth: number;
+    pageHeight: number;
+
+    // Margin guide visibility
+    showMarginGuides: boolean;
+
     // Actions
     setFontFamily: (font: string) => void;
     setFontSize: (size: number) => void;
@@ -91,6 +114,9 @@ interface StyleState {
     setH2Color: (color: string | null) => void;
     setH3Color: (color: string | null) => void;
     setBodyColor: (color: string) => void;
+    setMargins: (margins: { top: number; bottom: number; left: number; right: number }) => void;
+    setPageSize: (size: { width: number; height: number }) => void;
+    setShowMarginGuides: (show: boolean) => void;
     applyPreset: (preset: 'h1' | 'h2' | 'body' | 'caption') => void;
     applyBrandPartial: (partial: Partial<Omit<StyleState, 'setFontFamily' | 'setFontSize' | 'setLineHeight' | 'setH1FontSize' | 'setH2FontSize' | 'setSpaceBefore' | 'setSpaceAfter' | 'setFirstLineIndent' | 'setH1SpaceBefore' | 'setH1SpaceAfter' | 'setH2SpaceBefore' | 'setH2SpaceAfter' | 'setH1Color' | 'setH2Color' | 'setBodyColor' | 'applyPreset' | 'applyBrandPartial' | 'resetToDefaults'>>) => void;
     resetToDefaults: () => void;
@@ -124,6 +150,14 @@ export const useStyleStore = create<StyleState>()(
             setH2Color: (color) => set({ h2Color: color }),
             setH3Color: (color) => set({ h3Color: color }),
             setBodyColor: (color) => set({ bodyColor: color }),
+            setMargins: (margins) => set({
+                marginTop: margins.top,
+                marginBottom: margins.bottom,
+                marginLeft: margins.left,
+                marginRight: margins.right,
+            }),
+            setPageSize: (size) => set({ pageWidth: size.width, pageHeight: size.height }),
+            setShowMarginGuides: (show) => set({ showMarginGuides: show }),
 
             applyPreset: (preset) => {
                 switch (preset) {
@@ -150,18 +184,26 @@ export const useStyleStore = create<StyleState>()(
         }),
         {
             name: 'docbrand-style-store',
-            version: 2,
+            version: 3,
             migrate: (persisted: unknown, version: number) => {
                 const state = persisted as Record<string, unknown>;
                 if (version < 1) {
-                    // v0→v1: Clear hardcoded teal/dark heading colors so they become null (inherit)
                     if (state.h1Color === '#1A1A1A') state.h1Color = null;
                     if (state.h2Color === '#13818A') state.h2Color = null;
                 }
                 if (version < 2) {
-                    // v1→v2: Force-clear any stale heading colors to null
                     state.h1Color = null;
                     state.h2Color = null;
+                }
+                if (version < 3) {
+                    // v2→v3: Add margin/page fields with defaults
+                    state.marginTop = 96;
+                    state.marginBottom = 96;
+                    state.marginLeft = 96;
+                    state.marginRight = 96;
+                    state.pageWidth = 816;
+                    state.pageHeight = 1056;
+                    state.showMarginGuides = true;
                 }
                 return state;
             },
@@ -185,6 +227,13 @@ export const useStyleStore = create<StyleState>()(
                 h2Color: state.h2Color,
                 h3Color: state.h3Color,
                 bodyColor: state.bodyColor,
+                marginTop: state.marginTop,
+                marginBottom: state.marginBottom,
+                marginLeft: state.marginLeft,
+                marginRight: state.marginRight,
+                pageWidth: state.pageWidth,
+                pageHeight: state.pageHeight,
+                showMarginGuides: state.showMarginGuides,
             }),
         }
     )

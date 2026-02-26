@@ -15,7 +15,7 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
-import { TableCell } from '@tiptap/extension-table-cell';
+import { CustomTableCell } from './extensions/CustomTableCell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import Mention from '@tiptap/extension-mention';
 import tippy, { Instance as TippyInstance } from 'tippy.js';
@@ -25,16 +25,19 @@ import { mentionSuggestion } from './extensions/MentionSuggestion';
 import { SlashCommands } from './extensions/SlashCommands';
 import { QualityScanner } from './extensions/QualityScanner';
 import { FontSize } from './extensions/FontSize';
+import { TableTabHandler } from './extensions/TableTabHandler';
 import { LineHeight } from './extensions/LineHeight';
 import SlashCommandsMenu, { getSuggestionItems } from './SlashCommandsMenu';
 import FloatingToolbar from './FloatingToolbar';
+import TableBubbleMenu from './TableBubbleMenu';
 import BlockHandleOverlay from './BlockHandleOverlay';
 import { Edit3, Link2 } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
 import { useUIStore } from '@/store/uiStore';
-import { DocumentHeader } from './DocumentHeaderFooter';
+import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
+import MarginGuide from './MarginGuide';
 import RequirementLinkPopup from './RequirementLinkPopup';
 // Removed PageBreakExtension - using infinite scroll instead
 // DocBrand Path E Architecture imports
@@ -55,7 +58,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
 
     // Get style values from store
-    const { fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, h3Color, bodyColor, h1FontSize, h2FontSize, h3FontSize, h1SpaceBefore, h1SpaceAfter, h2SpaceBefore, h2SpaceAfter, h3SpaceBefore, h3SpaceAfter } = useStyleStore();
+    const { fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, h3Color, bodyColor, h1FontSize, h2FontSize, h3FontSize, h1SpaceBefore, h1SpaceAfter, h2SpaceBefore, h2SpaceAfter, h3SpaceBefore, h3SpaceAfter, marginTop, marginBottom, marginLeft, marginRight } = useStyleStore();
 
     // Auto-heading toast
     const autoHeadingToast = useUIStore((state) => state.autoHeadingToast);
@@ -162,7 +165,8 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             }),
             TableRow,
             TableHeader,
-            TableCell,
+            CustomTableCell,
+            TableTabHandler,
             Mention.configure({
                 HTMLAttributes: {
                     class: 'mention',
@@ -432,9 +436,15 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                     className={`w-full bg-white rounded-lg shadow-2xl document-editor transition-all relative ${isLinkingMode ? 'ring-2 ring-[#388bfd] cursor-crosshair' : ''}`}
                     style={{
                         minHeight: '800px',
-                        padding: '72px',
+                        paddingTop: `${marginTop}px`,
+                        paddingBottom: `${marginBottom}px`,
+                        paddingLeft: `${marginLeft}px`,
+                        paddingRight: `${marginRight}px`,
                     }}
                 >
+                    {/* Margin Guide overlay */}
+                    <MarginGuide />
+
                     {/* Red Line Indicator for unlinked requirements */}
                     {hasUnlinkedReqs && !isLinkingMode && (
                         <div
@@ -450,6 +460,9 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
 
                     {/* Floating Toolbar */}
                     <FloatingToolbar editor={editor} />
+
+                    {/* Table Bubble Menu */}
+                    {editor && <TableBubbleMenu editor={editor} />}
 
                     {/* Document Header */}
                     <DocumentHeader />
@@ -467,6 +480,9 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                         <BlockHandleOverlay editor={editor} containerRef={editorContentRef} />
                         <EditorContent editor={editor} />
                     </div>
+
+                    {/* Document Footer */}
+                    <DocumentFooter />
                 </div>
             </div>
 
