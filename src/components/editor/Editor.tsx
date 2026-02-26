@@ -55,7 +55,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
 
     // Get style values from store
-    const { fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, bodyColor, h1FontSize, h2FontSize } = useStyleStore();
+    const { fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, h3Color, bodyColor, h1FontSize, h2FontSize, h3FontSize, h1SpaceBefore, h1SpaceAfter, h2SpaceBefore, h2SpaceAfter, h3SpaceBefore, h3SpaceAfter } = useStyleStore();
 
     // Auto-heading toast
     const autoHeadingToast = useUIStore((state) => state.autoHeadingToast);
@@ -183,7 +183,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
         content: '', // Empty by default
         editorProps: {
             attributes: {
-                class: 'prose prose-slate max-w-none focus:outline-none min-h-[800px]',
+                class: 'prose max-w-none focus:outline-none min-h-[800px]',
                 style: 'white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word;',
             },
         },
@@ -214,6 +214,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 font-family: '${fontFamily}', Times, serif !important;
                 font-size: ${fontSize}px !important;
                 line-height: ${lineHeight} !important;
+                color: #000000;
                 position: relative;
                 white-space: pre-wrap;
                 overflow-wrap: break-word;
@@ -224,32 +225,35 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 font-family: '${fontFamily}', Times, serif !important;
                 font-size: ${fontSize}px !important;
                 line-height: ${lineHeight} !important;
-                margin-top: ${spaceBefore}pt !important;
-                margin-bottom: ${spaceAfter}pt !important;
+                margin-top: ${spaceBefore ?? 0}pt !important;
+                margin-bottom: ${spaceAfter ?? 0}pt !important;
                 text-indent: ${firstLineIndent}in !important;
                 position: relative;
             }
             .ProseMirror h1 {
                 font-family: '${fontFamily}', Times, serif !important;
-                font-size: ${h1FontSize ? h1FontSize + 'px' : Math.round(fontSize * 2) + 'px'} !important;
-                color: ${h1Color} !important;
-                margin-top: ${spaceBefore}pt !important;
-                margin-bottom: ${spaceAfter}pt !important;
+                font-size: ${h1FontSize ? `${h1FontSize}px` : '2em'} !important;
+                font-weight: bold !important;
+                color: #000000 !important;
+                margin-top: ${h1SpaceBefore ?? 0}pt !important;
+                margin-bottom: ${h1SpaceAfter ?? 0}pt !important;
             }
             .ProseMirror h2 {
                 font-family: '${fontFamily}', Times, serif !important;
-                font-size: ${h2FontSize ? h2FontSize + 'px' : Math.round(fontSize * 1.5) + 'px'} !important;
-                color: ${h2Color} !important;
-                margin-top: ${spaceBefore}pt !important;
-                margin-bottom: ${spaceAfter}pt !important;
+                font-size: ${h2FontSize ? `${h2FontSize}px` : '1.5em'} !important;
+                font-weight: bold !important;
+                font-style: italic !important;
+                color: ${h2Color || '#2E75B6'} !important;
+                margin-top: ${h2SpaceBefore ?? 0}pt !important;
+                margin-bottom: ${h2SpaceAfter ?? 0}pt !important;
             }
             .ProseMirror h3 {
-                font-size: ${Math.round(fontSize * 1.25)}px !important;
-                margin-top: ${spaceBefore}pt !important;
-                margin-bottom: ${spaceAfter}pt !important;
-            }
-            .ProseMirror p {
-                color: ${bodyColor} !important;
+                font-family: '${fontFamily}', Times, serif !important;
+                font-size: ${h3FontSize ? `${h3FontSize}px` : '1.17em'} !important;
+                font-style: italic !important;
+                color: ${h2Color || '#2E75B6'} !important;
+                margin-top: ${h3SpaceBefore ?? 0}pt !important;
+                margin-bottom: ${h3SpaceAfter ?? 0}pt !important;
             }
         `;
 
@@ -261,7 +265,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 styleRef.current = null;
             }
         };
-    }, [fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, bodyColor, h1FontSize, h2FontSize]);
+    }, [fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, h3Color, bodyColor, h1FontSize, h2FontSize, h3FontSize, h1SpaceBefore, h1SpaceAfter, h2SpaceBefore, h2SpaceAfter, h3SpaceBefore, h3SpaceAfter]);
 
     // Handle click to link requirement to block
     const handleEditorClick = useCallback(() => {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Download, FileText, Check, AlertCircle } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
+import { useStyleStore } from '@/store/styleStore';
 
 interface ExportModalProps {
     isOpen: boolean;
@@ -31,6 +32,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
     const [downloadBlob, setDownloadBlob] = useState<Blob | null>(null);
 
     const editor = useEditorStore((state) => state.editor);
+    const { h1Color, h2Color, bodyColor } = useStyleStore();
 
     // Check if content exists
     useEffect(() => {
@@ -86,13 +88,13 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 const pdfStyles = document.createElement('style');
                 pdfStyles.textContent = `
                   * { font-family: 'Times New Roman', Times, serif !important; }
-                  h1 { font-size: 42.67px; font-weight: 700; line-height: 0.65; margin-top: 0; margin-bottom: 24pt; color: #1A1A1A; }
-                  h2 { font-size: 21.33px; font-weight: 700; line-height: 1.15; margin-top: 6pt; margin-bottom: 12pt; color: #13818A; }
-                  h3 { font-size: 18.67px; font-weight: 700; line-height: 1.15; margin-top: 14pt; margin-bottom: 6pt; color: #1A1A1A; }
-                  h4 { font-size: 17.33px; font-weight: 700; font-style: italic; line-height: 1; margin-top: 12pt; margin-bottom: 6pt; color: #1A1A1A; }
-                  h5 { font-size: 14.67px; font-weight: 400; line-height: 1; margin-top: 0; margin-bottom: 4pt; color: #1A1A1A; }
-                  h6 { font-size: 16px; font-weight: 400; line-height: 1.5; margin-top: 0; margin-bottom: 6pt; color: #1A1A1A; }
-                  p  { font-size: 16px; font-weight: 400; line-height: 1; margin-top: 0; margin-bottom: 6pt; color: #1A1A1A; }
+                  h1 { font-size: 42.67px; font-weight: 700; line-height: 0.65; margin-top: 0; margin-bottom: 24pt; color: ${h1Color || bodyColor}; }
+                  h2 { font-size: 21.33px; font-weight: 700; line-height: 1.15; margin-top: 6pt; margin-bottom: 12pt; color: ${h2Color || bodyColor}; }
+                  h3 { font-size: 18.67px; font-weight: 700; line-height: 1.15; margin-top: 14pt; margin-bottom: 6pt; color: ${bodyColor}; }
+                  h4 { font-size: 17.33px; font-weight: 700; font-style: italic; line-height: 1; margin-top: 12pt; margin-bottom: 6pt; color: ${bodyColor}; }
+                  h5 { font-size: 14.67px; font-weight: 400; line-height: 1; margin-top: 0; margin-bottom: 4pt; color: ${bodyColor}; }
+                  h6 { font-size: 16px; font-weight: 400; line-height: 1.5; margin-top: 0; margin-bottom: 6pt; color: ${bodyColor}; }
+                  p  { font-size: 16px; font-weight: 400; line-height: 1; margin-top: 0; margin-bottom: 6pt; color: ${bodyColor}; }
                 `;
                 container.prepend(pdfStyles);
 
@@ -182,19 +184,21 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
                     switch (element.tagName) {
                         case 'H1': {
-                            // Title: 32pt (size=64 half-pts), bold, #1A1A1A, after=480twips
+                            // Title: 32pt (size=64 half-pts), bold, use brand h1Color or body color
+                            const h1Hex = (h1Color || bodyColor).replace('#', '');
                             children.push(new Paragraph({
                                 heading: HeadingLevel.HEADING_1,
-                                children: processChildren({ bold: true, size: 64, color: '1A1A1A', font: 'Times New Roman' }),
+                                children: processChildren({ bold: true, size: 64, color: h1Hex, font: 'Times New Roman' }),
                                 spacing: { before: 0, after: 480, line: 240 },
                             }));
                             break;
                         }
                         case 'H2': {
-                            // Section: 16pt (size=32), bold, #13818A, before=120 after=240
+                            // Section: 16pt (size=32), bold, use brand h2Color or body color
+                            const h2Hex = (h2Color || bodyColor).replace('#', '');
                             children.push(new Paragraph({
                                 heading: HeadingLevel.HEADING_2,
-                                children: processChildren({ bold: true, size: 32, color: '13818A', font: 'Times New Roman' }),
+                                children: processChildren({ bold: true, size: 32, color: h2Hex, font: 'Times New Roman' }),
                                 spacing: { before: 120, after: 240, line: 276 },
                             }));
                             break;

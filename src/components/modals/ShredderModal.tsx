@@ -123,9 +123,9 @@ export default function ShredderModal({ isOpen, onClose }: ShredderModalProps) {
                             style={{ minWidth: '250px' }}
                         >
                             <div className="space-y-3">
-                                {grouped[col.id].map((req) => (
+                                {grouped[col.id].map((req, idx) => (
                                     <div
-                                        key={req.id}
+                                        key={`${req.id}-${idx}`}
                                         draggable
                                         onDragStart={() => handleDragStart(req.id)}
                                         onDragEnd={handleDragEnd}

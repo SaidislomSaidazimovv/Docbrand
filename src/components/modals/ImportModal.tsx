@@ -193,6 +193,14 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                     bodyColor: brand.bodyColor,
                     h1FontSize: null as number | null,
                     h2FontSize: null as number | null,
+                    h1SpaceBefore: null as number | null,
+                    h1SpaceAfter: null as number | null,
+                    h2SpaceBefore: null as number | null,
+                    h2SpaceAfter: null as number | null,
+                    h3Color: null as string | null,
+                    h3FontSize: null as number | null,
+                    h3SpaceBefore: null as number | null,
+                    h3SpaceAfter: null as number | null,
                 },
                 document: contentResult.doc,
                 requirements: contentResult.requirements.map(r => ({
@@ -201,6 +209,8 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                     section: r.section ?? null,
                     priority: r.priority ?? null,
                 })),
+                margins: null,
+                pageSize: null,
             };
 
             const { applyNormalizedImport } = await import('@/lib/import/applyNormalizedImport');

@@ -22,6 +22,16 @@ export interface DocxBrand {
     bodyColor: string | null;
     h1FontSize: number | null; // px
     h2FontSize: number | null; // px
+    h1SpaceBefore: number | null; // pt
+    h1SpaceAfter: number | null;  // pt
+    h2SpaceBefore: number | null; // pt
+    h2SpaceAfter: number | null;  // pt
+    h3Color: string | null;
+    h3FontSize: number | null; // px
+    h3SpaceBefore: number | null; // pt
+    h3SpaceAfter: number | null;  // pt
+    margins: { top: number; bottom: number; left: number; right: number } | null;
+    pageSize: { width: number; height: number; orientation: 'portrait' | 'landscape' } | null;
 }
 
 const EMPTY: DocxBrand = {
@@ -35,6 +45,16 @@ const EMPTY: DocxBrand = {
     bodyColor: null,
     h1FontSize: null,
     h2FontSize: null,
+    h1SpaceBefore: null,
+    h1SpaceAfter: null,
+    h2SpaceBefore: null,
+    h2SpaceAfter: null,
+    h3Color: null,
+    h3FontSize: null,
+    h3SpaceBefore: null,
+    h3SpaceAfter: null,
+    margins: null,
+    pageSize: null,
 };
 
 // ---------------------------------------------------------------------------
@@ -242,16 +262,22 @@ function extractRunProps(rPr: unknown, themeData: ThemeData | null): RunProps {
     const sz = child(rPr, 'w:sz');
     if (sz) result.fontSize = halfPointsToPx(attr(sz, 'w:val'));
 
-    // Color: direct w:val first, then w:themeColor fallback
+    // Color extraction: only return colors the user intentionally set.
+    // - CASE 1: w:val without w:themeColor → pure custom hex (skip 000000, FFFFFF)
+    // - CASE 2: w:themeColor + w:themeShade → user darkened intentionally → use w:val
+    // - CASE 3: w:themeColor + w:themeTint → user lightened intentionally → use w:val
+    // - w:themeColor alone (no shade/tint) → Word default → null
+    // - w:val = 000000/FFFFFF with themeColor → default black/white → null
     const color = child(rPr, 'w:color');
     if (color) {
         const directColor = normalizeColor(attr(color, 'w:val'));
-        if (directColor) {
-            result.color = directColor;
-        } else {
-            const themeColorRef = attr(color, 'w:themeColor');
-            if (themeColorRef) {
-                result.color = resolveThemeColor(themeColorRef, themeData?.colors ?? null);
+        const themeColorRef = attr(color, 'w:themeColor');
+        const themeShade = attr(color, 'w:themeShade');
+        const themeTint = attr(color, 'w:themeTint');
+
+        if (directColor && directColor !== '#000000' && directColor !== '#FFFFFF') {
+            if (!themeColorRef || themeShade || themeTint) {
+                result.color = directColor;
             }
         }
     }
@@ -326,14 +352,17 @@ export async function extractBrandFromDocx(arrayBuffer: ArrayBuffer): Promise<Do
         const defaultPPr = pPrDefault ? child(pPrDefault, 'w:pPr') : null;
         const defaultParaProps = extractParaProps(defaultPPr);
 
-        // 2. Named styles — find Normal, Heading1, Heading2
+        // 2. Named styles — detect headings with regex + basedOn chain (same as docxToTiptap.ts)
         const rawStyles = stylesRoot['w:style'];
         const styleList: XmlObj[] = Array.isArray(rawStyles) ? rawStyles : (rawStyles ? [rawStyles] : []);
 
         let normalRun: RunProps = { fontFamily: null, fontSize: null, color: null };
         let normalPara: ParaProps = { lineHeight: null, spaceBefore: null, spaceAfter: null };
-        let h1Run: RunProps = { fontFamily: null, fontSize: null, color: null };
-        let h2Run: RunProps = { fontFamily: null, fontSize: null, color: null };
+
+        const headingMap: Record<string, number> = {};
+        const basedOnMap: Record<string, string> = {};
+        const styleRunMap: Record<string, RunProps> = {};
+        const styleParaMap: Record<string, ParaProps> = {};
 
         for (const style of styleList) {
             const styleId = attr(style, 'w:styleId') as string | undefined;
@@ -341,18 +370,122 @@ export async function extractBrandFromDocx(arrayBuffer: ArrayBuffer): Promise<Do
 
             const rPr = child(style, 'w:rPr');
             const pPr = child(style, 'w:pPr');
+            styleRunMap[styleId] = extractRunProps(rPr, themeData);
+            styleParaMap[styleId] = extractParaProps(pPr);
 
-            if (styleId === 'Normal' || styleId === 'normal') {
-                normalRun = extractRunProps(rPr, themeData);
-                normalPara = extractParaProps(pPr);
-            } else if (styleId === 'Heading1' || styleId === 'heading1') {
-                h1Run = extractRunProps(rPr, themeData);
-            } else if (styleId === 'Heading2' || styleId === 'heading2') {
-                h2Run = extractRunProps(rPr, themeData);
+            const nameNode = child(style, 'w:name');
+            const nameVal = nameNode ? (attr(nameNode, 'w:val') as string | undefined) : undefined;
+
+            // Track basedOn for inheritance
+            const basedOnNode = child(style, 'w:basedOn');
+            const basedOnId = basedOnNode ? (attr(basedOnNode, 'w:val') as string | undefined) : undefined;
+            if (basedOnId) basedOnMap[styleId] = basedOnId;
+
+            // Detect Normal
+            if (styleId === 'Normal' || styleId === 'normal' ||
+                (nameVal && nameVal.toLowerCase() === 'normal')) {
+                normalRun = styleRunMap[styleId];
+                normalPara = styleParaMap[styleId];
+            }
+
+            // Detect heading by styleId regex
+            const idMatch = styleId.match(/^heading\s*(\d)$/i);
+            if (idMatch) headingMap[styleId] = parseInt(idMatch[1]);
+
+            // Detect heading by w:name
+            if (nameVal && !headingMap[styleId]) {
+                const nameMatch = nameVal.match(/^heading\s*(\d)$/i);
+                if (nameMatch) headingMap[styleId] = parseInt(nameMatch[1]);
+            }
+
+            // Title/Subtitle intentionally NOT mapped to heading levels.
+            // User spec: heading detection ONLY from w:styleId (Heading1, Heading2, Heading3).
+        }
+
+        // Second pass: inherit heading level from basedOn chain
+        for (const sid of Object.keys(basedOnMap)) {
+            if (headingMap[sid]) continue;
+            let parentId: string | undefined = basedOnMap[sid];
+            const visited = new Set<string>();
+            while (parentId && !visited.has(parentId)) {
+                visited.add(parentId);
+                if (headingMap[parentId]) {
+                    headingMap[sid] = headingMap[parentId];
+                    break;
+                }
+                parentId = basedOnMap[parentId];
             }
         }
 
-        // 3. Build brand — priority: Named style > Document defaults
+        // Find first H1, H2, and H3 style props
+        let h1Run: RunProps = { fontFamily: null, fontSize: null, color: null };
+        let h1Para: ParaProps = { lineHeight: null, spaceBefore: null, spaceAfter: null };
+        let h2Run: RunProps = { fontFamily: null, fontSize: null, color: null };
+        let h2Para: ParaProps = { lineHeight: null, spaceBefore: null, spaceAfter: null };
+        let h3Run: RunProps = { fontFamily: null, fontSize: null, color: null };
+        let h3Para: ParaProps = { lineHeight: null, spaceBefore: null, spaceAfter: null };
+        let foundH1 = false;
+        let foundH2 = false;
+        let foundH3 = false;
+
+        for (const [sid, level] of Object.entries(headingMap)) {
+            if (level === 1 && !foundH1) {
+                h1Run = styleRunMap[sid] || h1Run;
+                h1Para = styleParaMap[sid] || h1Para;
+                foundH1 = true;
+            } else if (level === 2 && !foundH2) {
+                h2Run = styleRunMap[sid] || h2Run;
+                h2Para = styleParaMap[sid] || h2Para;
+                foundH2 = true;
+            } else if (level === 3 && !foundH3) {
+                h3Run = styleRunMap[sid] || h3Run;
+                h3Para = styleParaMap[sid] || h3Para;
+                foundH3 = true;
+            }
+            if (foundH1 && foundH2 && foundH3) break;
+        }
+
+        // 3. Extract page margins and size from document.xml sectPr
+        let margins: DocxBrand['margins'] = null;
+        let pageSize: DocxBrand['pageSize'] = null;
+
+        const docFile = zip.file('word/document.xml');
+        if (docFile) {
+            const docXml = await docFile.async('text');
+            const docParsed = parser.parse(docXml);
+            const docRoot = docParsed['w:document'];
+            const body = docRoot ? child(docRoot, 'w:body') : null;
+            const sectPr = body ? child(body, 'w:sectPr') : null;
+
+            if (sectPr) {
+                const pgMar = child(sectPr, 'w:pgMar');
+                if (pgMar) {
+                    const top = twipsToPt(attr(pgMar, 'w:top'));
+                    const bottom = twipsToPt(attr(pgMar, 'w:bottom'));
+                    const left = twipsToPt(attr(pgMar, 'w:left'));
+                    const right = twipsToPt(attr(pgMar, 'w:right'));
+                    if (top !== null && bottom !== null && left !== null && right !== null) {
+                        margins = { top, bottom, left, right };
+                    }
+                }
+
+                const pgSz = child(sectPr, 'w:pgSz');
+                if (pgSz) {
+                    const wVal = Number(attr(pgSz, 'w:w'));
+                    const hVal = Number(attr(pgSz, 'w:h'));
+                    const orient = attr(pgSz, 'w:orient');
+                    if (isFinite(wVal) && isFinite(hVal) && wVal > 0 && hVal > 0) {
+                        pageSize = {
+                            width: Math.round(wVal / 20),
+                            height: Math.round(hVal / 20),
+                            orientation: orient === 'landscape' ? 'landscape' : 'portrait',
+                        };
+                    }
+                }
+            }
+        }
+
+        // 4. Build brand — priority: Named style > Document defaults
         return {
             fontFamily: normalRun.fontFamily || defaultRunProps.fontFamily,
             fontSize: normalRun.fontSize || defaultRunProps.fontSize,
@@ -364,9 +497,18 @@ export async function extractBrandFromDocx(arrayBuffer: ArrayBuffer): Promise<Do
             bodyColor: normalRun.color || defaultRunProps.color,
             h1FontSize: h1Run.fontSize,
             h2FontSize: h2Run.fontSize,
+            h1SpaceBefore: h1Para.spaceBefore,
+            h1SpaceAfter: h1Para.spaceAfter,
+            h2SpaceBefore: h2Para.spaceBefore,
+            h2SpaceAfter: h2Para.spaceAfter,
+            h3Color: h3Run.color,
+            h3FontSize: h3Run.fontSize,
+            h3SpaceBefore: h3Para.spaceBefore,
+            h3SpaceAfter: h3Para.spaceAfter,
+            margins,
+            pageSize,
         };
-    } catch (err) {
-        console.error('[extractBrandFromDocx] Failed:', err);
+    } catch {
         return { ...EMPTY };
     }
 }

@@ -20,11 +20,19 @@ const DEFAULTS = {
     spaceBefore: 0,
     spaceAfter: 0,
     firstLineIndent: 0,
-    h1Color: '#1A1A1A',
-    h2Color: '#13818A',
+    h1Color: null as string | null,
+    h2Color: null as string | null,
     bodyColor: '#1A1A1A',
     h1FontSize: null as number | null,
     h2FontSize: null as number | null,
+    h1SpaceBefore: null as number | null,
+    h1SpaceAfter: null as number | null,
+    h2SpaceBefore: null as number | null,
+    h2SpaceAfter: null as number | null,
+    h3Color: null as string | null,
+    h3FontSize: null as number | null,
+    h3SpaceBefore: null as number | null,
+    h3SpaceAfter: null as number | null,
 };
 
 // ---------------------------------------------------------------------------
@@ -46,9 +54,21 @@ interface StyleState {
     spaceAfter: number;
     firstLineIndent: number;
 
-    // Brand colors
-    h1Color: string;
-    h2Color: string;
+    // Heading-specific spacing (null = fall back to spaceBefore/spaceAfter)
+    h1SpaceBefore: number | null;
+    h1SpaceAfter: number | null;
+    h2SpaceBefore: number | null;
+    h2SpaceAfter: number | null;
+    h3SpaceBefore: number | null;
+    h3SpaceAfter: number | null;
+
+    // Heading font sizes (null = use multiplier fallback)
+    h3FontSize: number | null;
+
+    // Brand colors (null = inherit naturally)
+    h1Color: string | null;
+    h2Color: string | null;
+    h3Color: string | null;
     bodyColor: string;
 
     // Actions
@@ -60,11 +80,19 @@ interface StyleState {
     setSpaceBefore: (value: number) => void;
     setSpaceAfter: (value: number) => void;
     setFirstLineIndent: (value: number) => void;
-    setH1Color: (color: string) => void;
-    setH2Color: (color: string) => void;
+    setH1SpaceBefore: (value: number | null) => void;
+    setH1SpaceAfter: (value: number | null) => void;
+    setH2SpaceBefore: (value: number | null) => void;
+    setH2SpaceAfter: (value: number | null) => void;
+    setH3SpaceBefore: (value: number | null) => void;
+    setH3SpaceAfter: (value: number | null) => void;
+    setH3FontSize: (size: number | null) => void;
+    setH1Color: (color: string | null) => void;
+    setH2Color: (color: string | null) => void;
+    setH3Color: (color: string | null) => void;
     setBodyColor: (color: string) => void;
     applyPreset: (preset: 'h1' | 'h2' | 'body' | 'caption') => void;
-    applyBrandPartial: (partial: Partial<Omit<StyleState, 'setFontFamily' | 'setFontSize' | 'setLineHeight' | 'setH1FontSize' | 'setH2FontSize' | 'setSpaceBefore' | 'setSpaceAfter' | 'setFirstLineIndent' | 'setH1Color' | 'setH2Color' | 'setBodyColor' | 'applyPreset' | 'applyBrandPartial' | 'resetToDefaults'>>) => void;
+    applyBrandPartial: (partial: Partial<Omit<StyleState, 'setFontFamily' | 'setFontSize' | 'setLineHeight' | 'setH1FontSize' | 'setH2FontSize' | 'setSpaceBefore' | 'setSpaceAfter' | 'setFirstLineIndent' | 'setH1SpaceBefore' | 'setH1SpaceAfter' | 'setH2SpaceBefore' | 'setH2SpaceAfter' | 'setH1Color' | 'setH2Color' | 'setBodyColor' | 'applyPreset' | 'applyBrandPartial' | 'resetToDefaults'>>) => void;
     resetToDefaults: () => void;
 }
 
@@ -85,8 +113,16 @@ export const useStyleStore = create<StyleState>()(
             setSpaceBefore: (value) => set({ spaceBefore: value }),
             setSpaceAfter: (value) => set({ spaceAfter: value }),
             setFirstLineIndent: (value) => set({ firstLineIndent: value }),
+            setH1SpaceBefore: (value) => set({ h1SpaceBefore: value }),
+            setH1SpaceAfter: (value) => set({ h1SpaceAfter: value }),
+            setH2SpaceBefore: (value) => set({ h2SpaceBefore: value }),
+            setH2SpaceAfter: (value) => set({ h2SpaceAfter: value }),
+            setH3SpaceBefore: (value) => set({ h3SpaceBefore: value }),
+            setH3SpaceAfter: (value) => set({ h3SpaceAfter: value }),
+            setH3FontSize: (size) => set({ h3FontSize: size }),
             setH1Color: (color) => set({ h1Color: color }),
             setH2Color: (color) => set({ h2Color: color }),
+            setH3Color: (color) => set({ h3Color: color }),
             setBodyColor: (color) => set({ bodyColor: color }),
 
             applyPreset: (preset) => {
@@ -114,6 +150,21 @@ export const useStyleStore = create<StyleState>()(
         }),
         {
             name: 'docbrand-style-store',
+            version: 2,
+            migrate: (persisted: unknown, version: number) => {
+                const state = persisted as Record<string, unknown>;
+                if (version < 1) {
+                    // v0→v1: Clear hardcoded teal/dark heading colors so they become null (inherit)
+                    if (state.h1Color === '#1A1A1A') state.h1Color = null;
+                    if (state.h2Color === '#13818A') state.h2Color = null;
+                }
+                if (version < 2) {
+                    // v1→v2: Force-clear any stale heading colors to null
+                    state.h1Color = null;
+                    state.h2Color = null;
+                }
+                return state;
+            },
             partialize: (state) => ({
                 fontFamily: state.fontFamily,
                 fontSize: state.fontSize,
@@ -123,8 +174,16 @@ export const useStyleStore = create<StyleState>()(
                 spaceBefore: state.spaceBefore,
                 spaceAfter: state.spaceAfter,
                 firstLineIndent: state.firstLineIndent,
+                h1SpaceBefore: state.h1SpaceBefore,
+                h1SpaceAfter: state.h1SpaceAfter,
+                h2SpaceBefore: state.h2SpaceBefore,
+                h2SpaceAfter: state.h2SpaceAfter,
+                h3SpaceBefore: state.h3SpaceBefore,
+                h3SpaceAfter: state.h3SpaceAfter,
+                h3FontSize: state.h3FontSize,
                 h1Color: state.h1Color,
                 h2Color: state.h2Color,
+                h3Color: state.h3Color,
                 bodyColor: state.bodyColor,
             }),
         }

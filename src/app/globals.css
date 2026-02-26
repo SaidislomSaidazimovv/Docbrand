@@ -186,8 +186,7 @@ body {
 .ProseMirror h1 {
   font-weight: 700;
   line-height: 1.15;
-  margin-top: 6pt;
-  margin-bottom: 12pt;
+  color: #1A1A1A;
   font-family: 'Times New Roman', Times, serif;
 }
 
@@ -195,8 +194,7 @@ body {
 .ProseMirror h2 {
   font-weight: 700;
   line-height: 1.15;
-  margin-top: 14pt;
-  margin-bottom: 6pt;
+  color: #1A1A1A;
   font-family: 'Times New Roman', Times, serif;
 }
 
@@ -205,8 +203,6 @@ body {
   font-weight: 700;
   font-style: italic;
   line-height: 1;
-  margin-top: 12pt;
-  margin-bottom: 6pt;
   color: #1A1A1A;
   font-family: 'Times New Roman', Times, serif;
 }
@@ -254,13 +250,14 @@ body {
   font-weight: 400 !important;
   font-style: normal !important;
   line-height: 1 !important;
-  margin: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   padding: 0 !important;
 }
 
-/* Override Tailwind prose sibling spacing */
+/* Let dynamic CSS control vertical spacing between elements */
 .ProseMirror > * + * {
-  margin-top: 0 !important;
+  margin-top: unset;
 }
 
 /* Line breaks - Shift+Enter should not add extra spacing */

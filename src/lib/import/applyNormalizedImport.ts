@@ -80,9 +80,20 @@ export function applyNormalizedImport(
         if (brand.spaceAfter !== null) { store.setSpaceAfter(brand.spaceAfter); result.brandFields.push(`Space after: ${brand.spaceAfter}`); }
         if (brand.h1FontSize !== null) { store.setH1FontSize(brand.h1FontSize); result.brandFields.push(`H1 size: ${brand.h1FontSize}px`); }
         if (brand.h2FontSize !== null) { store.setH2FontSize(brand.h2FontSize); result.brandFields.push(`H2 size: ${brand.h2FontSize}px`); }
-        if (brand.h1Color) { store.setH1Color(brand.h1Color); result.brandFields.push(`H1 color: ${brand.h1Color}`); }
-        if (brand.h2Color) { store.setH2Color(brand.h2Color); result.brandFields.push(`H2 color: ${brand.h2Color}`); }
+        store.setH1Color(brand.h1Color);
+        if (brand.h1Color) { result.brandFields.push(`H1 color: ${brand.h1Color}`); }
+        store.setH2Color(brand.h2Color);
+        if (brand.h2Color) { result.brandFields.push(`H2 color: ${brand.h2Color}`); }
         if (brand.bodyColor) { store.setBodyColor(brand.bodyColor); result.brandFields.push(`Body color: ${brand.bodyColor}`); }
+        if (brand.h1SpaceBefore !== null) { store.setH1SpaceBefore(brand.h1SpaceBefore); result.brandFields.push(`H1 space before: ${brand.h1SpaceBefore}pt`); }
+        if (brand.h1SpaceAfter !== null) { store.setH1SpaceAfter(brand.h1SpaceAfter); result.brandFields.push(`H1 space after: ${brand.h1SpaceAfter}pt`); }
+        if (brand.h2SpaceBefore !== null) { store.setH2SpaceBefore(brand.h2SpaceBefore); result.brandFields.push(`H2 space before: ${brand.h2SpaceBefore}pt`); }
+        if (brand.h2SpaceAfter !== null) { store.setH2SpaceAfter(brand.h2SpaceAfter); result.brandFields.push(`H2 space after: ${brand.h2SpaceAfter}pt`); }
+        store.setH3Color(brand.h3Color);
+        if (brand.h3Color) { result.brandFields.push(`H3 color: ${brand.h3Color}`); }
+        if (brand.h3FontSize !== null) { store.setH3FontSize(brand.h3FontSize); result.brandFields.push(`H3 size: ${brand.h3FontSize}px`); }
+        if (brand.h3SpaceBefore !== null) { store.setH3SpaceBefore(brand.h3SpaceBefore); result.brandFields.push(`H3 space before: ${brand.h3SpaceBefore}pt`); }
+        if (brand.h3SpaceAfter !== null) { store.setH3SpaceAfter(brand.h3SpaceAfter); result.brandFields.push(`H3 space after: ${brand.h3SpaceAfter}pt`); }
     }
 
     // -----------------------------------------------------------------
@@ -118,7 +129,7 @@ export function applyNormalizedImport(
         const fileId = `import-${fileInfo.filename}-${now}`;
 
         const reqs: Requirement[] = payload.requirements.map((raw, i) => ({
-            id: raw.id || `req-${now}-${i}`,
+            id: `req-${now}-${i}`,
             text: raw.text.length > 50 ? raw.text.slice(0, 50) + '...' : raw.text,
             originalText: raw.text,
             sectionPath: raw.section ? [raw.section] : ['Uncategorized'],
