@@ -58,7 +58,16 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
 
     // Get style values from store
-    const { fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, h3Color, bodyColor, h1FontSize, h2FontSize, h3FontSize, h1SpaceBefore, h1SpaceAfter, h2SpaceBefore, h2SpaceAfter, h3SpaceBefore, h3SpaceAfter, marginTop, marginBottom, marginLeft, marginRight } = useStyleStore();
+    const {
+        fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, bodyColor,
+        h1Color, h1FontSize, h1SpaceBefore, h1SpaceAfter, h1LineHeight,
+        h2Color, h2FontSize, h2SpaceBefore, h2SpaceAfter, h2LineHeight,
+        h3Color, h3FontSize, h3SpaceBefore, h3SpaceAfter, h3LineHeight,
+        h4Color, h4FontSize, h4SpaceBefore, h4SpaceAfter, h4LineHeight,
+        h5Color, h5FontSize, h5SpaceBefore, h5SpaceAfter, h5LineHeight,
+        h6Color, h6FontSize, h6SpaceBefore, h6SpaceAfter, h6LineHeight,
+        marginTop, marginBottom, marginLeft, marginRight,
+    } = useStyleStore();
 
     // Auto-heading toast
     const autoHeadingToast = useUIStore((state) => state.autoHeadingToast);
@@ -80,7 +89,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 heading: false,
             }),
             Heading.configure({
-                levels: [1, 2, 3],
+                levels: [1, 2, 3, 4, 5, 6],
             }),
             Placeholder.configure({
                 placeholder: 'Start writing your proposal...',
@@ -215,10 +224,10 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
 
         const css = `
             .ProseMirror {
-                font-family: '${fontFamily}', Times, serif !important;
-                font-size: ${fontSize}px !important;
+                font-family: '${fontFamily}', Times, serif;
+                font-size: ${fontSize}pt !important;
                 line-height: ${lineHeight} !important;
-                color: #000000;
+                color: ${bodyColor} !important;
                 position: relative;
                 white-space: pre-wrap;
                 overflow-wrap: break-word;
@@ -226,38 +235,70 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 max-width: 100%;
             }
             .ProseMirror p {
-                font-family: '${fontFamily}', Times, serif !important;
-                font-size: ${fontSize}px !important;
+                font-family: '${fontFamily}', Times, serif;
+                font-size: ${fontSize}pt !important;
                 line-height: ${lineHeight} !important;
-                margin-top: ${spaceBefore ?? 0}pt !important;
-                margin-bottom: ${spaceAfter ?? 0}pt !important;
+                color: ${bodyColor} !important;
+                margin-top: ${spaceBefore}pt !important;
+                margin-bottom: ${spaceAfter}pt !important;
                 text-indent: ${firstLineIndent}in !important;
                 position: relative;
             }
             .ProseMirror h1 {
-                font-family: '${fontFamily}', Times, serif !important;
-                font-size: ${h1FontSize ? `${h1FontSize}px` : '2em'} !important;
+                font-family: '${fontFamily}', Times, serif;
+                font-size: ${h1FontSize}pt !important;
                 font-weight: bold !important;
-                color: #000000 !important;
-                margin-top: ${h1SpaceBefore ?? 0}pt !important;
-                margin-bottom: ${h1SpaceAfter ?? 0}pt !important;
+                line-height: ${h1LineHeight} !important;
+                color: ${h1Color} !important;
+                margin-top: ${h1SpaceBefore}pt !important;
+                margin-bottom: ${h1SpaceAfter}pt !important;
             }
             .ProseMirror h2 {
-                font-family: '${fontFamily}', Times, serif !important;
-                font-size: ${h2FontSize ? `${h2FontSize}px` : '1.5em'} !important;
+                font-family: '${fontFamily}', Times, serif;
+                font-size: ${h2FontSize}pt !important;
                 font-weight: bold !important;
-                font-style: italic !important;
-                color: ${h2Color || '#2E75B6'} !important;
-                margin-top: ${h2SpaceBefore ?? 0}pt !important;
-                margin-bottom: ${h2SpaceAfter ?? 0}pt !important;
+                line-height: ${h2LineHeight} !important;
+                color: ${h2Color} !important;
+                margin-top: ${h2SpaceBefore}pt !important;
+                margin-bottom: ${h2SpaceAfter}pt !important;
             }
             .ProseMirror h3 {
-                font-family: '${fontFamily}', Times, serif !important;
-                font-size: ${h3FontSize ? `${h3FontSize}px` : '1.17em'} !important;
+                font-family: '${fontFamily}', Times, serif;
+                font-size: ${h3FontSize}pt !important;
+                font-weight: bold !important;
                 font-style: italic !important;
-                color: ${h2Color || '#2E75B6'} !important;
-                margin-top: ${h3SpaceBefore ?? 0}pt !important;
-                margin-bottom: ${h3SpaceAfter ?? 0}pt !important;
+                line-height: ${h3LineHeight} !important;
+                color: ${h3Color} !important;
+                margin-top: ${h3SpaceBefore}pt !important;
+                margin-bottom: ${h3SpaceAfter}pt !important;
+            }
+            .ProseMirror h4 {
+                font-family: '${fontFamily}', Times, serif;
+                font-size: ${h4FontSize}pt !important;
+                font-weight: normal !important;
+                line-height: ${h4LineHeight} !important;
+                color: ${h4Color} !important;
+                margin-top: ${h4SpaceBefore}pt !important;
+                margin-bottom: ${h4SpaceAfter}pt !important;
+            }
+            .ProseMirror h5 {
+                font-family: '${fontFamily}', Times, serif;
+                font-size: ${h5FontSize}pt !important;
+                font-weight: normal !important;
+                line-height: ${h5LineHeight} !important;
+                color: ${h5Color} !important;
+                margin-top: ${h5SpaceBefore}pt !important;
+                margin-bottom: ${h5SpaceAfter}pt !important;
+            }
+            .ProseMirror h6 {
+                font-family: '${fontFamily}', Times, serif;
+                font-size: ${h6FontSize}pt !important;
+                font-weight: normal !important;
+                font-style: italic !important;
+                line-height: ${h6LineHeight} !important;
+                color: ${h6Color} !important;
+                margin-top: ${h6SpaceBefore}pt !important;
+                margin-bottom: ${h6SpaceAfter}pt !important;
             }
         `;
 
@@ -269,7 +310,13 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 styleRef.current = null;
             }
         };
-    }, [fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, h1Color, h2Color, h3Color, bodyColor, h1FontSize, h2FontSize, h3FontSize, h1SpaceBefore, h1SpaceAfter, h2SpaceBefore, h2SpaceAfter, h3SpaceBefore, h3SpaceAfter]);
+    }, [fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, bodyColor,
+        h1FontSize, h1Color, h1SpaceBefore, h1SpaceAfter, h1LineHeight,
+        h2FontSize, h2Color, h2SpaceBefore, h2SpaceAfter, h2LineHeight,
+        h3FontSize, h3Color, h3SpaceBefore, h3SpaceAfter, h3LineHeight,
+        h4FontSize, h4Color, h4SpaceBefore, h4SpaceAfter, h4LineHeight,
+        h5FontSize, h5Color, h5SpaceBefore, h5SpaceAfter, h5LineHeight,
+        h6FontSize, h6Color, h6SpaceBefore, h6SpaceAfter, h6LineHeight]);
 
     // Handle click to link requirement to block
     const handleEditorClick = useCallback(() => {

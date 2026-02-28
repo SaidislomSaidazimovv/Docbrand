@@ -59,22 +59,27 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
 
     // Get current text style
     const getCurrentStyle = () => {
-        if (editor.isActive('heading', { level: 1 })) return 'Heading 1';
-        if (editor.isActive('heading', { level: 2 })) return 'Heading 2';
+        for (let l = 1; l <= 6; l++) {
+            if (editor.isActive('heading', { level: l })) return `H${l}`;
+        }
         return 'Body';
     };
 
-    const handleStyleChange = (style: string) => {
-        switch (style) {
-            case 'Heading 1':
-                editor.chain().focus().toggleHeading({ level: 1 }).run();
-                break;
-            case 'Heading 2':
-                editor.chain().focus().toggleHeading({ level: 2 }).run();
-                break;
-            case 'Body':
-                editor.chain().focus().setParagraph().run();
-                break;
+    const STYLE_OPTIONS: { key: string; label: string; className: string; level?: number }[] = [
+        { key: 'H1', label: 'Heading 1', className: 'text-[15px] font-bold', level: 1 },
+        { key: 'H2', label: 'Heading 2', className: 'text-[13px] font-bold', level: 2 },
+        { key: 'H3', label: 'Heading 3', className: 'text-[12px] font-bold italic', level: 3 },
+        { key: 'H4', label: 'Heading 4', className: 'text-[11px]', level: 4 },
+        { key: 'H5', label: 'Heading 5', className: 'text-[12px]', level: 5 },
+        { key: 'H6', label: 'Heading 6', className: 'text-[10px] italic', level: 6 },
+        { key: 'Body', label: 'Body', className: 'text-sm' },
+    ];
+
+    const handleStyleChange = (key: string, level?: number) => {
+        if (level) {
+            editor.chain().focus().toggleHeading({ level: level as 1|2|3|4|5|6 }).run();
+        } else {
+            editor.chain().focus().setParagraph().run();
         }
         setShowStyleDropdown(false);
     };
@@ -111,28 +116,18 @@ export default function FloatingToolbar({ editor }: FloatingToolbarProps) {
                 </button>
 
                 {showStyleDropdown && (
-                    <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[120px] z-50">
-                        <button
-                            onClick={() => handleStyleChange('Heading 1')}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${getCurrentStyle() === 'Heading 1' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                    <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[140px] z-50">
+                        {STYLE_OPTIONS.map((opt) => (
+                            <button
+                                key={opt.key}
+                                onClick={() => handleStyleChange(opt.key, opt.level)}
+                                className={`w-full text-left px-3 py-1.5 hover:bg-gray-100 ${
+                                    getCurrentStyle() === opt.key ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
                                 }`}
-                        >
-                            <span className="text-lg font-bold">Heading 1</span>
-                        </button>
-                        <button
-                            onClick={() => handleStyleChange('Heading 2')}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${getCurrentStyle() === 'Heading 2' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                                }`}
-                        >
-                            <span className="text-base font-semibold">Heading 2</span>
-                        </button>
-                        <button
-                            onClick={() => handleStyleChange('Body')}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${getCurrentStyle() === 'Body' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                                }`}
-                        >
-                            Body
-                        </button>
+                            >
+                                <span className={opt.className}>{opt.label}</span>
+                            </button>
+                        ))}
                     </div>
                 )}
             </div>

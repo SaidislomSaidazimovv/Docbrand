@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Download, FileText, Check, AlertCircle } from 'lucide-react';
+import { X, Download, FileText, Check, AlertCircle, AlertTriangle } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useStyleStore } from '@/store/styleStore';
 import { useHeaderFooterStore } from '@/store/headerFooterStore';
+import { GOVCON_FONTS } from '@/lib/fonts';
 
 interface ExportModalProps {
     isOpen: boolean;
@@ -31,13 +32,17 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
         { id: 'finalize', label: 'Finalizing document', completed: false },
     ]);
     const [downloadBlob, setDownloadBlob] = useState<Blob | null>(null);
+    const [fontWarning, setFontWarning] = useState<string | null>(null);
 
     const editor = useEditorStore((state) => state.editor);
     const {
-        h1Color, h2Color, bodyColor,
-        fontFamily, fontSize, h1FontSize, h2FontSize, h3FontSize,
-        h1SpaceBefore, h1SpaceAfter, h2SpaceBefore, h2SpaceAfter, h3SpaceBefore, h3SpaceAfter,
-        spaceBefore, spaceAfter, lineHeight,
+        fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, bodyColor,
+        h1FontSize, h1Color, h1SpaceBefore, h1SpaceAfter, h1LineHeight,
+        h2FontSize, h2Color, h2SpaceBefore, h2SpaceAfter, h2LineHeight,
+        h3FontSize, h3Color, h3SpaceBefore, h3SpaceAfter, h3LineHeight,
+        h4FontSize, h4Color, h4SpaceBefore, h4SpaceAfter, h4LineHeight,
+        h5FontSize, h5Color, h5SpaceBefore, h5SpaceAfter, h5LineHeight,
+        h6FontSize, h6Color, h6SpaceBefore, h6SpaceAfter, h6LineHeight,
         marginTop, marginBottom, marginLeft, marginRight, pageWidth,
     } = useStyleStore();
     const headerConfig = useHeaderFooterStore((state) => state.header);
@@ -49,6 +54,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
             setPhase('select');
             setSteps(prev => prev.map(s => ({ ...s, completed: false })));
             setDownloadBlob(null);
+            setFontWarning(null);
 
             // Sync filename with current document title
             if (headerConfig.documentTitle) {
@@ -90,6 +96,13 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
             return;
         }
 
+        // Font compliance warning for DOCX
+        if (selectedFormat === 'docx' && !GOVCON_FONTS.includes(fontFamily)) {
+            setFontWarning(`"${fontFamily}" will be converted to Times New Roman for GovCon compliance`);
+        } else {
+            setFontWarning(null);
+        }
+
         setPhase('exporting');
         setSteps(steps.map(s => ({ ...s, completed: false })));
 
@@ -115,17 +128,17 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 const container = document.createElement('div');
                 container.innerHTML = htmlContent;
 
-                // Government-compliant typography styles
+                // Typography styles from store (brand spec)
                 const pdfStyles = document.createElement('style');
                 pdfStyles.textContent = `
-                  * { font-family: 'Times New Roman', Times, serif !important; }
-                  h1 { font-size: 42.67px; font-weight: 700; line-height: 0.65; margin-top: 0; margin-bottom: 24pt; color: ${h1Color || bodyColor}; }
-                  h2 { font-size: 21.33px; font-weight: 700; line-height: 1.15; margin-top: 6pt; margin-bottom: 12pt; color: ${h2Color || bodyColor}; }
-                  h3 { font-size: 18.67px; font-weight: 700; line-height: 1.15; margin-top: 14pt; margin-bottom: 6pt; color: ${bodyColor}; }
-                  h4 { font-size: 17.33px; font-weight: 700; font-style: italic; line-height: 1; margin-top: 12pt; margin-bottom: 6pt; color: ${bodyColor}; }
-                  h5 { font-size: 14.67px; font-weight: 400; line-height: 1; margin-top: 0; margin-bottom: 4pt; color: ${bodyColor}; }
-                  h6 { font-size: 16px; font-weight: 400; line-height: 1.5; margin-top: 0; margin-bottom: 6pt; color: ${bodyColor}; }
-                  p  { font-size: 16px; font-weight: 400; line-height: 1; margin-top: 0; margin-bottom: 6pt; color: ${bodyColor}; }
+                  * { font-family: '${fontFamily}', Arial, sans-serif !important; }
+                  h1 { font-size: ${h1FontSize}pt; font-weight: 700; line-height: ${h1LineHeight}; margin-top: ${h1SpaceBefore}pt; margin-bottom: ${h1SpaceAfter}pt; color: ${h1Color}; }
+                  h2 { font-size: ${h2FontSize}pt; font-weight: 700; line-height: ${h2LineHeight}; margin-top: ${h2SpaceBefore}pt; margin-bottom: ${h2SpaceAfter}pt; color: ${h2Color}; }
+                  h3 { font-size: ${h3FontSize}pt; font-weight: 700; font-style: italic; line-height: ${h3LineHeight}; margin-top: ${h3SpaceBefore}pt; margin-bottom: ${h3SpaceAfter}pt; color: ${h3Color}; }
+                  h4 { font-size: ${h4FontSize}pt; font-weight: 400; line-height: ${h4LineHeight}; margin-top: ${h4SpaceBefore}pt; margin-bottom: ${h4SpaceAfter}pt; color: ${h4Color}; }
+                  h5 { font-size: ${h5FontSize}pt; font-weight: 400; line-height: ${h5LineHeight}; margin-top: ${h5SpaceBefore}pt; margin-bottom: ${h5SpaceAfter}pt; color: ${h5Color}; }
+                  h6 { font-size: ${h6FontSize}pt; font-weight: 400; font-style: italic; line-height: ${h6LineHeight}; margin-top: ${h6SpaceBefore}pt; margin-bottom: ${h6SpaceAfter}pt; color: ${h6Color}; }
+                  p  { font-size: ${fontSize}pt; font-weight: 400; line-height: ${lineHeight}; margin-top: ${spaceBefore}pt; margin-bottom: ${spaceAfter}pt; color: ${bodyColor}; }
                 `;
                 container.prepend(pdfStyles);
 
@@ -133,7 +146,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 container.style.width = '210mm'; // A4 width
                 container.style.maxWidth = '100%';
                 container.style.padding = '40px';
-                container.style.fontFamily = "'Times New Roman', Times, serif";
+                container.style.fontFamily = `'${fontFamily}', Arial, sans-serif`;
                 container.style.fontSize = '16px';
                 container.style.lineHeight = '1';
                 container.style.color = '#1A1A1A';
@@ -153,8 +166,11 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     (li as HTMLElement).style.wordWrap = 'break-word';
                 });
 
+                // px to mm: 1px at 96 DPI = 0.2646mm
+                const pxToMm = (px: number) => Math.round(px * 0.2646);
+                const pdfMargin: [number, number, number, number] = [pxToMm(marginTop), pxToMm(marginRight), pxToMm(marginBottom), pxToMm(marginLeft)];
                 const options = {
-                    margin: 10,
+                    margin: pdfMargin,
                     filename: fullFileName,
                     image: { type: 'jpeg' as const, quality: 0.98 },
                     html2canvas: {
@@ -183,26 +199,31 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 // Get TipTap JSON AST (not HTML DOM)
                 const docJSON = editor.getJSON();
 
-                // --- Font guard: GovCon Golden Three ---
-                const ALLOWED_FONTS = ['Times New Roman', 'Arial', 'Calibri'];
-                const safeFont = ALLOWED_FONTS.includes(fontFamily) ? fontFamily : 'Times New Roman';
+                // --- Font: use selected font (warning already shown if non-GovCon) ---
+                const safeFont = fontFamily || 'Times New Roman';
 
                 // --- Unit conversions ---
-                const pxToHalfPt = (px: number) => Math.round(px * 1.5);
+                const ptToHalfPt = (pt: number) => Math.round(pt * 2);
                 const ptToTwips = (pt: number) => Math.round(pt * 20);
                 const pxToTwips = (px: number) => Math.round(px * 1440 / 96);
 
-                // --- Heading sizes (half-points) ---
-                const h1Size = pxToHalfPt(h1FontSize || fontSize * 2);
-                const h2Size = pxToHalfPt(h2FontSize || fontSize * 1.33);
-                const h3Size = pxToHalfPt(h3FontSize || fontSize * 1.17);
-                const bodySize = pxToHalfPt(fontSize);
+                // --- Heading sizes (half-points from pt) ---
+                const h1Size = ptToHalfPt(h1FontSize);
+                const h2Size = ptToHalfPt(h2FontSize);
+                const h3Size = ptToHalfPt(h3FontSize);
+                const h4Size = ptToHalfPt(h4FontSize);
+                const h5Size = ptToHalfPt(h5FontSize);
+                const h6Size = ptToHalfPt(h6FontSize);
+                const bodySize = ptToHalfPt(fontSize);
 
                 // --- Colors (strip #) ---
-                const h1Hex = '000000'; // H1 always black
-                const h2Hex = (h2Color || '#2E75B6').replace('#', '');
-                const h3Hex = (h2Color || '#2E75B6').replace('#', ''); // H3 matches H2
-                const bodyHex = (bodyColor || '#1A1A1A').replace('#', '');
+                const h1Hex = h1Color.replace('#', '');
+                const h2Hex = h2Color.replace('#', '');
+                const h3Hex = h3Color.replace('#', '');
+                const h4Hex = h4Color.replace('#', '');
+                const h5Hex = h5Color.replace('#', '');
+                const h6Hex = h6Color.replace('#', '');
+                const bodyHex = bodyColor.replace('#', '');
 
                 // --- Line spacing (240ths; 240 = single) ---
                 const lineSpacing = Math.round((lineHeight || 1) * 240);
@@ -369,20 +390,38 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                     heading = HeadingLevel.HEADING_1;
                                     size = h1Size; color = h1Hex;
                                     bold = true; italic = false;
-                                    sBefore = ptToTwips(h1SpaceBefore ?? 12);
-                                    sAfter = ptToTwips(h1SpaceAfter ?? 6);
+                                    sBefore = ptToTwips(h1SpaceBefore);
+                                    sAfter = ptToTwips(h1SpaceAfter);
                                 } else if (level === 2) {
                                     heading = HeadingLevel.HEADING_2;
                                     size = h2Size; color = h2Hex;
-                                    bold = true; italic = true;
-                                    sBefore = ptToTwips(h2SpaceBefore ?? 10);
-                                    sAfter = ptToTwips(h2SpaceAfter ?? 4);
-                                } else {
+                                    bold = true; italic = false;
+                                    sBefore = ptToTwips(h2SpaceBefore);
+                                    sAfter = ptToTwips(h2SpaceAfter);
+                                } else if (level === 3) {
                                     heading = HeadingLevel.HEADING_3;
                                     size = h3Size; color = h3Hex;
+                                    bold = true; italic = true;
+                                    sBefore = ptToTwips(h3SpaceBefore);
+                                    sAfter = ptToTwips(h3SpaceAfter);
+                                } else if (level === 4) {
+                                    heading = HeadingLevel.HEADING_4;
+                                    size = h4Size; color = h4Hex;
+                                    bold = false; italic = false;
+                                    sBefore = ptToTwips(h4SpaceBefore);
+                                    sAfter = ptToTwips(h4SpaceAfter);
+                                } else if (level === 5) {
+                                    heading = HeadingLevel.HEADING_5;
+                                    size = h5Size; color = h5Hex;
+                                    bold = false; italic = false;
+                                    sBefore = ptToTwips(h5SpaceBefore);
+                                    sAfter = ptToTwips(h5SpaceAfter);
+                                } else {
+                                    heading = HeadingLevel.HEADING_6;
+                                    size = h6Size; color = h6Hex;
                                     bold = false; italic = true;
-                                    sBefore = ptToTwips(h3SpaceBefore ?? 8);
-                                    sAfter = ptToTwips(h3SpaceAfter ?? 4);
+                                    sBefore = ptToTwips(h6SpaceBefore);
+                                    sAfter = ptToTwips(h6SpaceAfter);
                                 }
 
                                 result.push(new Paragraph({
@@ -487,7 +526,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 if (headerConfig.companyName) {
                     headerRuns.push(new TextRun({
                         text: headerConfig.companyName,
-                        font: headerConfig.fontFamily || 'Inter',
+                        font: headerConfig.fontFamily || safeFont,
                         size: (headerConfig.fontSize || 12) * 2,
                         color: (headerConfig.textColor || '#374151').replace('#', ''),
                         bold: true,
@@ -496,7 +535,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 if (headerConfig.companyName && headerConfig.documentTitle) {
                     headerRuns.push(new TextRun({
                         text: '  |  ',
-                        font: headerConfig.fontFamily || 'Inter',
+                        font: headerConfig.fontFamily || safeFont,
                         size: (headerConfig.fontSize || 12) * 2,
                         color: (headerConfig.textColor || '#374151').replace('#', ''),
                     }));
@@ -504,7 +543,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 if (headerConfig.documentTitle) {
                     headerRuns.push(new TextRun({
                         text: headerConfig.documentTitle,
-                        font: headerConfig.fontFamily || 'Inter',
+                        font: headerConfig.fontFamily || safeFont,
                         size: (headerConfig.fontSize || 12) * 2,
                         color: (headerConfig.textColor || '#374151').replace('#', ''),
                     }));
@@ -526,7 +565,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 if (footerConfig.text) {
                     footerRuns.push(new TextRun({
                         text: footerConfig.text,
-                        font: footerConfig.fontFamily || 'Inter',
+                        font: footerConfig.fontFamily || safeFont,
                         size: (footerConfig.fontSize || 12) * 2,
                         color: (footerConfig.textColor || '#6b7280').replace('#', ''),
                     }));
@@ -544,14 +583,14 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     if (footerRuns.length > 0) {
                         footerRuns.push(new TextRun({
                             text: '  |  ',
-                            font: footerConfig.fontFamily || 'Inter',
+                            font: footerConfig.fontFamily || safeFont,
                             size: (footerConfig.fontSize || 12) * 2,
                             color: (footerConfig.textColor || '#6b7280').replace('#', ''),
                         }));
                     }
                     footerRuns.push(new TextRun({
                         text: dateStr,
-                        font: footerConfig.fontFamily || 'Inter',
+                        font: footerConfig.fontFamily || safeFont,
                         size: (footerConfig.fontSize || 12) * 2,
                         color: (footerConfig.textColor || '#6b7280').replace('#', ''),
                     }));
@@ -560,7 +599,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     if (footerRuns.length > 0) {
                         footerRuns.push(new TextRun({
                             text: '  |  ',
-                            font: footerConfig.fontFamily || 'Inter',
+                            font: footerConfig.fontFamily || safeFont,
                             size: (footerConfig.fontSize || 12) * 2,
                             color: (footerConfig.textColor || '#6b7280').replace('#', ''),
                         }));
@@ -568,32 +607,32 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     if (footerConfig.pageNumberFormat === 'pageOf') {
                         footerRuns.push(new TextRun({
                             text: 'Page ',
-                            font: footerConfig.fontFamily || 'Inter',
+                            font: footerConfig.fontFamily || safeFont,
                             size: (footerConfig.fontSize || 12) * 2,
                             color: (footerConfig.textColor || '#6b7280').replace('#', ''),
                         }));
                         footerRuns.push(new TextRun({
                             children: [PageNumber.CURRENT],
-                            font: footerConfig.fontFamily || 'Inter',
+                            font: footerConfig.fontFamily || safeFont,
                             size: (footerConfig.fontSize || 12) * 2,
                             color: (footerConfig.textColor || '#6b7680').replace('#', ''),
                         }));
                         footerRuns.push(new TextRun({
                             text: ' of ',
-                            font: footerConfig.fontFamily || 'Inter',
+                            font: footerConfig.fontFamily || safeFont,
                             size: (footerConfig.fontSize || 12) * 2,
                             color: (footerConfig.textColor || '#6b7280').replace('#', ''),
                         }));
                         footerRuns.push(new TextRun({
                             children: [PageNumber.TOTAL_PAGES],
-                            font: footerConfig.fontFamily || 'Inter',
+                            font: footerConfig.fontFamily || safeFont,
                             size: (footerConfig.fontSize || 12) * 2,
                             color: (footerConfig.textColor || '#6b7280').replace('#', ''),
                         }));
                     } else {
                         footerRuns.push(new TextRun({
                             children: [PageNumber.CURRENT],
-                            font: footerConfig.fontFamily || 'Inter',
+                            font: footerConfig.fontFamily || safeFont,
                             size: (footerConfig.fontSize || 12) * 2,
                             color: (footerConfig.textColor || '#6b7280').replace('#', ''),
                         }));
@@ -787,6 +826,14 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     {/* Exporting Progress */}
                     {phase === 'exporting' && (
                         <div className="py-4">
+                            {/* Font compliance warning */}
+                            {fontWarning && (
+                                <div className="flex items-center gap-2 px-3 py-2 mb-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <AlertTriangle size={14} className="text-amber-500 shrink-0" />
+                                    <span className="text-xs text-amber-700">{fontWarning}</span>
+                                </div>
+                            )}
+
                             <div className="flex justify-center mb-4">
                                 <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center">
                                     <FileText size={28} className="text-emerald-500" />
@@ -826,6 +873,14 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     {/* Export Complete */}
                     {phase === 'done' && (
                         <div className="py-4">
+                            {/* Font compliance warning */}
+                            {fontWarning && (
+                                <div className="flex items-center gap-2 px-3 py-2 mb-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <AlertTriangle size={14} className="text-amber-500 shrink-0" />
+                                    <span className="text-xs text-amber-700">{fontWarning}</span>
+                                </div>
+                            )}
+
                             <div className="flex justify-center mb-4">
                                 <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center">
                                     <FileText size={28} className="text-emerald-500" />

@@ -536,6 +536,23 @@ body {
   opacity: 0.9;
 }
 
+/* Table Bubble Menu animation */
+.table-bubble-menu {
+  animation: tableBubbleFadeIn 0.15s ease-out;
+  transform-origin: bottom center;
+}
+
+@keyframes tableBubbleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ========================================
    Block Handle / Drag Handle Styles
    ======================================== */

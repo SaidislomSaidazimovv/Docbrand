@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Type, BookOpen, CheckCircle, XCircle, AlertTriangle, FileText, Trash2, ChevronDown, Minus, Plus } from 'lucide-react';
+import { Sparkles, Type, BookOpen, CheckCircle, XCircle, AlertTriangle, FileText, Trash2, Minus, Plus } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useStyleStore } from '@/store/styleStore';
+import FontPicker from '@/components/FontPicker';
 
 type Tab = 'scan' | 'styles' | 'sources';
 
@@ -12,8 +13,6 @@ interface ScanResult {
     score: number;
     issues: { type: 'warning' | 'error' | 'success'; message: string }[];
 }
-
-const FONTS = ['Inter', 'Roboto', 'Open Sans', 'Lato', 'Poppins', 'Georgia', 'Times New Roman'];
 
 // Number input with +/- buttons
 function NumberInput({
@@ -57,7 +56,6 @@ export default function RightSidebar() {
     const [activeTab, setActiveTab] = useState<Tab>('scan');
     const [isScanning, setIsScanning] = useState(false);
     const [scanResult, setScanResult] = useState<ScanResult | null>(null);
-    const [showFontDropdown, setShowFontDropdown] = useState(false);
     const [hasContent, setHasContent] = useState(false);
 
     const editor = useEditorStore((state) => state.editor);
@@ -85,7 +83,6 @@ export default function RightSidebar() {
 
     // Style store - all style values and setters
     const {
-        fontFamily, setFontFamily,
         fontSize, setFontSize,
         lineHeight, setLineHeight,
         spaceBefore, setSpaceBefore,
@@ -100,31 +97,20 @@ export default function RightSidebar() {
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     };
 
-    // Handle font change - updates store → dynamic CSS applies globally
-    const handleFontChange = (font: string) => {
-        setFontFamily(font);
-        setShowFontDropdown(false);
-    };
-
-    // Handle preset with editor command - ONLY affects current paragraph (where cursor is)
-    const handlePreset = (preset: 'h1' | 'h2' | 'body' | 'caption') => {
+    // Handle preset — applies heading/paragraph to current block
+    const handlePreset = (preset: string) => {
         if (!editor) return;
-
-        // Get current cursor position before any focus changes
         const { from } = editor.state.selection;
+        const chain = editor.chain().focus().setTextSelection(from);
 
-        // Use setHeading (not toggleHeading) to prevent toggling back to paragraph
         switch (preset) {
-            case 'h1':
-                editor.chain().focus().setTextSelection(from).setHeading({ level: 1 }).run();
-                break;
-            case 'h2':
-                editor.chain().focus().setTextSelection(from).setHeading({ level: 2 }).run();
-                break;
-            case 'body':
-            case 'caption':
-                editor.chain().focus().setTextSelection(from).setParagraph().run();
-                break;
+            case 'h1': chain.setHeading({ level: 1 }).run(); break;
+            case 'h2': chain.setHeading({ level: 2 }).run(); break;
+            case 'h3': chain.setHeading({ level: 3 }).run(); break;
+            case 'h4': chain.setHeading({ level: 4 }).run(); break;
+            case 'h5': chain.setHeading({ level: 5 }).run(); break;
+            case 'h6': chain.setHeading({ level: 6 }).run(); break;
+            default:   chain.setParagraph().run(); break;
         }
     };
 
@@ -285,33 +271,10 @@ export default function RightSidebar() {
                                 <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wide">Typography</span>
                             </div>
 
-                            {/* Font Dropdown */}
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm text-[#c9d1d9]">Font</span>
-                                <div className="relative">
-                                    <button
-                                        onClick={() => setShowFontDropdown(!showFontDropdown)}
-                                        className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded text-sm text-[#c9d1d9] transition-colors min-w-[120px] justify-between"
-                                    >
-                                        {fontFamily}
-                                        <ChevronDown size={14} className="text-[#8b949e]" />
-                                    </button>
-                                    {showFontDropdown && (
-                                        <div className="absolute top-full right-0 mt-1 w-full bg-[#21262d] rounded shadow-lg border border-[#30363d] z-10 max-h-48 overflow-y-auto">
-                                            {FONTS.map(font => (
-                                                <button
-                                                    key={font}
-                                                    onClick={() => handleFontChange(font)}
-                                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-[#30363d] transition-colors ${fontFamily === font ? 'text-[#388bfd]' : 'text-[#c9d1d9]'
-                                                        }`}
-                                                    style={{ fontFamily: font }}
-                                                >
-                                                    {font}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                            {/* Font Picker */}
+                            <div className="mb-3">
+                                <span className="text-sm text-[#c9d1d9] block mb-1.5">Font</span>
+                                <FontPicker editor={editor} />
                             </div>
 
                             {/* Size */}
@@ -356,34 +319,41 @@ export default function RightSidebar() {
                         {/* PRESETS Section */}
                         <div>
                             <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wide block mb-3">Presets</span>
-                            <div className="grid grid-cols-2 gap-2">
-                                <button
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => handlePreset('h1')}
-                                    className="px-3 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-full text-sm text-[#c9d1d9] transition-colors"
-                                >
-                                    Heading 1
+                            <div className="flex flex-col gap-1">
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h1')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
+                                    <span className="text-[15px] font-bold" style={{ color: '#13818A' }}>H1</span>
+                                    <span className="text-xs text-[#8b949e]">16pt Bold</span>
                                 </button>
-                                <button
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => handlePreset('h2')}
-                                    className="px-3 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-full text-sm text-[#c9d1d9] transition-colors"
-                                >
-                                    Heading 2
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h2')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
+                                    <span className="text-[13px] font-bold text-[#c9d1d9]">H2</span>
+                                    <span className="text-xs text-[#8b949e]">14pt Bold</span>
                                 </button>
-                                <button
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => handlePreset('body')}
-                                    className="px-3 py-2 bg-[#388bfd] hover:bg-[#58a6ff] rounded-full text-sm text-white font-medium transition-colors"
-                                >
-                                    Body
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h3')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
+                                    <span className="text-[12px] font-bold italic text-[#c9d1d9]">H3</span>
+                                    <span className="text-xs text-[#8b949e]">13pt Bold Italic</span>
                                 </button>
-                                <button
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => handlePreset('caption')}
-                                    className="px-3 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-full text-sm text-[#c9d1d9] transition-colors"
-                                >
-                                    Caption
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h4')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
+                                    <span className="text-[11px] text-[#c9d1d9]">H4</span>
+                                    <span className="text-xs text-[#8b949e]">11pt Callout</span>
+                                </button>
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h5')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
+                                    <span className="text-[12px] text-[#c9d1d9]">H5</span>
+                                    <span className="text-xs text-[#8b949e]">12pt Lead</span>
+                                </button>
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h6')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
+                                    <span className="text-[10px] italic text-[#8b949e]">H6</span>
+                                    <span className="text-xs text-[#8b949e]">10pt Caption</span>
+                                </button>
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('body')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#388bfd] hover:bg-[#58a6ff] rounded-lg transition-colors text-left">
+                                    <span className="text-[12px] font-medium text-white">Body</span>
+                                    <span className="text-xs text-blue-200">12pt Regular</span>
                                 </button>
                             </div>
                         </div>

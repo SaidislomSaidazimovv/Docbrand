@@ -32,6 +32,38 @@ export const SLASH_COMMANDS: CommandItem[] = [
         },
     },
     {
+        title: 'Heading 3',
+        description: 'Small section heading',
+        icon: 'H3',
+        command: ({ editor, range }) => {
+            editor.chain().focus().deleteRange(range).setNode('heading', { level: 3 }).run();
+        },
+    },
+    {
+        title: 'Heading 4',
+        description: 'Callout heading',
+        icon: 'H4',
+        command: ({ editor, range }) => {
+            editor.chain().focus().deleteRange(range).setNode('heading', { level: 4 }).run();
+        },
+    },
+    {
+        title: 'Heading 5',
+        description: 'Lead text heading',
+        icon: 'H5',
+        command: ({ editor, range }) => {
+            editor.chain().focus().deleteRange(range).setNode('heading', { level: 5 }).run();
+        },
+    },
+    {
+        title: 'Heading 6',
+        description: 'Caption heading',
+        icon: 'H6',
+        command: ({ editor, range }) => {
+            editor.chain().focus().deleteRange(range).setNode('heading', { level: 6 }).run();
+        },
+    },
+    {
         title: 'Paragraph',
         description: 'Plain text block',
         icon: '¶',
