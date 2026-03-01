@@ -7,6 +7,7 @@ import { useSourcesStore } from '@/store/sourcesStore';
 import { useEditorStore } from '@/store/editorStore';
 import type { Requirement } from '@/types';
 import type { ImportApplyResult } from '@/lib/import/types';
+import posthog from 'posthog-js';
 
 interface ImportModalProps {
     isOpen: boolean;
@@ -115,6 +116,11 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
 
             setImportResult({ ...result, brandSource: 'server' });
             setPhase('import-done');
+            posthog.capture('document_imported', {
+                file_type: file.name.toLowerCase().split('.').pop(),
+                file_name: file.name,
+                requirements_found: result.requirementsCount,
+            });
         } catch (err) {
             console.error('[ImportModal] Server parse error:', err);
             const message = err instanceof Error ? err.message : 'Failed to parse document';
@@ -221,6 +227,11 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
 
             setImportResult({ ...result, brandSource });
             setPhase('import-done');
+            posthog.capture('document_imported', {
+                file_type: 'json',
+                file_name: file.name,
+                requirements_found: result.requirementsCount,
+            });
         } catch (err) {
             console.error('[ImportModal] JSON import error:', err);
             setError(err instanceof Error ? err.message : 'Failed to process JSON file');
@@ -344,6 +355,11 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
         });
 
         importRequirements(requirements);
+        posthog.capture('document_imported', {
+            file_type: fileName.toLowerCase().split('.').pop(),
+            file_name: fileName,
+            requirements_found: requirements.length,
+        });
 
         setTimeout(() => {
             setPhase('done');

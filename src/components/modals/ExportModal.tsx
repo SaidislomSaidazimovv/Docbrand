@@ -6,6 +6,7 @@ import { useEditorStore } from '@/store/editorStore';
 import { useStyleStore } from '@/store/styleStore';
 import { useHeaderFooterStore } from '@/store/headerFooterStore';
 import { GOVCON_FONTS } from '@/lib/fonts';
+import posthog from 'posthog-js';
 
 interface ExportModalProps {
     isOpen: boolean;
@@ -706,6 +707,10 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
             await new Promise(resolve => setTimeout(resolve, 300));
             setPhase('done');
+            posthog.capture('document_exported', {
+                format: selectedFormat,
+                font: fontFamily,
+            });
         } catch (error) {
             console.error('Export failed:', error);
             setPhase('select');

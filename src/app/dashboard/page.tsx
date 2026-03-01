@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import posthog from 'posthog-js';
 import Toolbar from '@/components/layout/Toolbar';
 import LeftSidebar from '@/components/layout/LeftSidebar';
 import RightSidebar from '@/components/layout/RightSidebar';
@@ -25,6 +26,13 @@ export default function Dashboard() {
     const [showDocSettingsModal, setShowDocSettingsModal] = useState(false);
 
     const { leftSidebarOpen, rightSidebarOpen } = useUIStore();
+
+    useEffect(() => {
+        posthog.capture('session_started', {
+            entry_page: window.location.pathname,
+            timestamp: new Date().toISOString(),
+        });
+    }, []);
 
     return (
         <div className="h-screen flex flex-col overflow-hidden">

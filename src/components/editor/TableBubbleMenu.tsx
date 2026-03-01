@@ -7,6 +7,7 @@ import {
     ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Trash2,
     Combine, SplitSquareVertical, ClipboardList,
 } from 'lucide-react';
+import posthog from 'posthog-js';
 
 interface TableBubbleMenuProps {
     editor: Editor;
@@ -75,26 +76,26 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
                     style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.12)' }}
                 >
                     {/* Row group */}
-                    <button className={btn} onClick={() => editor.chain().focus().addRowBefore().run()} title="Add row above">
+                    <button className={btn} onClick={() => { editor.chain().focus().addRowBefore().run(); posthog.capture('table_action', { action: 'add_row' }); }} title="Add row above">
                         <ArrowUp size={14} />
                     </button>
-                    <button className={btn} onClick={() => editor.chain().focus().addRowAfter().run()} title="Add row below">
+                    <button className={btn} onClick={() => { editor.chain().focus().addRowAfter().run(); posthog.capture('table_action', { action: 'add_row' }); }} title="Add row below">
                         <ArrowDown size={14} />
                     </button>
-                    <button className={btnDanger} onClick={() => editor.chain().focus().deleteRow().run()} title="Delete row">
+                    <button className={btnDanger} onClick={() => { editor.chain().focus().deleteRow().run(); posthog.capture('table_action', { action: 'delete_row' }); }} title="Delete row">
                         <Trash2 size={13} />
                     </button>
 
                     {sep}
 
                     {/* Column group */}
-                    <button className={btn} onClick={() => editor.chain().focus().addColumnBefore().run()} title="Add column left">
+                    <button className={btn} onClick={() => { editor.chain().focus().addColumnBefore().run(); posthog.capture('table_action', { action: 'add_col' }); }} title="Add column left">
                         <ArrowLeft size={14} />
                     </button>
-                    <button className={btn} onClick={() => editor.chain().focus().addColumnAfter().run()} title="Add column right">
+                    <button className={btn} onClick={() => { editor.chain().focus().addColumnAfter().run(); posthog.capture('table_action', { action: 'add_col' }); }} title="Add column right">
                         <ArrowRight size={14} />
                     </button>
-                    <button className={btnDanger} onClick={() => editor.chain().focus().deleteColumn().run()} title="Delete column">
+                    <button className={btnDanger} onClick={() => { editor.chain().focus().deleteColumn().run(); posthog.capture('table_action', { action: 'delete_col' }); }} title="Delete column">
                         <Trash2 size={13} />
                     </button>
 
@@ -103,14 +104,14 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
                     {/* Merge / Split */}
                     <button
                         className={canMerge ? btn : btnDisabled}
-                        onClick={() => canMerge && editor.chain().focus().mergeCells().run()}
+                        onClick={() => { if (canMerge) { editor.chain().focus().mergeCells().run(); posthog.capture('table_action', { action: 'merge' }); } }}
                         title="Merge cells"
                     >
                         <Combine size={14} />
                     </button>
                     <button
                         className={canSplit ? btn : btnDisabled}
-                        onClick={() => canSplit && editor.chain().focus().splitCell().run()}
+                        onClick={() => { if (canSplit) { editor.chain().focus().splitCell().run(); posthog.capture('table_action', { action: 'split' }); } }}
                         title="Split cell"
                     >
                         <SplitSquareVertical size={14} />
@@ -126,7 +127,7 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
                     {sep}
 
                     {/* Delete table */}
-                    <button className={btnDanger} onClick={() => editor.chain().focus().deleteTable().run()} title="Delete table">
+                    <button className={btnDanger} onClick={() => { editor.chain().focus().deleteTable().run(); posthog.capture('table_action', { action: 'delete_table' }); }} title="Delete table">
                         <Trash2 size={14} className="text-red-400" />
                     </button>
                 </div>

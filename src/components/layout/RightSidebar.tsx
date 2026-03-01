@@ -6,6 +6,7 @@ import { useEditorStore } from '@/store/editorStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useStyleStore } from '@/store/styleStore';
 import FontPicker from '@/components/FontPicker';
+import posthog from 'posthog-js';
 
 type Tab = 'scan' | 'styles' | 'sources';
 
@@ -148,6 +149,9 @@ export default function RightSidebar() {
 
             setScanResult({ score, issues });
             setIsScanning(false);
+            posthog.capture('quality_scan_run', {
+                issues_found: issues.filter(i => i.type !== 'success').length,
+            });
         }, 1500);
     };
 

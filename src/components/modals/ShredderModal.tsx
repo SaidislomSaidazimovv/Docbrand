@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, GripVertical, ExternalLink, Edit2 } from 'lucide-react';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import type { Requirement } from '@/types';
+import posthog from 'posthog-js';
 
 interface ShredderModalProps {
     isOpen: boolean;
@@ -23,6 +24,15 @@ export default function ShredderModal({ isOpen, onClose }: ShredderModalProps) {
     const { requirements, setKanbanStatus } = useRequirementsStore();
     const [draggedReq, setDraggedReq] = useState<string | null>(null);
     const [dragOverColumn, setDragOverColumn] = useState<KanbanStatus | null>(null);
+
+    // Track shredder open
+    useEffect(() => {
+        if (isOpen) {
+            posthog.capture('rfp_shredder_opened', {
+                requirements_count: requirements.length,
+            });
+        }
+    }, [isOpen, requirements.length]);
 
     // Group requirements by kanban status
     const grouped = COLUMNS.reduce((acc, col) => {

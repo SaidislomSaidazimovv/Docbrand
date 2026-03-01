@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronDown, Check, Search } from 'lucide-react';
-import { AVAILABLE_FONTS } from '@/lib/fonts';
+import { AVAILABLE_FONTS, GOVCON_FONTS } from '@/lib/fonts';
 import { useStyleStore } from '@/store/styleStore';
+import posthog from 'posthog-js';
 import type { Editor } from '@tiptap/react';
 
 interface FontPickerProps {
@@ -69,6 +70,10 @@ export default function FontPicker({ editor }: FontPickerProps) {
         if (editor) {
             editor.chain().focus().selectAll().setFontFamily(name).run();
         }
+        posthog.capture('font_changed', {
+            font_name: name,
+            is_govcon_safe: GOVCON_FONTS.includes(name),
+        });
         setOpen(false);
     };
 
