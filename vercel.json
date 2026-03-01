@@ -6,6 +6,9 @@
   "devCommand": "npm run dev",
   "outputDirectory": ".next",
   "regions": ["iad1"],
+  "functions": {
+    "src/app/**/*": { "maxDuration": 30 }
+  },
   "headers": [
     {
       "source": "/(.*)",
