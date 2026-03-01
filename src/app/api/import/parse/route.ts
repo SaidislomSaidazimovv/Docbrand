@@ -9,6 +9,8 @@
  * Security: API keys never leave the server. Client calls only this endpoint.
  */
 
+export const maxDuration = 60;
+
 import { NextRequest, NextResponse } from 'next/server';
 import { validateBrand } from '@/lib/brand/extractBrandFromJson';
 import { extractBrandFromDocx } from '@/lib/brand/extractBrandFromDocx';

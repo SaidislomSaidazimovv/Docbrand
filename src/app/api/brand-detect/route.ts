@@ -5,6 +5,8 @@
  * tokens from a raw JSON string. The API key never leaves the server.
  */
 
+export const maxDuration = 30;
+
 import { NextRequest, NextResponse } from 'next/server';
 import { validateBrand, type BrandTypography } from '@/lib/brand/extractBrandFromJson';
 
