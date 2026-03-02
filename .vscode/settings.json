@@ -2,10 +2,14 @@
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/.next/**": true,
-    "**/dist/**": true
+    "**/dist/**": true,
+    "**/.git/**": true
   },
   "search.exclude": {
     "**/node_modules/**": true,
     "**/.next/**": true
+  },
+  "files.exclude": {
+    "**/.next": true
   }
 }

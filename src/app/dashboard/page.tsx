@@ -14,6 +14,8 @@ import ShredderModal from '@/components/modals/ShredderModal';
 import SearchModal from '@/components/modals/SearchModal';
 import SettingsModal from '@/components/modals/SettingsModal';
 import DocumentSettingsModal from '@/components/modals/DocumentSettingsModal';
+import FeedbackButton from '@/components/FeedbackButton';
+import FeedbackModal from '@/components/modals/FeedbackModal';
 import { useUIStore } from '@/store/uiStore';
 
 export default function Dashboard() {
@@ -78,6 +80,8 @@ export default function Dashboard() {
             <SearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
             <SettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
             <DocumentSettingsModal isOpen={showDocSettingsModal} onClose={() => setShowDocSettingsModal(false)} />
+            <FeedbackButton />
+            <FeedbackModal />
         </div>
     );
 }

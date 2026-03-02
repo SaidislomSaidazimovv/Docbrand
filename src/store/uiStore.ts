@@ -18,6 +18,11 @@ interface UIState {
     autoHeadingToast: { count: number } | null;
     showAutoHeadingToast: (count: number) => void;
     hideAutoHeadingToast: () => void;
+
+    // Feedback modal
+    feedbackOpen: boolean;
+    openFeedback: () => void;
+    closeFeedback: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -32,4 +37,8 @@ export const useUIStore = create<UIState>((set) => ({
     autoHeadingToast: null,
     showAutoHeadingToast: (count) => set({ autoHeadingToast: { count } }),
     hideAutoHeadingToast: () => set({ autoHeadingToast: null }),
+
+    feedbackOpen: false,
+    openFeedback: () => set({ feedbackOpen: true }),
+    closeFeedback: () => set({ feedbackOpen: false }),
 }));
