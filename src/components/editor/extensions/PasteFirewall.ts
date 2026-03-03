@@ -14,6 +14,7 @@
 
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { useUIStore } from '@/store/uiStore';
 
 // =============================================================================
 // TYPES
@@ -230,6 +231,7 @@ export const PasteFirewall = Extension.create({
                             });
 
                             console.log('[PasteFirewall] Inserted HTML with formatting preserved');
+                            useUIStore.getState().showPasteToast('Content pasted', changes.length);
                             return true;
                         }
 

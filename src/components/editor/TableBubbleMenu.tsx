@@ -60,9 +60,11 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
             shouldShow={({ editor: e }) =>
                 e.isActive('tableCell') || e.isActive('tableHeader')
             }
+            appendTo={() => document.body}
             options={{
                 placement: 'top',
                 offset: { mainAxis: 8 },
+                flip: true,
             }}
         >
             <div

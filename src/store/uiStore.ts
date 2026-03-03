@@ -19,6 +19,11 @@ interface UIState {
     showAutoHeadingToast: (count: number) => void;
     hideAutoHeadingToast: () => void;
 
+    // Paste toast
+    pasteToast: { message: string; changesCount?: number } | null;
+    showPasteToast: (message: string, changesCount?: number) => void;
+    hidePasteToast: () => void;
+
     // Feedback modal
     feedbackOpen: boolean;
     openFeedback: () => void;
@@ -37,6 +42,10 @@ export const useUIStore = create<UIState>((set) => ({
     autoHeadingToast: null,
     showAutoHeadingToast: (count) => set({ autoHeadingToast: { count } }),
     hideAutoHeadingToast: () => set({ autoHeadingToast: null }),
+
+    pasteToast: null,
+    showPasteToast: (message, changesCount) => set({ pasteToast: { message, changesCount } }),
+    hidePasteToast: () => set({ pasteToast: null }),
 
     feedbackOpen: false,
     openFeedback: () => set({ feedbackOpen: true }),

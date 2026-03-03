@@ -507,6 +507,7 @@ export const MarkdownPasteHandler = Extension.create({
                                     attrs: { language: '' },
                                     content: [{ type: 'text', text: plainText }],
                                 });
+                                useUIStore.getState().showPasteToast('Content pasted');
                                 return true;
                             } catch (error) {
                                 console.error('[MarkdownPaste] Error inserting code block:', error);
@@ -539,6 +540,8 @@ export const MarkdownPasteHandler = Extension.create({
                             // Show undo toast if auto-headings were detected
                             if (autoHeadingCount > 0) {
                                 useUIStore.getState().showAutoHeadingToast(autoHeadingCount);
+                            } else {
+                                useUIStore.getState().showPasteToast('Content pasted');
                             }
 
                             return true;

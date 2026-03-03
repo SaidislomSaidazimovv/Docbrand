@@ -6,6 +6,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Heading from '@tiptap/extension-heading';
 import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
 import FontFamily from '@tiptap/extension-font-family';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -19,6 +20,8 @@ import { CustomTableCell } from './extensions/CustomTableCell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import Mention from '@tiptap/extension-mention';
 import tippy, { Instance as TippyInstance } from 'tippy.js';
+import DocStyle from '@/extensions/DocStyle';
+import CalloutBox from '@/extensions/CalloutBox';
 import { PasteFirewall } from './extensions/PasteFirewall';
 import { MarkdownPasteHandler } from './extensions/MarkdownPasteHandler';
 import { mentionSuggestion } from './extensions/MentionSuggestion';
@@ -38,7 +41,6 @@ import { useStyleStore } from '@/store/styleStore';
 import { useUIStore } from '@/store/uiStore';
 import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
 import MarginGuide from './MarginGuide';
-import RequirementLinkPopup from './RequirementLinkPopup';
 // Removed PageBreakExtension - using infinite scroll instead
 // DocBrand Path E Architecture imports
 import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper, NodeSelectionExtension, LinkedBlockDecorator, markBlockAsLinked } from '@/lib/editor';
@@ -52,11 +54,6 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     // Removed pageCount - no longer using pagination
     const { requirements, activeLinkingReqId, linkToBlock, setLinkingMode } = useRequirementsStore();
 
-    // Popup state
-    const [showPopup, setShowPopup] = useState(false);
-    const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
-    const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
-
     // Get style values from store
     const {
         fontFamily, fontSize, lineHeight, spaceBefore, spaceAfter, firstLineIndent, bodyColor,
@@ -66,6 +63,8 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
         h4Color, h4FontSize, h4SpaceBefore, h4SpaceAfter, h4LineHeight,
         h5Color, h5FontSize, h5SpaceBefore, h5SpaceAfter, h5LineHeight,
         h6Color, h6FontSize, h6SpaceBefore, h6SpaceAfter, h6LineHeight,
+        titleFontSize, titleColor, titleLineHeight, titleSpaceBefore, titleSpaceAfter,
+        subtitleFontSize, subtitleColor, subtitleLineHeight, subtitleSpaceBefore, subtitleSpaceAfter,
         marginTop, marginBottom, marginLeft, marginRight,
     } = useStyleStore();
 
@@ -73,15 +72,16 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const autoHeadingToast = useUIStore((state) => state.autoHeadingToast);
     const hideAutoHeadingToast = useUIStore((state) => state.hideAutoHeadingToast);
 
+    // Paste toast
+    const pasteToast = useUIStore((state) => state.pasteToast);
+    const hidePasteToast = useUIStore((state) => state.hidePasteToast);
+
     // Ref for dynamic style element
     const styleRef = useRef<HTMLStyleElement | null>(null);
     const editorContainerRef = useRef<HTMLDivElement>(null);
     const editorContentRef = useRef<HTMLDivElement>(null);
 
     // Removed pageCount state and listener - no pagination needed
-
-    // Count unlinked requirements
-    const hasUnlinkedReqs = requirements.some(r => r.status === 'unlinked');
 
     const editor = useEditor({
         extensions: [
@@ -95,6 +95,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 placeholder: 'Start writing your proposal...',
             }),
             TextStyle,
+            Color,
             FontFamily,
             FontSize,
             LineHeight,
@@ -182,6 +183,8 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 },
                 suggestion: mentionSuggestion,
             }),
+            DocStyle, // Title/Subtitle doc-style marks
+            CalloutBox, // Callout box wrapper
             QualityScanner, // Quality issue highlighting
             // DocBrand Path E Architecture
             DocBlock, // Block wrapper with linkedRequirements
@@ -300,6 +303,25 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 margin-top: ${h6SpaceBefore}pt !important;
                 margin-bottom: ${h6SpaceAfter}pt !important;
             }
+            .ProseMirror p[data-doc-style="title"] {
+                font-size: ${titleFontSize}pt !important;
+                font-weight: bold !important;
+                line-height: 1.2 !important;
+                color: ${titleColor} !important;
+                margin-top: ${titleSpaceBefore}pt !important;
+                margin-bottom: ${titleSpaceAfter}pt !important;
+                text-indent: 0 !important;
+            }
+            .ProseMirror p[data-doc-style="subtitle"] {
+                font-size: ${subtitleFontSize}pt !important;
+                font-style: italic !important;
+                font-weight: normal !important;
+                line-height: ${subtitleLineHeight} !important;
+                color: ${subtitleColor} !important;
+                margin-top: ${subtitleSpaceBefore}pt !important;
+                margin-bottom: ${subtitleSpaceAfter}pt !important;
+                text-indent: 0 !important;
+            }
         `;
 
         styleRef.current.textContent = css;
@@ -316,7 +338,9 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
         h3FontSize, h3Color, h3SpaceBefore, h3SpaceAfter, h3LineHeight,
         h4FontSize, h4Color, h4SpaceBefore, h4SpaceAfter, h4LineHeight,
         h5FontSize, h5Color, h5SpaceBefore, h5SpaceAfter, h5LineHeight,
-        h6FontSize, h6Color, h6SpaceBefore, h6SpaceAfter, h6LineHeight]);
+        h6FontSize, h6Color, h6SpaceBefore, h6SpaceAfter, h6LineHeight,
+        titleFontSize, titleColor, titleLineHeight, titleSpaceBefore, titleSpaceAfter,
+        subtitleFontSize, subtitleColor, subtitleLineHeight, subtitleSpaceBefore, subtitleSpaceAfter]);
 
     // Handle click to link requirement to block
     const handleEditorClick = useCallback(() => {
@@ -380,7 +404,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             // Add inline style as fallback for immediate feedback
             blockElement.style.borderLeft = '4px solid #3fb950';
             blockElement.style.paddingLeft = '12px';
-            blockElement.style.marginLeft = '-16px';
+            blockElement.style.marginLeft = '0';
             console.log('[Editor] Block linked:', blockId, blockElement);
         } else {
             console.warn('[Editor] Block element not found for linking');
@@ -402,15 +426,6 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
         setLinkingMode(null);
     }, [activeLinkingReqId, editor, linkToBlock, setLinkingMode]);
 
-    // Handle red line click
-    const handleRedLineClick = useCallback((e: React.MouseEvent, blockId: string) => {
-        e.stopPropagation();
-        const rect = (e.target as HTMLElement).getBoundingClientRect();
-        setPopupPosition({ x: rect.left + 20, y: rect.top });
-        setActiveBlockId(blockId);
-        setShowPopup(true);
-    }, []);
-
     // Auto-heading toast: auto-dismiss after 5 seconds
     useEffect(() => {
         if (!autoHeadingToast) return;
@@ -422,6 +437,64 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
         if (editor) editor.commands.undo();
         hideAutoHeadingToast();
     }, [editor, hideAutoHeadingToast]);
+
+    // Paste toast: auto-dismiss
+    useEffect(() => {
+        if (!pasteToast) return;
+        const duration = pasteToast.changesCount ? 5000 : 3000;
+        const timer = setTimeout(() => hidePasteToast(), duration);
+        return () => clearTimeout(timer);
+    }, [pasteToast, hidePasteToast]);
+
+    // Drag & drop requirement linking
+    const [isDragOver, setIsDragOver] = useState(false);
+
+    const handleRequirementDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(false);
+
+        const reqId = e.dataTransfer.getData('application/x-requirement-id');
+        if (!reqId || !editor) return;
+
+        // Find block element at drop position
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        if (!target) return;
+
+        const blockEl = target.closest('p, h1, h2, h3, h4, h5, h6, li, blockquote') as HTMLElement;
+        if (!blockEl) return;
+
+        // Generate block ID (same logic as handleEditorClick)
+        let blockId = blockEl.getAttribute('data-block-id');
+        if (!blockId) {
+            const textContent = (blockEl.textContent || '').substring(0, 50);
+            const hash = textContent.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            blockId = `block-${Math.abs(hash).toString(16).substring(0, 8)}`;
+        }
+
+        // Set DOM attributes
+        blockEl.setAttribute('data-block-id', blockId);
+        blockEl.setAttribute('data-linked', 'true');
+        blockEl.classList.add('block-linked');
+        blockEl.style.borderLeft = '4px solid #3fb950';
+        blockEl.style.paddingLeft = '12px';
+        blockEl.style.marginLeft = '0';
+
+        // Register with decoration plugin
+        markBlockAsLinked(blockId);
+        editor.view.dispatch(editor.state.tr);
+
+        // Dual link: Path E + Zustand
+        if (EditorController.isReady()) {
+            EditorController.linkRequirementToBlock(blockId, reqId);
+        }
+        linkToBlock(reqId, blockId);
+
+        // Visual feedback
+        useUIStore.getState().showPasteToast('Requirement linked!');
+    }, [editor, linkToBlock]);
 
     const isLinkingMode = !!activeLinkingReqId;
 
@@ -463,6 +536,68 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 </div>
             )}
 
+            {/* Paste Toast */}
+            {pasteToast && (
+                <div
+                    className="paste-toast-container"
+                    style={{
+                        position: 'absolute',
+                        top: '12px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 9999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        backgroundColor: '#1F2937',
+                        color: 'white',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                        animation: 'pasteToastIn 0.2s ease-out',
+                    }}
+                >
+                    <svg width="18" height="18" viewBox="0 0 18 18" style={{ flexShrink: 0 }}>
+                        <rect x="1" y="1" width="16" height="16" rx="3" fill="none" stroke="#22C55E" strokeWidth="2" />
+                        <path
+                            d="M4 9 L7.5 12.5 L14 6"
+                            fill="none"
+                            stroke="#22C55E"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{
+                                strokeDasharray: 20,
+                                strokeDashoffset: 0,
+                                animation: 'checkmarkDraw 0.3s ease-out 0.1s both',
+                            }}
+                        />
+                    </svg>
+                    <span>
+                        {pasteToast.changesCount && pasteToast.changesCount > 0
+                            ? `Content pasted — ${pasteToast.changesCount} formatting changes cleaned`
+                            : 'Content pasted'
+                        }
+                    </span>
+                    {pasteToast.changesCount && pasteToast.changesCount > 0 && (
+                        <button
+                            onClick={hidePasteToast}
+                            style={{
+                                marginLeft: '8px',
+                                background: 'none',
+                                border: 'none',
+                                color: '#9CA3AF',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                            }}
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
+            )}
+
             {/* Edit Header & Footer button */}
             {!isLinkingMode && (
                 <button
@@ -480,6 +615,15 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 <div
                     ref={editorContainerRef}
                     onClick={handleEditorClick}
+                    onDragOver={(e) => {
+                        if (e.dataTransfer.types.includes('application/x-requirement-id')) {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'link';
+                            setIsDragOver(true);
+                        }
+                    }}
+                    onDragLeave={() => setIsDragOver(false)}
+                    onDrop={handleRequirementDrop}
                     className={`w-full bg-white rounded-lg shadow-2xl document-editor transition-all relative ${isLinkingMode ? 'ring-2 ring-[#388bfd] cursor-crosshair' : ''}`}
                     style={{
                         minHeight: '800px',
@@ -487,23 +631,12 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                         paddingBottom: `${marginBottom}px`,
                         paddingLeft: `${marginLeft}px`,
                         paddingRight: `${marginRight}px`,
+                        outline: isDragOver ? '2px dashed #388bfd' : 'none',
+                        outlineOffset: '-2px',
                     }}
                 >
                     {/* Margin Guide overlay */}
                     <MarginGuide />
-
-                    {/* Red Line Indicator for unlinked requirements */}
-                    {hasUnlinkedReqs && !isLinkingMode && (
-                        <div
-                            onClick={(e) => handleRedLineClick(e, 'block-main')}
-                            className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#f85149] cursor-pointer hover:w-2 transition-all rounded-l-lg z-30"
-                            title="Click to link requirements"
-                        >
-                            <div className="absolute top-1/2 -translate-y-1/2 left-3 w-5 h-5 bg-[#f85149] rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
-                                {requirements.filter(r => r.status === 'unlinked').length}
-                            </div>
-                        </div>
-                    )}
 
                     {/* Floating Toolbar */}
                     <FloatingToolbar editor={editor} />
@@ -533,21 +666,6 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 </div>
             </div>
 
-            {/* Requirement Link Popup */}
-            {showPopup && activeBlockId && (
-                <>
-                    {/* Backdrop */}
-                    <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setShowPopup(false)}
-                    />
-                    <RequirementLinkPopup
-                        blockId={activeBlockId}
-                        position={popupPosition}
-                        onClose={() => setShowPopup(false)}
-                    />
-                </>
-            )}
         </div>
     );
 }

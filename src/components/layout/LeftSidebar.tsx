@@ -389,7 +389,16 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                 <div
                                                     key={req.id}
                                                     onClick={() => handleLinkClick(req.id)}
-                                                    className={`flex items-start gap-3 p-2 rounded-lg cursor-pointer transition-colors ${activeLinkingReqId === req.id
+                                                    draggable={true}
+                                                    onDragStart={(e) => {
+                                                        e.dataTransfer.setData('application/x-requirement-id', req.id);
+                                                        e.dataTransfer.effectAllowed = 'link';
+                                                        e.currentTarget.style.opacity = '0.5';
+                                                    }}
+                                                    onDragEnd={(e) => {
+                                                        e.currentTarget.style.opacity = '1';
+                                                    }}
+                                                    className={`flex items-start gap-3 p-2 rounded-lg cursor-grab active:cursor-grabbing transition-colors ${activeLinkingReqId === req.id
                                                         ? 'bg-[#388bfd22] border border-[#388bfd]'
                                                         : 'hover:bg-[#21262d]'
                                                         }`}

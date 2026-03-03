@@ -88,11 +88,11 @@ export const SLASH_COMMANDS: CommandItem[] = [
         },
     },
     {
-        title: 'Quote',
-        description: 'Block quote for citations',
-        icon: '"',
+        title: 'Box',
+        description: 'Add a callout box',
+        icon: '⬜',
         command: ({ editor, range }) => {
-            editor.chain().focus().deleteRange(range).toggleBlockquote().run();
+            editor.chain().focus().deleteRange(range).setCalloutBox('info').run();
         },
     },
     {

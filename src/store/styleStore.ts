@@ -29,7 +29,7 @@ const DEFAULTS = {
     titleColor: '#1A1A1A',
     titleSpaceBefore: 0,
     titleSpaceAfter: 24,
-    titleLineHeight: 0.65,
+    titleLineHeight: 1.2,
 
     // Subtitle
     subtitleFontSize: 14,
@@ -297,10 +297,10 @@ export const useStyleStore = create<StyleState>()(
             applyPreset: (preset) => {
                 switch (preset) {
                     case 'title':
-                        set({ titleFontSize: 32, titleLineHeight: 0.65, titleColor: '#1A1A1A' });
+                        set({ titleFontSize: 32, titleLineHeight: 1.2, titleColor: '#1A1A1A', titleSpaceBefore: 0, titleSpaceAfter: 24 });
                         break;
                     case 'subtitle':
-                        set({ subtitleFontSize: 14, subtitleLineHeight: 1.15, subtitleColor: '#1A1A1A' });
+                        set({ subtitleFontSize: 14, subtitleLineHeight: 1.15, subtitleColor: '#1A1A1A', subtitleSpaceBefore: 0, subtitleSpaceAfter: 6 });
                         break;
                     case 'h1':
                         set({ h1FontSize: 16, h1LineHeight: 1.15, h1Color: '#13818A', h1SpaceBefore: 6, h1SpaceAfter: 12 });

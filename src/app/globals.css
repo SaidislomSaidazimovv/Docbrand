@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/* Paste toast animations */
+@keyframes pasteToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes checkmarkDraw {
+  from {
+    stroke-dashoffset: 20;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* DocBrand Dark Theme Colors */
 :root {
   /* Background colors */
@@ -357,6 +378,16 @@ body {
   color: #37352f;
 }
 
+/* Callout Box */
+.ProseMirror div[data-callout-type] {
+  border: 1px solid #d1d5db;
+  border-left: 4px solid #3b82f6;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: #f0f7ff;
+}
+
 /* Code block - Notion style */
 .ProseMirror pre {
   background-color: #f7f6f3;
@@ -472,13 +503,16 @@ body {
   table-layout: fixed;
   width: 100%;
   margin: 8px 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .ProseMirror td,
 .ProseMirror th {
   min-width: 100px;
-  border: 1px solid rgba(55, 53, 47, 0.16);
+  border-top: 1px solid rgba(55, 53, 47, 0.16);
+  border-bottom: 1px solid rgba(55, 53, 47, 0.16);
+  border-left: 1px solid rgba(55, 53, 47, 0.08);
+  border-right: 1px solid rgba(55, 53, 47, 0.08);
   padding: 8px 12px;
   vertical-align: top;
   box-sizing: border-box;
@@ -487,7 +521,7 @@ body {
 
 .ProseMirror th {
   font-weight: 600;
-  background-color: #f7f6f3;
+  background-color: #EBF3FB;
   text-align: left;
 }
 
@@ -689,8 +723,8 @@ body {
 .ProseMirror .block-linked {
   position: relative;
   border-left: 4px solid #3fb950 !important;
-  padding-left: 12px;
-  margin-left: -16px;
+  padding-left: 12px !important;
+  margin-left: 0 !important;
   transition: all 0.2s ease;
 }
 
@@ -698,7 +732,7 @@ body {
 .ProseMirror [data-block-id][data-linking="true"] {
   border-left: 4px solid #d29922;
   padding-left: 12px;
-  margin-left: -16px;
+  margin-left: 0;
   background: rgba(210, 153, 34, 0.08);
 }
 

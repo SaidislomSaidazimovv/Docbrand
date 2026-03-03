@@ -82,13 +82,46 @@ export default function RightSidebar() {
         };
     }, [editor]);
 
+    // Active preset tracking (mirrors FloatingToolbar pattern)
+    const [activeStyle, setActiveStyle] = useState('Body');
+
+    useEffect(() => {
+        if (!editor) return;
+        const update = () => {
+            if (editor.isActive('docStyle', { style: 'title' })) {
+                setActiveStyle('Title');
+                return;
+            }
+            if (editor.isActive('docStyle', { style: 'subtitle' })) {
+                setActiveStyle('Subtitle');
+                return;
+            }
+            for (let l = 1; l <= 6; l++) {
+                if (editor.isActive('heading', { level: l })) {
+                    setActiveStyle(`H${l}`);
+                    return;
+                }
+            }
+            setActiveStyle('Body');
+        };
+        editor.on('selectionUpdate', update);
+        editor.on('transaction', update);
+        update();
+        return () => {
+            editor.off('selectionUpdate', update);
+            editor.off('transaction', update);
+        };
+    }, [editor]);
+
     // Style store - all style values and setters
     const {
+        fontFamily,
         fontSize, setFontSize,
         lineHeight, setLineHeight,
         spaceBefore, setSpaceBefore,
         spaceAfter, setSpaceAfter,
-        firstLineIndent, setFirstLineIndent
+        firstLineIndent, setFirstLineIndent,
+        applyPreset,
     } = useStyleStore();
 
     // Format file size
@@ -98,20 +131,34 @@ export default function RightSidebar() {
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     };
 
-    // Handle preset — applies heading/paragraph to current block
+    // Active button CSS helper
+    const presetClass = (key: string) =>
+        `flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-left ${
+            activeStyle === key
+                ? 'bg-[#388bfd]'
+                : 'bg-[#21262d] hover:bg-[#30363d]'
+        }`;
+
+    // Handle preset — applies heading/paragraph/docStyle to current block
     const handlePreset = (preset: string) => {
         if (!editor) return;
-        const { from } = editor.state.selection;
-        const chain = editor.chain().focus().setTextSelection(from);
 
         switch (preset) {
-            case 'h1': chain.setHeading({ level: 1 }).run(); break;
-            case 'h2': chain.setHeading({ level: 2 }).run(); break;
-            case 'h3': chain.setHeading({ level: 3 }).run(); break;
-            case 'h4': chain.setHeading({ level: 4 }).run(); break;
-            case 'h5': chain.setHeading({ level: 5 }).run(); break;
-            case 'h6': chain.setHeading({ level: 6 }).run(); break;
-            default:   chain.setParagraph().run(); break;
+            case 'title':
+                editor.chain().focus().setDocStyle('title').run();
+                applyPreset('title');
+                break;
+            case 'subtitle':
+                editor.chain().focus().setDocStyle('subtitle').run();
+                applyPreset('subtitle');
+                break;
+            case 'h1': editor.chain().focus().setHeading({ level: 1 }).run(); break;
+            case 'h2': editor.chain().focus().setHeading({ level: 2 }).run(); break;
+            case 'h3': editor.chain().focus().setHeading({ level: 3 }).run(); break;
+            case 'h4': editor.chain().focus().setHeading({ level: 4 }).run(); break;
+            case 'h5': editor.chain().focus().setHeading({ level: 5 }).run(); break;
+            case 'h6': editor.chain().focus().setHeading({ level: 6 }).run(); break;
+            default:   editor.chain().focus().setParagraph().run(); break;
         }
     };
 
@@ -324,40 +371,50 @@ export default function RightSidebar() {
                         <div>
                             <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wide block mb-3">Presets</span>
                             <div className="flex flex-col gap-1">
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('title')}
+                                    className={presetClass('Title')} title="Title — 32pt Bold">
+                                    <span className="text-[13px] font-bold" style={{ fontFamily, color: activeStyle === 'Title' ? '#fff' : '#c9d1d9' }}>Title</span>
+                                    <span className={`text-xs ${activeStyle === 'Title' ? 'text-blue-200' : 'text-[#8b949e]'}`}>32pt Bold</span>
+                                </button>
+                                <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('subtitle')}
+                                    className={presetClass('Subtitle')} title="Subtitle — 14pt Italic">
+                                    <span className="text-[12px] italic" style={{ fontFamily, color: activeStyle === 'Subtitle' ? '#fff' : '#c9d1d9' }}>Subtitle</span>
+                                    <span className={`text-xs ${activeStyle === 'Subtitle' ? 'text-blue-200' : 'text-[#8b949e]'}`}>14pt Italic</span>
+                                </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h1')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
-                                    <span className="text-[15px] font-bold" style={{ color: '#13818A' }}>H1</span>
-                                    <span className="text-xs text-[#8b949e]">16pt Bold</span>
+                                    className={presetClass('H1')}>
+                                    <span className="text-[15px] font-bold" style={{ color: activeStyle === 'H1' ? '#fff' : '#13818A' }}>H1</span>
+                                    <span className={`text-xs ${activeStyle === 'H1' ? 'text-blue-200' : 'text-[#8b949e]'}`}>16pt Bold</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h2')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
-                                    <span className="text-[13px] font-bold text-[#c9d1d9]">H2</span>
-                                    <span className="text-xs text-[#8b949e]">14pt Bold</span>
+                                    className={presetClass('H2')}>
+                                    <span className={`text-[13px] font-bold ${activeStyle === 'H2' ? 'text-white' : 'text-[#c9d1d9]'}`}>H2</span>
+                                    <span className={`text-xs ${activeStyle === 'H2' ? 'text-blue-200' : 'text-[#8b949e]'}`}>14pt Bold</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h3')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
-                                    <span className="text-[12px] font-bold italic text-[#c9d1d9]">H3</span>
-                                    <span className="text-xs text-[#8b949e]">13pt Bold Italic</span>
+                                    className={presetClass('H3')}>
+                                    <span className={`text-[12px] font-bold italic ${activeStyle === 'H3' ? 'text-white' : 'text-[#c9d1d9]'}`}>H3</span>
+                                    <span className={`text-xs ${activeStyle === 'H3' ? 'text-blue-200' : 'text-[#8b949e]'}`}>13pt Bold Italic</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h4')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
-                                    <span className="text-[11px] text-[#c9d1d9]">H4</span>
-                                    <span className="text-xs text-[#8b949e]">11pt Callout</span>
+                                    className={presetClass('H4')}>
+                                    <span className={`text-[11px] ${activeStyle === 'H4' ? 'text-white' : 'text-[#c9d1d9]'}`}>H4</span>
+                                    <span className={`text-xs ${activeStyle === 'H4' ? 'text-blue-200' : 'text-[#8b949e]'}`}>11pt Callout</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h5')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
-                                    <span className="text-[12px] text-[#c9d1d9]">H5</span>
-                                    <span className="text-xs text-[#8b949e]">12pt Lead</span>
+                                    className={presetClass('H5')}>
+                                    <span className={`text-[12px] ${activeStyle === 'H5' ? 'text-white' : 'text-[#c9d1d9]'}`}>H5</span>
+                                    <span className={`text-xs ${activeStyle === 'H5' ? 'text-blue-200' : 'text-[#8b949e]'}`}>12pt Lead</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h6')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors text-left">
-                                    <span className="text-[10px] italic text-[#8b949e]">H6</span>
-                                    <span className="text-xs text-[#8b949e]">10pt Caption</span>
+                                    className={presetClass('H6')}>
+                                    <span className={`text-[10px] italic ${activeStyle === 'H6' ? 'text-white' : 'text-[#8b949e]'}`}>H6</span>
+                                    <span className={`text-xs ${activeStyle === 'H6' ? 'text-blue-200' : 'text-[#8b949e]'}`}>10pt Caption</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('body')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#388bfd] hover:bg-[#58a6ff] rounded-lg transition-colors text-left">
-                                    <span className="text-[12px] font-medium text-white">Body</span>
-                                    <span className="text-xs text-blue-200">12pt Regular</span>
+                                    className={presetClass('Body')}>
+                                    <span className={`text-[12px] font-medium ${activeStyle === 'Body' ? 'text-white' : 'text-[#c9d1d9]'}`}>Body</span>
+                                    <span className={`text-xs ${activeStyle === 'Body' ? 'text-blue-200' : 'text-[#8b949e]'}`}>12pt Regular</span>
                                 </button>
                             </div>
                         </div>
