@@ -1,12 +1,12 @@
 /**
  * Paste Firewall Extension for TipTap
- * 
- * Sanitizes pasted content and shows changes in UI:
+ *
+ * Sanitizes pasted content and shows changes in a modal:
  * - Strips inline styles (font-family, color, font-size)
  * - Preserves semantic formatting (bold, italic, underline, links)
  * - Normalizes formatting
- * - Stores state for UI display
- * 
+ * - Defers insertion until user confirms via modal
+ *
  * IMPORTANT: This handler MUST process all HTML paste events to preserve
  * inline formatting like bold/italic. If we pass to MarkdownPasteHandler,
  * it will use plainText and lose all HTML formatting.
@@ -40,11 +40,48 @@ export interface PasteFirewallState {
 export const pasteFirewallKey = new PluginKey<PasteFirewallState>('pasteFirewall');
 
 // =============================================================================
+// VALUE EXTRACTORS — pull specific values from raw HTML before sanitization
+// =============================================================================
+
+function extractFonts(html: string): string[] {
+    const matches = html.match(/font-family:\s*([^;'"<>]+)/gi) || [];
+    return [...new Set(
+        matches.map(m => {
+            const raw = m.replace(/font-family:\s*/i, '').replace(/['"]/g, '').trim();
+            // Take only first font (before comma), skip fallbacks
+            return raw.split(',')[0].trim();
+        })
+    )].filter(f =>
+        f &&
+        f !== 'inherit' &&
+        f !== 'initial' &&
+        !f.includes('var(')
+    );
+}
+
+function extractColors(html: string): string[] {
+    const matches = html.match(/(?:^|;|\s)color:\s*([^;]+)/gi) || [];
+    return [...new Set(
+        matches.map(m => m.replace(/color:\s*/i, '').trim())
+    )].filter(Boolean);
+}
+
+function extractSizes(html: string): string[] {
+    const matches = html.match(/font-size:\s*([^;]+)/gi) || [];
+    return [...new Set(
+        matches.map(m => m.replace(/font-size:\s*/i, '').trim())
+    )].filter(Boolean);
+}
+
+// =============================================================================
 // HTML SANITIZER - Preserves semantic structure while removing styles
 // =============================================================================
 
 function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteChange[] } {
-    const changes: PasteChange[] = [];
+    // Extract specific values BEFORE sanitization for detailed change messages
+    const originalFonts = extractFonts(html);
+    const originalColors = extractColors(html);
+    const originalSizes = extractSizes(html);
 
     // Parse HTML
     const parser = new DOMParser();
@@ -57,25 +94,24 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
     let classesRemoved = false;
     let backgroundRemoved = false;
 
-    // Strip inline styles from ALL elements
+    // Strip font-weight:bold from inline styles before removing all styles
+    // (prevents browsers from rendering residual bold)
     doc.querySelectorAll('[style]').forEach(el => {
+        const htmlEl = el as HTMLElement;
         const style = el.getAttribute('style') || '';
 
-        if (style.includes('font-family') && !fontFamilyRemoved) {
-            changes.push({ icon: '🔤', text: 'Font family removed' });
-            fontFamilyRemoved = true;
-        }
-        if (style.includes('color') && !colorRemoved) {
-            changes.push({ icon: '🎨', text: 'Text colors removed' });
-            colorRemoved = true;
-        }
-        if (style.includes('background') && !backgroundRemoved) {
-            changes.push({ icon: '🖌️', text: 'Background colors removed' });
-            backgroundRemoved = true;
-        }
-        if (style.includes('font-size') && !fontSizeRemoved) {
-            changes.push({ icon: '📏', text: 'Font sizes normalized' });
-            fontSizeRemoved = true;
+        if (style.includes('font-family')) fontFamilyRemoved = true;
+        if (style.includes('color')) colorRemoved = true;
+        if (style.includes('background')) backgroundRemoved = true;
+        if (style.includes('font-size')) fontSizeRemoved = true;
+
+        // Detect bold inline style before we strip it
+        const fw = htmlEl.style.fontWeight;
+        if (fw === 'bold' || fw === '700' || fw === '800' || fw === '900') {
+            // If not inside a semantic bold tag, the bold was cosmetic — don't preserve
+            if (!htmlEl.closest('strong, b')) {
+                htmlEl.style.fontWeight = 'normal';
+            }
         }
 
         el.removeAttribute('style');
@@ -83,18 +119,22 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
 
     // Strip classes
     doc.querySelectorAll('[class]').forEach(el => {
-        if (!classesRemoved) {
-            changes.push({ icon: '🏷️', text: 'CSS classes removed' });
-            classesRemoved = true;
-        }
+        if (!classesRemoved) classesRemoved = true;
         el.removeAttribute('class');
     });
 
     // Remove unwanted elements
     doc.querySelectorAll('meta, style, link, script, o\\:p, xml').forEach(el => el.remove());
 
+    // Convert heading tags to <p> to avoid unintended bold/large rendering
+    doc.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+        const p = doc.createElement('p');
+        p.innerHTML = el.innerHTML;
+        el.replaceWith(p);
+    });
+
     // Block-level tags to preserve (semantic structure)
-    const blockTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'PRE'];
+    const blockTags = ['P', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'PRE'];
 
     // Inline tags to preserve (semantic formatting)
     const inlineTags = ['STRONG', 'B', 'EM', 'I', 'U', 'A', 'CODE', 'S', 'STRIKE', 'SUB', 'SUP'];
@@ -115,8 +155,6 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
 
     // Convert DIV and SPAN to appropriate tags or unwrap
     doc.querySelectorAll('div, span').forEach(el => {
-        // If has block children, replace with fragment
-        // If has only inline content, unwrap to preserve text
         unwrapElement(el);
     });
 
@@ -128,11 +166,60 @@ function sanitizePastedHtml(html: string): { afterHtml: string; changes: PasteCh
         }
     }
 
+    // --- Bold cleanup (runs AFTER all span/div/tag unwrapping) ---
+    // Remove ALL <strong> and <b> tags (unwrap = keep content, remove tag)
+    ['strong', 'b'].forEach(tag => {
+        doc.querySelectorAll(tag).forEach(el => {
+            const parent = el.parentElement;
+            if (!parent) return;
+            while (el.firstChild) {
+                parent.insertBefore(el.firstChild, el);
+            }
+            parent.removeChild(el);
+        });
+    });
+
+    // Remove inline font-weight and font-style from any remaining styled elements
+    doc.querySelectorAll('[style]').forEach(el => {
+        const htmlEl = el as HTMLElement;
+        htmlEl.style.fontWeight = '';
+        htmlEl.style.fontStyle = '';
+    });
+
     // Get final HTML
     let result = doc.body.innerHTML;
 
     // Clean up excessive whitespace but preserve structure
     result = result.replace(/\s{2,}/g, ' ').trim();
+
+    // Build detailed changes with specific extracted values
+    const changes: PasteChange[] = [];
+
+    if (fontFamilyRemoved && originalFonts.length > 0) {
+        changes.push({ icon: '🔤', text: `Font changed: ${originalFonts[0]} → Brand font` });
+    } else if (fontFamilyRemoved) {
+        changes.push({ icon: '🔤', text: 'Font family removed' });
+    }
+
+    if (colorRemoved && originalColors.length > 0) {
+        changes.push({ icon: '🎨', text: `Color removed: ${originalColors[0]} → Default black` });
+    } else if (colorRemoved) {
+        changes.push({ icon: '🎨', text: 'Text colors removed' });
+    }
+
+    if (backgroundRemoved) {
+        changes.push({ icon: '🖌️', text: 'Background colors removed' });
+    }
+
+    if (fontSizeRemoved && originalSizes.length > 0) {
+        changes.push({ icon: '📏', text: `Size normalized: ${originalSizes[0]} → 12pt` });
+    } else if (fontSizeRemoved) {
+        changes.push({ icon: '📏', text: 'Font sizes normalized → 12pt' });
+    }
+
+    if (classesRemoved) {
+        changes.push({ icon: '🧹', text: 'CSS classes removed' });
+    }
 
     return {
         afterHtml: result,
@@ -196,13 +283,14 @@ export const PasteFirewall = Extension.create({
                         const plainText = event.clipboardData?.getData('text/plain') || '';
 
                         // If we have HTML content, process it to preserve formatting
-                        // This includes bold, italic, underline, links, etc.
                         if (html && html.trim().length > 0) {
                             // Sanitize HTML (removes styles but preserves semantic tags)
                             const { afterHtml, changes } = sanitizePastedHtml(html);
 
-                            // If changes detected, store state (UI can show notification)
+                            event.preventDefault();
+
                             if (changes.length > 0) {
+                                // Changes detected — show modal for user confirmation
                                 view.dispatch(
                                     view.state.tr
                                         .setMeta(pasteFirewallKey, {
@@ -214,29 +302,26 @@ export const PasteFirewall = Extension.create({
                                         })
                                         .setMeta('addToHistory', false)
                                 );
+
+                                // Defer insertion — open modal instead of inserting immediately
+                                useUIStore.getState().showPasteModal({
+                                    beforeHtml: html,
+                                    afterHtml,
+                                    changes,
+                                    pendingContent: afterHtml,
+                                });
+                            } else {
+                                // No changes needed — insert directly (clean HTML paste)
+                                editor.commands.insertContent(afterHtml, {
+                                    parseOptions: { preserveWhitespace: false },
+                                });
+                                useUIStore.getState().showPasteToast('Content pasted', 0);
                             }
 
-                            // Insert sanitized HTML content
-                            event.preventDefault();
-
-                            // Debug: log what we're inserting
-                            console.log('[PasteFirewall] Original HTML:', html);
-                            console.log('[PasteFirewall] Sanitized HTML:', afterHtml);
-
-                            // Use TipTap's insertContent with parseOptions to prevent extra paragraphs
-                            editor.commands.insertContent(afterHtml, {
-                                parseOptions: {
-                                    preserveWhitespace: false,
-                                }
-                            });
-
-                            console.log('[PasteFirewall] Inserted HTML with formatting preserved');
-                            useUIStore.getState().showPasteToast('Content pasted', changes.length);
                             return true;
                         }
 
                         // No HTML - let MarkdownPasteHandler process plain text
-                        // (This is for pasting from plain text sources)
                         return false;
                     },
                 },

@@ -6,6 +6,13 @@
 
 import { create } from 'zustand';
 
+export interface PasteModalData {
+    beforeHtml: string;
+    afterHtml: string;
+    changes: { icon: string; text: string }[];
+    pendingContent: string;
+}
+
 interface UIState {
     leftSidebarOpen: boolean;
     rightSidebarOpen: boolean;
@@ -23,6 +30,11 @@ interface UIState {
     pasteToast: { message: string; changesCount?: number } | null;
     showPasteToast: (message: string, changesCount?: number) => void;
     hidePasteToast: () => void;
+
+    // Paste firewall modal
+    pasteModal: PasteModalData | null;
+    showPasteModal: (data: PasteModalData) => void;
+    hidePasteModal: () => void;
 
     // Feedback modal
     feedbackOpen: boolean;
@@ -46,6 +58,10 @@ export const useUIStore = create<UIState>((set) => ({
     pasteToast: null,
     showPasteToast: (message, changesCount) => set({ pasteToast: { message, changesCount } }),
     hidePasteToast: () => set({ pasteToast: null }),
+
+    pasteModal: null,
+    showPasteModal: (data) => set({ pasteModal: data }),
+    hidePasteModal: () => set({ pasteModal: null }),
 
     feedbackOpen: false,
     openFeedback: () => set({ feedbackOpen: true }),

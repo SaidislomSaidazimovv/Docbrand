@@ -41,6 +41,7 @@ import { useStyleStore } from '@/store/styleStore';
 import { useUIStore } from '@/store/uiStore';
 import { DocumentHeader, DocumentFooter } from './DocumentHeaderFooter';
 import MarginGuide from './MarginGuide';
+import PasteFirewallModal from '@/components/modals/PasteFirewallModal';
 // Removed PageBreakExtension - using infinite scroll instead
 // DocBrand Path E Architecture imports
 import { EditorController, RequirementLinking, BlockIndex, DocBlock, DocBlockWrapper, NodeSelectionExtension, LinkedBlockDecorator, markBlockAsLinked } from '@/lib/editor';
@@ -666,6 +667,8 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                 </div>
             </div>
 
+            {/* Paste Firewall Modal */}
+            <PasteFirewallModal />
         </div>
     );
 }
