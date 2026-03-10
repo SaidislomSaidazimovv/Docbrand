@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Sparkles, Type, BookOpen, CheckCircle, XCircle, AlertTriangle, FileText, Trash2, Minus, Plus } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useSourcesStore } from '@/store/sourcesStore';
+import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
 import FontPicker from '@/components/FontPicker';
 import posthog from 'posthog-js';
@@ -162,44 +163,46 @@ export default function RightSidebar() {
         }
     };
 
-    const runScan = () => {
+    const runScan = async () => {
         if (!editor) return;
-
         setIsScanning(true);
         setScanResult(null);
 
-        setTimeout(() => {
-            const text = editor.getText();
-            const wordCount = text.split(/\s+/).filter(Boolean).length;
-            const issues: ScanResult['issues'] = [];
+        try {
+            const proposalText = editor.getText();
+            const requirements = useRequirementsStore.getState().requirements
+                .map(r => ({ id: r.id, text: r.originalText || r.text, priority: r.priority }));
 
-            if (wordCount < 100) {
-                issues.push({ type: 'warning', message: 'Document is short (less than 100 words)' });
-            } else {
-                issues.push({ type: 'success', message: `Document has ${wordCount} words` });
-            }
-
-            if (text.toLowerCase().includes('executive summary')) {
-                issues.push({ type: 'success', message: 'Executive Summary found' });
-            } else {
-                issues.push({ type: 'error', message: 'Missing Executive Summary section' });
-            }
-
-            if (text.toLowerCase().includes('technical approach')) {
-                issues.push({ type: 'success', message: 'Technical Approach found' });
-            } else {
-                issues.push({ type: 'warning', message: 'Consider adding Technical Approach' });
-            }
-
-            const successCount = issues.filter((i) => i.type === 'success').length;
-            const score = Math.round((successCount / issues.length) * 100);
-
-            setScanResult({ score, issues });
-            setIsScanning(false);
-            posthog.capture('quality_scan_run', {
-                issues_found: issues.filter(i => i.type !== 'success').length,
+            const res = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ proposalText, requirements }),
             });
-        }, 1500);
+
+            const data = await res.json();
+
+            const coverageIssues = (data.rfp_coverage || []).map((r: { id: string; covered: boolean; reason: string }) => {
+                const req = requirements.find(req => req.id === r.id);
+                const label = req?.text?.slice(0, 70) || r.id;
+                return {
+                    type: r.covered ? 'success' : 'error',
+                    message: r.covered ? `✓ ${label}` : `✗ ${label}`,
+                };
+            });
+
+            setScanResult({
+                score: data.score ?? 0,
+                issues: [...coverageIssues, ...(data.quality_issues || [])],
+            });
+            posthog.capture('quality_scan_run', {
+                issues_found: [...coverageIssues, ...(data.quality_issues || [])].filter((i: { type: string }) => i.type !== 'success').length,
+            });
+        } catch (err) {
+            console.error('[Scan] failed:', err);
+            setScanResult({ score: 0, issues: [{ type: 'error', message: 'Scan failed. Please try again.' }] });
+        } finally {
+            setIsScanning(false);
+        }
     };
 
     const getScoreColor = (score: number) => {

@@ -438,6 +438,7 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                                             }}
                                         />
                                     </label>
+                                    <p className="mt-3 text-xs text-[#8b949e]">⚠️ Currently optimized for smaller documents. Large files may return incomplete results.</p>
                                     {error && (
                                         <div className="mt-4 flex items-center justify-center gap-2 text-[#f85149]">
                                             <AlertCircle size={16} />

@@ -300,16 +300,9 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                         <h3 className="text-sm font-medium text-[#c9d1d9] mb-2">
                             No RFP Imported
                         </h3>
-                        <p className="text-xs text-[#8b949e] mb-4">
+                        <p className="text-xs text-[#8b949e]">
                             Import an RFP document to extract requirements and track coverage.
                         </p>
-                        <button
-                            onClick={onImportClick}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#238636] hover:bg-[#2ea043] rounded-lg text-sm text-white font-medium transition-colors"
-                        >
-                            <Upload size={14} />
-                            Import RFP
-                        </button>
                     </div>
                 ) : activeTab === 'map' ? (
                     /* Map View - Document Structure */
