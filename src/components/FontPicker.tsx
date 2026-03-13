@@ -117,29 +117,29 @@ export default function FontPicker({ editor }: FontPickerProps) {
             {/* Trigger button */}
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] rounded-md text-[13px] text-[#c9d1d9] transition-colors"
+                className="w-full flex items-center justify-between px-2.5 py-1.5 bg-[#eaeef2] hover:bg-[#d0d7de] border border-[#d0d7de] rounded-md text-[13px] text-[#1f2328] transition-colors"
                 style={{ fontFamily: `'${fontFamily}'` }}
             >
                 <span className="truncate">{fontFamily}</span>
-                <ChevronDown size={14} className="text-[#8b949e] shrink-0 ml-1" />
+                <ChevronDown size={14} className="text-[#656d76] shrink-0 ml-1" />
             </button>
 
             {/* Dropdown */}
             {open && (
                 <div
-                    className="absolute top-full left-0 right-0 mt-1 bg-[#1c2128] border border-[#30363d] rounded-lg shadow-xl z-50 overflow-hidden"
+                    className="absolute top-full left-0 right-0 mt-1 bg-[#f6f8fa] border border-[#d0d7de] rounded-lg shadow-xl z-50 overflow-hidden"
                     onKeyDown={handleKeyDown}
                 >
                     {/* Search */}
-                    <div className="flex items-center gap-2 px-3 py-2 border-b border-[#30363d]">
-                        <Search size={13} className="text-[#8b949e] shrink-0" />
+                    <div className="flex items-center gap-2 px-3 py-2 border-b border-[#d0d7de]">
+                        <Search size={13} className="text-[#656d76] shrink-0" />
                         <input
                             ref={inputRef}
                             type="text"
                             placeholder="Search fonts..."
                             value={search}
                             onChange={e => { setSearch(e.target.value); setHighlightIdx(0); }}
-                            className="flex-1 bg-transparent text-[13px] text-[#c9d1d9] placeholder-[#484f58] outline-none"
+                            className="flex-1 bg-transparent text-[13px] text-[#1f2328] placeholder-[#9198a1] outline-none"
                         />
                     </div>
 
@@ -147,7 +147,7 @@ export default function FontPicker({ editor }: FontPickerProps) {
                     <div ref={listRef} className="max-h-[280px] overflow-y-auto">
                         {!isSearching && recents.length > 0 && (
                             <>
-                                <div className="px-3 pt-2 pb-1 text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">
+                                <div className="px-3 pt-2 pb-1 text-[10px] font-semibold text-[#656d76] uppercase tracking-wider">
                                     Recently used
                                 </div>
                                 {recents.map(name => {
@@ -161,26 +161,26 @@ export default function FontPicker({ editor }: FontPickerProps) {
                                             onClick={() => selectFont(name)}
                                             onMouseEnter={() => setHighlightIdx(idx)}
                                             className={`w-full flex items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors ${
-                                                idx === highlightIdx ? 'bg-[#30363d]' : 'hover:bg-[#21262d]'
-                                            } ${fontFamily === name ? 'text-[#388bfd]' : 'text-[#c9d1d9]'}`}
+                                                idx === highlightIdx ? 'bg-[#d0d7de]' : 'hover:bg-[#eaeef2]'
+                                            } ${fontFamily === name ? 'text-[#0969da]' : 'text-[#1f2328]'}`}
                                             style={{ fontFamily: `'${name}'${fallback(cat)}` }}
                                         >
                                             <span className="w-4 shrink-0">
-                                                {fontFamily === name && <Check size={13} className="text-[#388bfd]" />}
+                                                {fontFamily === name && <Check size={13} className="text-[#0969da]" />}
                                             </span>
                                             {name}
                                         </button>
                                     );
                                 })}
-                                <div className="mx-3 my-1 border-t border-[#30363d]" />
-                                <div className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#8b949e] uppercase tracking-wider">
+                                <div className="mx-3 my-1 border-t border-[#d0d7de]" />
+                                <div className="px-3 pt-1 pb-1 text-[10px] font-semibold text-[#656d76] uppercase tracking-wider">
                                     All fonts
                                 </div>
                             </>
                         )}
 
                         {isSearching && filtered.length === 0 && (
-                            <div className="px-3 py-4 text-xs text-[#8b949e] text-center">
+                            <div className="px-3 py-4 text-xs text-[#656d76] text-center">
                                 No fonts match &ldquo;{search}&rdquo;
                             </div>
                         )}
@@ -194,12 +194,12 @@ export default function FontPicker({ editor }: FontPickerProps) {
                                     onClick={() => selectFont(f.name)}
                                     onMouseEnter={() => setHighlightIdx(idx)}
                                     className={`w-full flex items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors ${
-                                        idx === highlightIdx ? 'bg-[#30363d]' : 'hover:bg-[#21262d]'
-                                    } ${fontFamily === f.name ? 'text-[#388bfd]' : 'text-[#c9d1d9]'}`}
+                                        idx === highlightIdx ? 'bg-[#d0d7de]' : 'hover:bg-[#eaeef2]'
+                                    } ${fontFamily === f.name ? 'text-[#0969da]' : 'text-[#1f2328]'}`}
                                     style={{ fontFamily: `'${f.name}'${fallback(f.category)}` }}
                                 >
                                     <span className="w-4 shrink-0">
-                                        {fontFamily === f.name && <Check size={13} className="text-[#388bfd]" />}
+                                        {fontFamily === f.name && <Check size={13} className="text-[#0969da]" />}
                                     </span>
                                     {f.name}
                                 </button>

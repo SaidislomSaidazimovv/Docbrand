@@ -146,58 +146,58 @@ export default function Toolbar({
     };
 
     return (
-        <header className="h-12 flex items-center justify-between px-4 bg-[#161b22] border-b border-[#30363d] relative z-50">
+        <header className="h-12 flex items-center justify-between px-4 bg-[#f6f8fa] border-b border-[#d0d7de] relative z-50">
             {/* Left section - Sidebar toggle, Menu and navigation */}
             <div className="flex items-center gap-4">
                 {/* Left Sidebar Toggle */}
                 <button
                     onClick={toggleLeftSidebar}
-                    className="p-1.5 hover:bg-[#21262d] rounded transition-colors"
+                    className="p-1.5 hover:bg-[#eaeef2] rounded transition-colors"
                     title={leftSidebarOpen ? 'Hide Left Panel' : 'Show Left Panel'}
                 >
-                    <PanelLeftClose size={18} className={leftSidebarOpen ? 'text-[#388bfd]' : 'text-[#8b949e]'} />
+                    <PanelLeftClose size={18} className={leftSidebarOpen ? 'text-[#3fb950]' : 'text-[#656d76]'} />
                 </button>
 
                 <button
                     onClick={() => useUIStore.getState().setLeftSidebar(!useUIStore.getState().leftSidebarOpen)}
-                    className="p-1.5 hover:bg-[#21262d] rounded transition-colors"
+                    className="p-1.5 hover:bg-[#eaeef2] rounded transition-colors"
                 >
-                    <Menu size={18} className="text-[#8b949e]" />
+                    <Menu size={18} className="text-[#656d76]" />
                 </button>
 
-                <nav className="flex items-center gap-1 text-sm text-[#8b949e] relative">
+                <nav className="flex items-center gap-1 text-sm text-[#656d76] relative">
                     {/* File Menu */}
                     <div className="relative">
                         <button
                             onClick={() => toggleMenu('file')}
-                            className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${openMenu === 'file' ? 'bg-[#21262d] text-[#c9d1d9]' : 'hover:bg-[#21262d]'
+                            className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${openMenu === 'file' ? 'bg-[#eaeef2] text-[#1f2328]' : 'hover:bg-[#eaeef2]'
                                 }`}
                         >
                             File
                             <ChevronDown size={12} />
                         </button>
                         {openMenu === 'file' && (
-                            <div className="absolute top-full left-0 mt-1 w-48 bg-[#21262d] rounded-lg shadow-xl border border-[#30363d] py-1 z-50">
-                                <button onClick={handleNewDocument} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                            <div className="absolute top-full left-0 mt-1 w-48 bg-[#eaeef2] rounded-lg shadow-xl border border-[#d0d7de] py-1 z-50">
+                                <button onClick={handleNewDocument} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <FilePlus size={14} />
                                     New Document
                                 </button>
-                                <button onClick={() => { onImportClick?.(); closeMenus(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { onImportClick?.(); closeMenus(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Upload size={14} />
                                     Import RFP...
                                 </button>
-                                <button onClick={() => { closeMenus(); useUIStore.getState().showPasteToast?.('Document saved'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); useUIStore.getState().showPasteToast?.('Document saved'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Save size={14} />
                                     Save
-                                    <span className="ml-auto text-[#8b949e] text-xs">Ctrl+S</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">Ctrl+S</span>
                                 </button>
-                                <hr className="border-[#30363d] my-1" />
-                                <button onClick={() => { onExportClick?.(); closeMenus(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <hr className="border-[#d0d7de] my-1" />
+                                <button onClick={() => { onExportClick?.(); closeMenus(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <FileDown size={14} />
                                     Export...
                                 </button>
-                                <hr className="border-[#30363d] my-1" />
-                                <button onClick={handleClearAll} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#f85149] hover:bg-[#30363d]">
+                                <hr className="border-[#d0d7de] my-1" />
+                                <button onClick={handleClearAll} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#cf222e] hover:bg-[#d0d7de]">
                                     <Trash2 size={14} />
                                     Clear All
                                 </button>
@@ -209,39 +209,39 @@ export default function Toolbar({
                     <div className="relative">
                         <button
                             onClick={() => toggleMenu('edit')}
-                            className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${openMenu === 'edit' ? 'bg-[#21262d] text-[#c9d1d9]' : 'hover:bg-[#21262d]'
+                            className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${openMenu === 'edit' ? 'bg-[#eaeef2] text-[#1f2328]' : 'hover:bg-[#eaeef2]'
                                 }`}
                         >
                             Edit
                             <ChevronDown size={12} />
                         </button>
                         {openMenu === 'edit' && (
-                            <div className="absolute top-full left-0 mt-1 w-48 bg-[#21262d] rounded-lg shadow-xl border border-[#30363d] py-1 z-50">
-                                <button onClick={handleUndo} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                            <div className="absolute top-full left-0 mt-1 w-48 bg-[#eaeef2] rounded-lg shadow-xl border border-[#d0d7de] py-1 z-50">
+                                <button onClick={handleUndo} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Undo size={14} />
                                     Undo
-                                    <span className="ml-auto text-[#8b949e] text-xs">Ctrl+Z</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">Ctrl+Z</span>
                                 </button>
-                                <button onClick={handleRedo} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={handleRedo} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Redo size={14} />
                                     Redo
-                                    <span className="ml-auto text-[#8b949e] text-xs">Ctrl+Y</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">Ctrl+Y</span>
                                 </button>
-                                <hr className="border-[#30363d] my-1" />
-                                <button onClick={() => { closeMenus(); document.execCommand('cut'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <hr className="border-[#d0d7de] my-1" />
+                                <button onClick={() => { closeMenus(); document.execCommand('cut'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Scissors size={14} />
                                     Cut
-                                    <span className="ml-auto text-[#8b949e] text-xs">Ctrl+X</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">Ctrl+X</span>
                                 </button>
-                                <button onClick={() => { closeMenus(); document.execCommand('copy'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); document.execCommand('copy'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Copy size={14} />
                                     Copy
-                                    <span className="ml-auto text-[#8b949e] text-xs">Ctrl+C</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">Ctrl+C</span>
                                 </button>
-                                <button onClick={() => { closeMenus(); document.execCommand('paste'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); document.execCommand('paste'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Clipboard size={14} />
                                     Paste
-                                    <span className="ml-auto text-[#8b949e] text-xs">Ctrl+V</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">Ctrl+V</span>
                                 </button>
                             </div>
                         )}
@@ -251,36 +251,36 @@ export default function Toolbar({
                     <div className="relative">
                         <button
                             onClick={() => toggleMenu('view')}
-                            className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${openMenu === 'view' ? 'bg-[#21262d] text-[#c9d1d9]' : 'hover:bg-[#21262d]'
+                            className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${openMenu === 'view' ? 'bg-[#eaeef2] text-[#1f2328]' : 'hover:bg-[#eaeef2]'
                                 }`}
                         >
                             View
                             <ChevronDown size={12} />
                         </button>
                         {openMenu === 'view' && (
-                            <div className="absolute top-full left-0 mt-1 w-48 bg-[#21262d] rounded-lg shadow-xl border border-[#30363d] py-1 z-50">
-                                <button onClick={handleZoomIn} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                            <div className="absolute top-full left-0 mt-1 w-48 bg-[#eaeef2] rounded-lg shadow-xl border border-[#d0d7de] py-1 z-50">
+                                <button onClick={handleZoomIn} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <ZoomIn size={14} />
                                     Zoom In
-                                    <span className="ml-auto text-[#8b949e] text-xs">Ctrl++</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">Ctrl++</span>
                                 </button>
-                                <button onClick={handleZoomOut} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={handleZoomOut} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <ZoomOut size={14} />
                                     Zoom Out
-                                    <span className="ml-auto text-[#8b949e] text-xs">Ctrl+-</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">Ctrl+-</span>
                                 </button>
-                                <hr className="border-[#30363d] my-1" />
-                                <button onClick={handleFullscreen} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <hr className="border-[#d0d7de] my-1" />
+                                <button onClick={handleFullscreen} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Maximize size={14} />
                                     Full Screen
-                                    <span className="ml-auto text-[#8b949e] text-xs">F11</span>
+                                    <span className="ml-auto text-[#656d76] text-xs">F11</span>
                                 </button>
-                                <hr className="border-[#30363d] my-1" />
-                                <button onClick={() => { toggleLeftSidebar(); closeMenus(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <hr className="border-[#d0d7de] my-1" />
+                                <button onClick={() => { toggleLeftSidebar(); closeMenus(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <PanelLeftClose size={14} />
                                     {leftSidebarOpen ? 'Hide' : 'Show'} Left Sidebar
                                 </button>
-                                <button onClick={() => { toggleRightSidebar(); closeMenus(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { toggleRightSidebar(); closeMenus(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <PanelRightClose size={14} />
                                     {rightSidebarOpen ? 'Hide' : 'Show'} Right Sidebar
                                 </button>
@@ -292,30 +292,30 @@ export default function Toolbar({
                     <div className="relative">
                         <button
                             onClick={() => toggleMenu('tools')}
-                            className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${openMenu === 'tools' ? 'bg-[#21262d] text-[#c9d1d9]' : 'hover:bg-[#21262d]'
+                            className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${openMenu === 'tools' ? 'bg-[#eaeef2] text-[#1f2328]' : 'hover:bg-[#eaeef2]'
                                 }`}
                         >
                             Tools
                             <ChevronDown size={12} />
                         </button>
                         {openMenu === 'tools' && (
-                            <div className="absolute top-full left-0 mt-1 w-52 bg-[#21262d] rounded-lg shadow-xl border border-[#30363d] py-1 z-50">
-                                <button onClick={() => { closeMenus(); useUIStore.getState().triggerScan(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                            <div className="absolute top-full left-0 mt-1 w-52 bg-[#eaeef2] rounded-lg shadow-xl border border-[#d0d7de] py-1 z-50">
+                                <button onClick={() => { closeMenus(); useUIStore.getState().triggerScan(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <Sparkles size={14} />
                                     Quality Scan
                                 </button>
-                                <button onClick={() => { closeMenus(); useUIStore.getState().setLeftSidebar(true); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); useUIStore.getState().setLeftSidebar(true); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <CheckSquare size={14} />
                                     Check Requirements
                                 </button>
-                                <hr className="border-[#30363d] my-1" />
+                                <hr className="border-[#d0d7de] my-1" />
                                 <button onClick={() => {
                                     const text = editor?.getText() || '';
                                     const words = text.split(/\s+/).filter(Boolean).length;
                                     const chars = text.length;
                                     alert(`Word Count: ${words}\nCharacter Count: ${chars}`);
                                     closeMenus();
-                                }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#1f2328] hover:bg-[#d0d7de]">
                                     <FileText size={14} />
                                     Word Count
                                 </button>
@@ -328,8 +328,8 @@ export default function Toolbar({
             {/* Center section - Document title (only show when file imported) */}
             {sources.length > 0 && (
                 <div className="flex items-center gap-2">
-                    <FileText size={16} className="text-[#8b949e]" />
-                    <span className="text-sm font-medium text-[#c9d1d9]">
+                    <FileText size={16} className="text-[#656d76]" />
+                    <span className="text-sm font-medium text-[#1f2328]">
                         {sources[0].filename.replace(/\.(pdf|docx)$/i, '')}
                     </span>
                 </div>
@@ -343,13 +343,13 @@ export default function Toolbar({
                     Paste Firewall Active
                 </div>
 
-                <button onClick={onSearchClick} className="p-2 hover:bg-[#21262d] rounded transition-colors">
-                    <Search size={16} className="text-[#8b949e]" />
+                <button onClick={onSearchClick} className="p-2 hover:bg-[#eaeef2] rounded transition-colors">
+                    <Search size={16} className="text-[#656d76]" />
                 </button>
 
                 <button
                     onClick={onImportClick}
-                    className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-[#21262d] rounded text-sm text-[#8b949e] transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-[#eaeef2] rounded text-sm text-[#656d76] transition-colors"
                 >
                     <Upload size={14} />
                     Import RFP
@@ -357,7 +357,7 @@ export default function Toolbar({
 
                 <button
                     onClick={onExportClick}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#238636] hover:bg-[#2ea043] rounded text-sm text-white font-medium transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3fb950] hover:bg-[#4cc764] rounded text-sm text-white font-medium transition-colors"
                 >
                     <Download size={14} />
                     Export
@@ -365,27 +365,27 @@ export default function Toolbar({
 
                 <button
                     onClick={onDocSettingsClick}
-                    className="p-2 hover:bg-[#21262d] rounded transition-colors"
+                    className="p-2 hover:bg-[#eaeef2] rounded transition-colors"
                     title="Document Settings"
                 >
-                    <Ruler size={16} className="text-[#8b949e]" />
+                    <Ruler size={16} className="text-[#656d76]" />
                 </button>
 
                 <button
                     onClick={onSettingsClick}
-                    className="p-2 hover:bg-[#21262d] rounded transition-colors"
+                    className="p-2 hover:bg-[#eaeef2] rounded transition-colors"
                     title="Settings"
                 >
-                    <Settings size={16} className="text-[#8b949e]" />
+                    <Settings size={16} className="text-[#656d76]" />
                 </button>
 
                 {/* Right Sidebar Toggle */}
                 <button
                     onClick={toggleRightSidebar}
-                    className="p-1.5 hover:bg-[#21262d] rounded transition-colors"
+                    className="p-1.5 hover:bg-[#eaeef2] rounded transition-colors"
                     title={rightSidebarOpen ? 'Hide Right Panel' : 'Show Right Panel'}
                 >
-                    <PanelRightClose size={18} className={rightSidebarOpen ? 'text-[#388bfd]' : 'text-[#8b949e]'} />
+                    <PanelRightClose size={18} className={rightSidebarOpen ? 'text-[#3fb950]' : 'text-[#656d76]'} />
                 </button>
             </div>
 

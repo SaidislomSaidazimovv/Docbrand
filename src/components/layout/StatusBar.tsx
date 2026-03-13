@@ -116,7 +116,7 @@ export default function StatusBar({ onOpenShredder }: StatusBarProps) {
     };
 
     return (
-        <footer className="h-8 flex items-center justify-between px-4 bg-[#161b22] border-t border-[#30363d] text-[10px] text-[#8b949e]">
+        <footer className="h-8 flex items-center justify-between px-4 bg-[#f6f8fa] border-t border-[#d0d7de] text-[10px] text-[#656d76]">
             {/* Left - Page and word info */}
             <div className="flex items-center gap-4">
                 {wordCount > 0 ? (
@@ -133,7 +133,7 @@ export default function StatusBar({ onOpenShredder }: StatusBarProps) {
                         <span>{charCount.toLocaleString()} letters</span>
                     </>
                 ) : (
-                    <span className="text-[#6e7681]">No content</span>
+                    <span className="text-[#9198a1]">No content</span>
                 )}
             </div>
 
@@ -141,7 +141,7 @@ export default function StatusBar({ onOpenShredder }: StatusBarProps) {
             {requirements.length > 0 && (
                 <button
                     onClick={onOpenShredder}
-                    className="flex items-center gap-2 px-4 py-1 bg-gradient-to-r from-[#238636] to-[#2ea043] hover:from-[#2ea043] hover:to-[#3fb950] text-white rounded-full text-xs font-medium transition-all shadow-lg hover:shadow-xl"
+                    className="flex items-center gap-2 px-4 py-1 bg-gradient-to-r from-[#3fb950] to-[#4cc764] hover:from-[#4cc764] hover:to-[#3fb950] text-white rounded-full text-xs font-medium transition-all shadow-lg hover:shadow-xl"
                 >
                     <LayoutGrid size={12} />
                     <span>Open RFP Shredder</span>
@@ -157,8 +157,8 @@ export default function StatusBar({ onOpenShredder }: StatusBarProps) {
                     className={`w-1.5 h-1.5 rounded-full ${saveStatus === 'saved'
                         ? 'bg-[#3fb950]'
                         : saveStatus === 'saving'
-                            ? 'bg-[#d29922] animate-pulse'
-                            : 'bg-[#8b949e]'
+                            ? 'bg-[#9a6700] animate-pulse'
+                            : 'bg-[#656d76]'
                         }`}
                 />
                 <span>{getSaveStatusText()}</span>

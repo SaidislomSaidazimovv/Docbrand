@@ -45,27 +45,27 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     return (
         <div className={`fixed inset-0 bg-black/60 flex items-center justify-center z-50 modal-overlay ${isOpen ? 'modal-open' : ''}`} onClick={onClose}>
             <div
-                className="bg-[#161b22] rounded-xl w-[600px] max-h-[80vh] flex flex-col shadow-2xl border border-[#30363d] modal-panel"
+                className="bg-[#f6f8fa] rounded-xl w-[600px] max-h-[80vh] flex flex-col shadow-2xl border border-[#d0d7de] modal-panel"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363d]">
-                    <h2 className="text-lg font-semibold text-[#c9d1d9]">Settings</h2>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[#d0d7de]">
+                    <h2 className="text-lg font-semibold text-[#1f2328]">Settings</h2>
                     <button
                         onClick={onClose}
-                        className="p-1 hover:bg-[#21262d] rounded transition-colors"
+                        className="p-1 hover:bg-[#eaeef2] rounded transition-colors"
                     >
-                        <X size={20} className="text-[#8b949e]" />
+                        <X size={20} className="text-[#656d76]" />
                     </button>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-[#30363d]">
+                <div className="flex border-b border-[#d0d7de]">
                     <button
                         onClick={() => setActiveTab('history')}
                         className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'history'
-                                ? 'text-[#388bfd] border-b-2 border-[#388bfd]'
-                                : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                                ? 'text-[#3fb950] border-b-2 border-[#3fb950]'
+                                : 'text-[#656d76] hover:text-[#1f2328]'
                             }`}
                     >
                         <History size={14} />
@@ -74,8 +74,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <button
                         onClick={() => setActiveTab('general')}
                         className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'general'
-                                ? 'text-[#388bfd] border-b-2 border-[#388bfd]'
-                                : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                                ? 'text-[#3fb950] border-b-2 border-[#3fb950]'
+                                : 'text-[#656d76] hover:text-[#1f2328]'
                             }`}
                     >
                         General
@@ -87,7 +87,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     {activeTab === 'history' ? (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between mb-4">
-                                <p className="text-sm text-[#8b949e]">
+                                <p className="text-sm text-[#656d76]">
                                     Cleared sessions are saved here for recovery
                                 </p>
                                 {history.length > 0 && (
@@ -97,7 +97,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                                 clearHistory();
                                             }
                                         }}
-                                        className="text-xs text-[#f85149] hover:underline"
+                                        className="text-xs text-[#cf222e] hover:underline"
                                     >
                                         Clear All History
                                     </button>
@@ -106,11 +106,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                             {history.length === 0 ? (
                                 <div className="text-center py-12">
-                                    <div className="w-16 h-16 bg-[#21262d] rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <History size={24} className="text-[#8b949e]" />
+                                    <div className="w-16 h-16 bg-[#eaeef2] rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <History size={24} className="text-[#656d76]" />
                                     </div>
-                                    <p className="text-sm text-[#8b949e]">No history yet</p>
-                                    <p className="text-xs text-[#6e7681] mt-1">
+                                    <p className="text-sm text-[#656d76]">No history yet</p>
+                                    <p className="text-xs text-[#9198a1] mt-1">
                                         Cleared sessions will appear here
                                     </p>
                                 </div>
@@ -119,33 +119,33 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                     {history.map((entry) => (
                                         <div
                                             key={entry.id}
-                                            className="bg-[#21262d] rounded-lg p-4 border border-[#30363d]"
+                                            className="bg-[#eaeef2] rounded-lg p-4 border border-[#d0d7de]"
                                         >
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2 mb-2">
-                                                        <Clock size={12} className="text-[#8b949e]" />
-                                                        <span className="text-xs text-[#8b949e]">
+                                                        <Clock size={12} className="text-[#656d76]" />
+                                                        <span className="text-xs text-[#656d76]">
                                                             {formatDate(entry.clearedAt)}
                                                         </span>
                                                     </div>
 
                                                     <div className="flex items-center gap-4 mb-2">
                                                         <div className="flex items-center gap-1.5">
-                                                            <FileText size={14} className="text-[#388bfd]" />
-                                                            <span className="text-sm text-[#c9d1d9]">
+                                                            <FileText size={14} className="text-[#3fb950]" />
+                                                            <span className="text-sm text-[#1f2328]">
                                                                 {entry.totalCount} requirements
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center gap-1.5">
-                                                            <Link2 size={14} className="text-[#3fb950]" />
-                                                            <span className="text-sm text-[#c9d1d9]">
+                                                            <Link2 size={14} className="text-[#1a7f37]" />
+                                                            <span className="text-sm text-[#1f2328]">
                                                                 {entry.linkedCount} linked
                                                             </span>
                                                         </div>
                                                     </div>
 
-                                                    <div className="text-xs text-[#6e7681]">
+                                                    <div className="text-xs text-[#9198a1]">
                                                         {entry.sources.length} source file{entry.sources.length !== 1 ? 's' : ''}
                                                         {entry.sources.length > 0 && (
                                                             <span className="ml-1">
@@ -158,16 +158,16 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => handleRestore(entry.id)}
-                                                        className="flex items-center gap-1 px-3 py-1.5 bg-[#238636] hover:bg-[#2ea043] rounded text-xs text-white transition-colors"
+                                                        className="flex items-center gap-1 px-3 py-1.5 bg-[#1a7f37] hover:bg-[#1a8f3e] rounded text-xs text-white transition-colors"
                                                     >
                                                         <RotateCcw size={12} />
                                                         Restore
                                                     </button>
                                                     <button
                                                         onClick={() => removeHistoryEntry(entry.id)}
-                                                        className="p-1.5 hover:bg-[#f8514933] rounded transition-colors"
+                                                        className="p-1.5 hover:bg-[#cf222e33] rounded transition-colors"
                                                     >
-                                                        <Trash2 size={14} className="text-[#f85149]" />
+                                                        <Trash2 size={14} className="text-[#cf222e]" />
                                                     </button>
                                                 </div>
                                             </div>
@@ -179,24 +179,24 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     ) : (
                         <div className="space-y-6">
                             <div>
-                                <h3 className="text-sm font-medium text-[#c9d1d9] mb-2">About</h3>
-                                <p className="text-xs text-[#8b949e]">
+                                <h3 className="text-sm font-medium text-[#1f2328] mb-2">About</h3>
+                                <p className="text-xs text-[#656d76]">
                                     DocBrand RFP Response Editor v1.0
                                 </p>
                             </div>
 
                             <div>
-                                <h3 className="text-sm font-medium text-[#c9d1d9] mb-2">Storage</h3>
-                                <p className="text-xs text-[#8b949e]">
+                                <h3 className="text-sm font-medium text-[#1f2328] mb-2">Storage</h3>
+                                <p className="text-xs text-[#656d76]">
                                     Your data is stored locally in browser localStorage.
                                 </p>
-                                <p className="text-xs text-[#6e7681] mt-1">
+                                <p className="text-xs text-[#9198a1] mt-1">
                                     {sources.length} source files tracked
                                 </p>
                             </div>
 
                             <div>
-                                <h3 className="text-sm font-medium text-[#c9d1d9] mb-2">Danger Zone</h3>
+                                <h3 className="text-sm font-medium text-[#1f2328] mb-2">Danger Zone</h3>
                                 <button
                                     onClick={() => {
                                         if (confirm('Clear ALL local storage? This cannot be undone.')) {
@@ -204,7 +204,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                             window.location.reload();
                                         }
                                     }}
-                                    className="px-3 py-1.5 bg-[#f8514933] hover:bg-[#f8514955] border border-[#f85149] rounded text-xs text-[#f85149] transition-colors"
+                                    className="px-3 py-1.5 bg-[#cf222e33] hover:bg-[#cf222e55] border border-[#cf222e] rounded text-xs text-[#cf222e] transition-colors"
                                 >
                                     Reset All Data
                                 </button>
@@ -214,10 +214,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-end px-6 py-4 border-t border-[#30363d]">
+                <div className="flex justify-end px-6 py-4 border-t border-[#d0d7de]">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-[#21262d] hover:bg-[#30363d] rounded text-sm text-[#c9d1d9] transition-colors"
+                        className="px-4 py-2 bg-[#eaeef2] hover:bg-[#d0d7de] rounded text-sm text-[#1f2328] transition-colors"
                     >
                         Close
                     </button>

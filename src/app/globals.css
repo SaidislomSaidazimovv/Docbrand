@@ -21,27 +21,28 @@
   }
 }
 
-/* DocBrand Dark Theme Colors */
+/* DocBrand Light Theme Colors */
 :root {
   /* Background colors */
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #21262d;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #eaeef2;
 
   /* Border colors */
-  --border-primary: #30363d;
-  --border-secondary: #21262d;
+  --border-primary: #d0d7de;
+  --border-secondary: #eaeef2;
 
   /* Text colors */
-  --text-primary: #c9d1d9;
-  --text-secondary: #8b949e;
-  --text-muted: #484f58;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #9198a1;
 
   /* Accent colors */
-  --accent-blue: #388bfd;
-  --accent-green: #3fb950;
-  --accent-yellow: #d29922;
-  --accent-red: #f85149;
+  --accent-blue: #3fb950;
+  --accent-blue-hover: #4cc764;
+  --accent-green: #1a7f37;
+  --accent-yellow: #9a6700;
+  --accent-red: #cf222e;
 
   /* Document defaults */
   --doc-bg: #ffffff;
@@ -174,7 +175,7 @@ body {
   position: relative !important;
   left: -64px !important;
   width: calc(100% + 128px) !important;
-  background: #161b22 !important;
+  background: #f6f8fa !important;
 }
 
 /* Hide TipTap controls inside page break */
@@ -381,7 +382,7 @@ body {
 /* Callout Box */
 .ProseMirror div[data-callout-type] {
   border: 1px solid #d1d5db;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #3fb950;
   border-radius: 6px;
   padding: 12px 16px;
   margin: 8px 0;
@@ -763,7 +764,7 @@ body {
 
 /* Selected node (NodeSelection active) */
 .ProseMirror .ProseMirror-selectednode {
-  outline: 2px solid #388bfd;
+  outline: 2px solid #3fb950;
   outline-offset: 2px;
   background: rgba(56, 139, 253, 0.1);
   border-radius: 4px;
@@ -827,4 +828,9 @@ body {
   .ProseMirror pre {
     page-break-inside: avoid;
   }
+}
+
+select option:checked {
+  background-color: #3fb950;
+  color: white;
 }

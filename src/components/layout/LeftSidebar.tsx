@@ -101,13 +101,13 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'linked':
-                return 'bg-[#3fb950]'; // Green
+                return 'bg-[#1a7f37]'; // Green
             case 'partial':
-                return 'bg-[#d29922]'; // Orange
+                return 'bg-[#9a6700]'; // Orange
             case 'ignored':
-                return 'bg-[#8b949e]'; // Gray
+                return 'bg-[#656d76]'; // Gray
             default: // unlinked
-                return 'bg-[#f85149]'; // Red
+                return 'bg-[#cf222e]'; // Red
         }
     };
 
@@ -120,10 +120,10 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
 
     // Get progress bar color classes
     const getProgressColors = (percent: number) => {
-        if (percent === 100) return 'from-[#3fb950] to-[#3fb950]';
-        if (percent >= 60) return 'from-[#3fb950] to-[#d29922]';
-        if (percent >= 30) return 'from-[#d29922] to-[#f85149]';
-        return 'from-[#f85149] to-[#f85149]';
+        if (percent === 100) return 'from-[#1a7f37] to-[#1a7f37]';
+        if (percent >= 60) return 'from-[#1a7f37] to-[#9a6700]';
+        if (percent >= 30) return 'from-[#9a6700] to-[#cf222e]';
+        return 'from-[#cf222e] to-[#cf222e]';
     };
 
     const handleLinkClick = (reqId: string, e?: React.MouseEvent) => {
@@ -235,18 +235,18 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
     const isEmpty = requirements.length === 0;
 
     return (
-        <aside className="w-[280px] min-w-[280px] flex-shrink-0 bg-[#161b22] border-r border-[#30363d] flex flex-col h-full">
+        <aside className="w-[280px] min-w-[280px] flex-shrink-0 bg-[#f6f8fa] border-r border-[#d0d7de] flex flex-col h-full">
             {/* Header with Coverage */}
-            <div className="px-4 py-3 border-b border-[#21262d]">
+            <div className="px-4 py-3 border-b border-[#eaeef2]">
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-sm ${isEmpty ? 'bg-[#8b949e]' : unlinkedCount > 0 ? 'bg-[#f85149]' : 'bg-[#3fb950]'}`} />
-                        <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wide">
+                        <div className={`w-2 h-2 rounded-sm ${isEmpty ? 'bg-[#656d76]' : unlinkedCount > 0 ? 'bg-[#cf222e]' : 'bg-[#1a7f37]'}`} />
+                        <span className="text-xs font-semibold text-[#656d76] uppercase tracking-wide">
                             RFP Coverage
                         </span>
                     </div>
                     {!isEmpty && (
-                        <span className={`text-sm font-bold ${coveragePercent === 100 ? 'text-[#3fb950]' : 'text-[#f85149]'}`}>
+                        <span className={`text-sm font-bold ${coveragePercent === 100 ? 'text-[#1a7f37]' : 'text-[#cf222e]'}`}>
                             {coveragePercent}%
                         </span>
                     )}
@@ -254,9 +254,9 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
 
                 {/* Progress bar */}
                 {!isEmpty && (
-                    <div className="h-1.5 bg-[#21262d] rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-[#eaeef2] rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-gradient-to-r from-[#f85149] via-[#d29922] to-[#3fb950] transition-all duration-300"
+                            className="h-full bg-gradient-to-r from-[#cf222e] via-[#9a6700] to-[#1a7f37] transition-all duration-300"
                             style={{ width: `${coveragePercent}%` }}
                         />
                     </div>
@@ -265,12 +265,12 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
 
             {/* Tabs */}
             {!isEmpty && (
-                <div className="flex border-b border-[#21262d]">
+                <div className="flex border-b border-[#eaeef2]">
                     <button
                         onClick={() => setActiveTab('map')}
                         className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${activeTab === 'map'
-                            ? 'text-[#388bfd] border-b-2 border-[#388bfd]'
-                            : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                            ? 'text-[#3fb950] border-b-2 border-[#3fb950]'
+                            : 'text-[#656d76] hover:text-[#1f2328]'
                             }`}
                     >
                         <Map size={12} />
@@ -279,8 +279,8 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                     <button
                         onClick={() => setActiveTab('rfp')}
                         className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${activeTab === 'rfp'
-                            ? 'text-[#388bfd] border-b-2 border-[#388bfd]'
-                            : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                            ? 'text-[#3fb950] border-b-2 border-[#3fb950]'
+                            : 'text-[#656d76] hover:text-[#1f2328]'
                             }`}
                     >
                         <FileText size={12} />
@@ -294,42 +294,42 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                 {isEmpty ? (
                     /* Empty State */
                     <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-                        <div className="w-16 h-16 bg-[#21262d] rounded-full flex items-center justify-center mb-4">
-                            <FileText size={24} className="text-[#8b949e]" />
+                        <div className="w-16 h-16 bg-[#eaeef2] rounded-full flex items-center justify-center mb-4">
+                            <FileText size={24} className="text-[#656d76]" />
                         </div>
-                        <h3 className="text-sm font-medium text-[#c9d1d9] mb-2">
+                        <h3 className="text-sm font-medium text-[#1f2328] mb-2">
                             No RFP Imported
                         </h3>
-                        <p className="text-xs text-[#8b949e]">
+                        <p className="text-xs text-[#656d76]">
                             Import an RFP document to extract requirements and track coverage.
                         </p>
                     </div>
                 ) : activeTab === 'map' ? (
                     /* Map View - Document Structure */
                     <div className="p-4">
-                        <p className="text-xs text-[#8b949e] mb-4">
+                        <p className="text-xs text-[#656d76] mb-4">
                             Document structure showing linked requirements
                         </p>
                         <div className="space-y-2">
-                            <div className="flex items-center gap-2 p-2 bg-[#21262d] rounded">
-                                <div className="w-1 h-8 bg-[#3fb950] rounded" />
+                            <div className="flex items-center gap-2 p-2 bg-[#eaeef2] rounded">
+                                <div className="w-1 h-8 bg-[#1a7f37] rounded" />
                                 <div>
-                                    <p className="text-sm text-[#c9d1d9]">Executive Summary</p>
-                                    <p className="text-xs text-[#8b949e]">{linkedCount} linked</p>
+                                    <p className="text-sm text-[#1f2328]">Executive Summary</p>
+                                    <p className="text-xs text-[#656d76]">{linkedCount} linked</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 p-2 bg-[#21262d] rounded">
-                                <div className="w-1 h-8 bg-[#d29922] rounded" />
+                            <div className="flex items-center gap-2 p-2 bg-[#eaeef2] rounded">
+                                <div className="w-1 h-8 bg-[#9a6700] rounded" />
                                 <div>
-                                    <p className="text-sm text-[#c9d1d9]">Technical Approach</p>
-                                    <p className="text-xs text-[#8b949e]">0 linked</p>
+                                    <p className="text-sm text-[#1f2328]">Technical Approach</p>
+                                    <p className="text-xs text-[#656d76]">0 linked</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 p-2 bg-[#21262d] rounded">
-                                <div className="w-1 h-8 bg-[#f85149] rounded" />
+                            <div className="flex items-center gap-2 p-2 bg-[#eaeef2] rounded">
+                                <div className="w-1 h-8 bg-[#cf222e] rounded" />
                                 <div>
-                                    <p className="text-sm text-[#c9d1d9]">Management Plan</p>
-                                    <p className="text-xs text-[#8b949e]">{unlinkedCount} unlinked</p>
+                                    <p className="text-sm text-[#1f2328]">Management Plan</p>
+                                    <p className="text-xs text-[#656d76]">{unlinkedCount} unlinked</p>
                                 </div>
                             </div>
                         </div>
@@ -337,7 +337,7 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                 ) : (
                     /* RFP Requirements - Grouped by Section */
                     <div className="p-2">
-                        <p className="text-[10px] text-[#6e7681] uppercase tracking-wider px-2 mb-2">
+                        <p className="text-[10px] text-[#9198a1] uppercase tracking-wider px-2 mb-2">
                             RFP Requirements
                         </p>
 
@@ -350,27 +350,27 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                     {/* Section Header - Like the reference image */}
                                     <button
                                         onClick={() => toggleSection(section.id)}
-                                        className="w-full bg-[#21262d] rounded-lg p-3 hover:bg-[#30363d] transition-colors"
+                                        className="w-full bg-[#eaeef2] rounded-lg p-3 hover:bg-[#d0d7de] transition-colors"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <Folder size={16} className="text-[#8b949e]" />
-                                            <span className="text-sm font-medium text-[#c9d1d9] flex-1 text-left truncate">
+                                            <Folder size={16} className="text-[#656d76]" />
+                                            <span className="text-sm font-medium text-[#1f2328] flex-1 text-left truncate">
                                                 {section.name}
                                             </span>
                                             {/* Mini progress bar */}
-                                            <div className="w-16 h-1.5 bg-[#161b22] rounded-full overflow-hidden">
+                                            <div className="w-16 h-1.5 bg-[#f6f8fa] rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full bg-gradient-to-r ${getProgressColors(progress)} transition-all`}
                                                     style={{ width: `${progress}%` }}
                                                 />
                                             </div>
-                                            <span className={`text-xs font-medium ${progress === 100 ? 'text-[#3fb950]' : progress > 50 ? 'text-[#d29922]' : 'text-[#f85149]'}`}>
+                                            <span className={`text-xs font-medium ${progress === 100 ? 'text-[#1a7f37]' : progress > 50 ? 'text-[#9a6700]' : 'text-[#cf222e]'}`}>
                                                 {progress}%
                                             </span>
                                             {isExpanded ? (
-                                                <ChevronDown size={14} className="text-[#8b949e]" />
+                                                <ChevronDown size={14} className="text-[#656d76]" />
                                             ) : (
-                                                <ChevronRight size={14} className="text-[#8b949e]" />
+                                                <ChevronRight size={14} className="text-[#656d76]" />
                                             )}
                                         </div>
                                     </button>
@@ -392,8 +392,8 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                         e.currentTarget.style.opacity = '1';
                                                     }}
                                                     className={`flex items-start gap-3 p-2 rounded-lg cursor-grab active:cursor-grabbing transition-colors ${activeLinkingReqId === req.id
-                                                        ? 'bg-[#388bfd22] border border-[#388bfd]'
-                                                        : 'hover:bg-[#21262d]'
+                                                        ? 'bg-[#3fb95022] border border-[#3fb950]'
+                                                        : 'hover:bg-[#eaeef2]'
                                                         }`}
                                                 >
                                                     {/* Status dot */}
@@ -402,12 +402,12 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                     {/* Requirement info */}
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-xs font-mono text-[#8b949e]">
+                                                            <span className="text-xs font-mono text-[#656d76]">
                                                                 {req.id.substring(0, 12)}
                                                             </span>
                                                         </div>
                                                         <p
-                                                            className="text-xs text-[#c9d1d9] line-clamp-1"
+                                                            className="text-xs text-[#1f2328] line-clamp-1"
                                                             title={req.originalText || req.text}
                                                         >
                                                             {req.text.length > 35 ? req.text.substring(0, 35) + '...' : req.text}
@@ -417,7 +417,7 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                             <div className="flex items-center gap-2 mt-1">
                                                                 <button
                                                                     onClick={(e) => handleNavigateToBlock(req.id, e)}
-                                                                    className="flex items-center gap-1 text-[10px] text-[#388bfd] hover:text-[#58a6ff]"
+                                                                    className="flex items-center gap-1 text-[10px] text-[#3fb950] hover:text-[#4cc764]"
                                                                     title="Go to linked block"
                                                                 >
                                                                     <ExternalLink size={10} />
@@ -425,7 +425,7 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                                                                 </button>
                                                                 <button
                                                                     onClick={(e) => handleUnlink(req.id, e)}
-                                                                    className="flex items-center gap-1 text-[10px] text-[#f85149] hover:text-[#ff6a6a]"
+                                                                    className="flex items-center gap-1 text-[10px] text-[#cf222e] hover:text-[#ff6a6a]"
                                                                     title="Remove link"
                                                                 >
                                                                     <Unlink size={10} />
@@ -446,11 +446,11 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
             </div>
 
             {/* Footer */}
-            <div className="p-3 border-t border-[#21262d]">
+            <div className="p-3 border-t border-[#eaeef2]">
                 <div className="grid grid-cols-2 gap-2">
                     <button
                         onClick={onImportClick}
-                        className="flex items-center justify-center gap-2 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-lg text-xs text-[#c9d1d9] font-medium transition-colors"
+                        className="flex items-center justify-center gap-2 py-2 bg-[#eaeef2] hover:bg-[#d0d7de] rounded-lg text-xs text-[#1f2328] font-medium transition-colors"
                     >
                         <Upload size={12} />
                         Import
@@ -458,7 +458,7 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
                     <button
                         onClick={handleClearAll}
                         disabled={isEmpty}
-                        className="flex items-center justify-center gap-2 py-2 bg-[#21262d] hover:bg-[#f8514922] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-xs text-[#f85149] font-medium transition-colors"
+                        className="flex items-center justify-center gap-2 py-2 bg-[#eaeef2] hover:bg-[#cf222e22] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-xs text-[#cf222e] font-medium transition-colors"
                     >
                         <Trash2 size={12} />
                         Clear All
@@ -467,9 +467,9 @@ export default function LeftSidebar({ onImportClick }: LeftSidebarProps) {
 
                 {/* Issue count */}
                 {!isEmpty && unlinkedCount > 0 && (
-                    <div className="mt-2 flex items-center gap-2 px-2 py-1.5 bg-[#f8514922] rounded text-xs text-[#f85149]">
+                    <div className="mt-2 flex items-center gap-2 px-2 py-1.5 bg-[#cf222e22] rounded text-xs text-[#cf222e]">
                         <span className="font-medium">{unlinkedCount} Issues</span>
-                        <button className="ml-auto text-[#f85149] hover:text-white">×</button>
+                        <button className="ml-auto text-[#cf222e] hover:text-white">×</button>
                     </div>
                 )}
             </div>

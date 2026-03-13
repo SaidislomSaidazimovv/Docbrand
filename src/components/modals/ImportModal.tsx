@@ -369,11 +369,11 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
     const getConfidenceColor = (confidence: string) => {
         switch (confidence) {
             case 'high':
-                return 'text-[#3fb950] bg-[#3fb95022]';
+                return 'text-[#1a7f37] bg-[#1a7f3722]';
             case 'medium':
-                return 'text-[#d29922] bg-[#d2992222]';
+                return 'text-[#9a6700] bg-[#9a670022]';
             default:
-                return 'text-[#8b949e] bg-[#8b949e22]';
+                return 'text-[#656d76] bg-[#656d7622]';
         }
     };
 
@@ -388,12 +388,12 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
 
     return (
         <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 modal-overlay ${isOpen ? 'modal-open' : ''}`}>
-            <div className="w-full max-w-2xl bg-[#161b22] rounded-lg shadow-2xl border border-[#30363d] modal-panel">
+            <div className="w-full max-w-2xl bg-[#f6f8fa] rounded-lg shadow-2xl border border-[#d0d7de] modal-panel">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363d]">
-                    <h2 className="text-lg font-semibold text-[#c9d1d9]">Import RFP Document</h2>
-                    <button onClick={onClose} className="p-1 hover:bg-[#21262d] rounded transition-colors">
-                        <X size={18} className="text-[#8b949e]" />
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[#d0d7de]">
+                    <h2 className="text-lg font-semibold text-[#1f2328]">Import RFP Document</h2>
+                    <button onClick={onClose} className="p-1 hover:bg-[#eaeef2] rounded transition-colors">
+                        <X size={18} className="text-[#656d76]" />
                     </button>
                 </div>
 
@@ -404,28 +404,28 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                         <div
                             onDrop={isLocked ? undefined : handleDrop}
                             onDragOver={isLocked ? undefined : (e) => e.preventDefault()}
-                            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${isLocked ? 'border-[#30363d] opacity-60' : 'border-[#30363d] hover:border-[#388bfd]'}`}
+                            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${isLocked ? 'border-[#d0d7de] opacity-60' : 'border-[#d0d7de] hover:border-[#0969da]'}`}
                         >
                             {isLocked ? (
                                 <>
-                                    <AlertCircle size={48} className="mx-auto text-[#d29922] mb-4" />
-                                    <p className="text-[#c9d1d9] mb-2">A document is already loaded.</p>
-                                    <p className="text-sm text-[#8b949e] mb-4">
-                                        Press <span className="text-[#c9d1d9] font-medium">Clear All</span> first to import a new document.
+                                    <AlertCircle size={48} className="mx-auto text-[#9a6700] mb-4" />
+                                    <p className="text-[#1f2328] mb-2">A document is already loaded.</p>
+                                    <p className="text-sm text-[#656d76] mb-4">
+                                        Press <span className="text-[#1f2328] font-medium">Clear All</span> first to import a new document.
                                     </p>
                                     <button
                                         onClick={onClose}
-                                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-lg text-sm text-[#c9d1d9] font-medium transition-colors"
+                                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#eaeef2] hover:bg-[#d0d7de] rounded-lg text-sm text-[#1f2328] font-medium transition-colors"
                                     >
                                         Close
                                     </button>
                                 </>
                             ) : (
                                 <>
-                                    <Upload size={48} className="mx-auto text-[#8b949e] mb-4" />
-                                    <p className="text-[#c9d1d9] mb-2">Drag & drop your RFP document here</p>
-                                    <p className="text-sm text-[#8b949e] mb-4">Supports PDF, DOCX, and JSON files</p>
-                                    <label className="inline-flex items-center gap-2 px-4 py-2 bg-[#238636] hover:bg-[#2ea043] rounded-lg text-sm text-white font-medium cursor-pointer transition-colors">
+                                    <Upload size={48} className="mx-auto text-[#656d76] mb-4" />
+                                    <p className="text-[#1f2328] mb-2">Drag & drop your RFP document here</p>
+                                    <p className="text-sm text-[#656d76] mb-4">Supports PDF, DOCX, and JSON files</p>
+                                    <label className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a7f37] hover:bg-[#1a8f3e] rounded-lg text-sm text-white font-medium cursor-pointer transition-colors">
                                         <FileText size={16} />
                                         Browse Files
                                         <input
@@ -438,9 +438,9 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                                             }}
                                         />
                                     </label>
-                                    <p className="mt-3 text-xs text-[#8b949e]">⚠️ Currently optimized for smaller documents. Large files may return incomplete results.</p>
+                                    <p className="mt-3 text-xs text-[#656d76]">⚠️ Currently optimized for smaller documents. Large files may return incomplete results.</p>
                                     {error && (
-                                        <div className="mt-4 flex items-center justify-center gap-2 text-[#f85149]">
+                                        <div className="mt-4 flex items-center justify-center gap-2 text-[#cf222e]">
                                             <AlertCircle size={16} />
                                             <span className="text-sm">{error}</span>
                                         </div>
@@ -453,36 +453,36 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                     {/* AI Parsing Phase (PDF/DOCX via server) */}
                     {phase === 'ai-parsing' && (
                         <div className="text-center py-12">
-                            <Loader2 size={48} className="mx-auto text-[#388bfd] animate-spin mb-4" />
-                            <p className="text-[#c9d1d9]">Parsing document with AI...</p>
-                            <p className="text-sm text-[#8b949e]">Extracting content, requirements, and brand styles from {fileName}</p>
+                            <Loader2 size={48} className="mx-auto text-[#0969da] animate-spin mb-4" />
+                            <p className="text-[#1f2328]">Parsing document with AI...</p>
+                            <p className="text-sm text-[#656d76]">Extracting content, requirements, and brand styles from {fileName}</p>
                         </div>
                     )}
 
                     {/* Brand Detecting Phase (JSON step 1) */}
                     {phase === 'brand-detecting' && (
                         <div className="text-center py-12">
-                            <Loader2 size={48} className="mx-auto text-[#d29922] animate-spin mb-4" />
-                            <p className="text-[#c9d1d9]">Analyzing company brand styles...</p>
-                            <p className="text-sm text-[#8b949e]">Extracting typography rules from {fileName}</p>
+                            <Loader2 size={48} className="mx-auto text-[#9a6700] animate-spin mb-4" />
+                            <p className="text-[#1f2328]">Analyzing company brand styles...</p>
+                            <p className="text-sm text-[#656d76]">Extracting typography rules from {fileName}</p>
                         </div>
                     )}
 
                     {/* JSON Importing Phase (JSON step 2) */}
                     {phase === 'json-importing' && (
                         <div className="text-center py-12">
-                            <Loader2 size={48} className="mx-auto text-[#388bfd] animate-spin mb-4" />
-                            <p className="text-[#c9d1d9]">Importing document content...</p>
-                            <p className="text-sm text-[#8b949e]">Loading content and requirements from {fileName}</p>
+                            <Loader2 size={48} className="mx-auto text-[#0969da] animate-spin mb-4" />
+                            <p className="text-[#1f2328]">Importing document content...</p>
+                            <p className="text-sm text-[#656d76]">Loading content and requirements from {fileName}</p>
                         </div>
                     )}
 
                     {/* Legacy Parsing Phase (client-side fallback) */}
                     {phase === 'parsing' && (
                         <div className="text-center py-12">
-                            <Loader2 size={48} className="mx-auto text-[#388bfd] animate-spin mb-4" />
-                            <p className="text-[#c9d1d9]">Parsing {fileName}...</p>
-                            <p className="text-sm text-[#8b949e]">Extracting requirements (local)</p>
+                            <Loader2 size={48} className="mx-auto text-[#0969da] animate-spin mb-4" />
+                            <p className="text-[#1f2328]">Parsing {fileName}...</p>
+                            <p className="text-sm text-[#656d76]">Extracting requirements (local)</p>
                         </div>
                     )}
 
@@ -491,21 +491,21 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                     {/* ============================================================ */}
                     {phase === 'import-done' && importResult && (
                         <div className="text-center py-8">
-                            <div className="w-16 h-16 mx-auto bg-[#3fb95022] rounded-full flex items-center justify-center mb-4">
-                                <Check size={32} className="text-[#3fb950]" />
+                            <div className="w-16 h-16 mx-auto bg-[#1a7f3722] rounded-full flex items-center justify-center mb-4">
+                                <Check size={32} className="text-[#1a7f37]" />
                             </div>
-                            <p className="text-[#c9d1d9] mb-1 text-lg font-medium">
+                            <p className="text-[#1f2328] mb-1 text-lg font-medium">
                                 Import complete
                             </p>
 
-                            <div className="max-w-sm mx-auto my-4 text-left bg-[#21262d] rounded-lg p-3 space-y-1.5">
+                            <div className="max-w-sm mx-auto my-4 text-left bg-[#eaeef2] rounded-lg p-3 space-y-1.5">
                                 {/* Document content */}
                                 <div className="flex items-center gap-2 text-sm">
                                     {importResult.documentLoaded
-                                        ? <Check size={14} className="text-[#3fb950] flex-shrink-0" />
-                                        : <AlertCircle size={14} className="text-[#8b949e] flex-shrink-0" />
+                                        ? <Check size={14} className="text-[#1a7f37] flex-shrink-0" />
+                                        : <AlertCircle size={14} className="text-[#656d76] flex-shrink-0" />
                                     }
-                                    <span className={importResult.documentLoaded ? 'text-[#c9d1d9]' : 'text-[#8b949e]'}>
+                                    <span className={importResult.documentLoaded ? 'text-[#1f2328]' : 'text-[#656d76]'}>
                                         {importResult.documentLoaded ? 'Document content loaded into editor' : 'No document content found'}
                                     </span>
                                 </div>
@@ -513,10 +513,10 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                                 {/* Requirements */}
                                 <div className="flex items-center gap-2 text-sm">
                                     {importResult.requirementsCount > 0
-                                        ? <Check size={14} className="text-[#3fb950] flex-shrink-0" />
-                                        : <AlertCircle size={14} className="text-[#8b949e] flex-shrink-0" />
+                                        ? <Check size={14} className="text-[#1a7f37] flex-shrink-0" />
+                                        : <AlertCircle size={14} className="text-[#656d76] flex-shrink-0" />
                                     }
-                                    <span className={importResult.requirementsCount > 0 ? 'text-[#c9d1d9]' : 'text-[#8b949e]'}>
+                                    <span className={importResult.requirementsCount > 0 ? 'text-[#1f2328]' : 'text-[#656d76]'}>
                                         {importResult.requirementsCount > 0
                                             ? `${importResult.requirementsCount} requirement${importResult.requirementsCount === 1 ? '' : 's'} imported`
                                             : 'No requirements found'}
@@ -526,14 +526,14 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                                 {/* Brand styles */}
                                 {importResult.brandFields.length > 0 && (
                                     <>
-                                        <div className="border-t border-[#30363d] my-1.5" />
-                                        <p className="text-xs text-[#8b949e] mb-1">
+                                        <div className="border-t border-[#d0d7de] my-1.5" />
+                                        <p className="text-xs text-[#656d76] mb-1">
                                             Brand styles ({getBrandSourceLabel(importResult.brandSource)}):
                                         </p>
                                         {importResult.brandFields.map((field, i) => (
                                             <div key={i} className="flex items-center gap-2 text-sm">
-                                                <Check size={14} className="text-[#3fb950] flex-shrink-0" />
-                                                <span className="text-[#c9d1d9]">{field}</span>
+                                                <Check size={14} className="text-[#1a7f37] flex-shrink-0" />
+                                                <span className="text-[#1f2328]">{field}</span>
                                             </div>
                                         ))}
                                     </>
@@ -542,7 +542,7 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
 
                             <button
                                 onClick={onClose}
-                                className="px-6 py-2 bg-[#238636] hover:bg-[#2ea043] rounded-lg text-sm text-white font-medium transition-colors"
+                                className="px-6 py-2 bg-[#1a7f37] hover:bg-[#1a8f3e] rounded-lg text-sm text-white font-medium transition-colors"
                             >
                                 Done
                             </button>
@@ -555,10 +555,10 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                     {phase === 'review' && (
                         <div>
                             <div className="flex items-center justify-between mb-4">
-                                <p className="text-sm text-[#8b949e]">
-                                    Found <span className="text-[#c9d1d9] font-medium">{extractedReqs.length}</span> potential requirements
+                                <p className="text-sm text-[#656d76]">
+                                    Found <span className="text-[#1f2328] font-medium">{extractedReqs.length}</span> potential requirements
                                 </p>
-                                <p className="text-sm text-[#8b949e]">
+                                <p className="text-sm text-[#656d76]">
                                     Selected: {extractedReqs.filter((r) => r.selected).length}
                                 </p>
                             </div>
@@ -568,17 +568,17 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                                     <div
                                         key={i}
                                         onClick={() => toggleSelection(i)}
-                                        className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${req.selected ? 'bg-[#388bfd22] border border-[#388bfd]' : 'bg-[#21262d] hover:bg-[#30363d]'
+                                        className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${req.selected ? 'bg-[#0969da22] border border-[#0969da]' : 'bg-[#eaeef2] hover:bg-[#d0d7de]'
                                             }`}
                                     >
                                         <div
-                                            className={`w-5 h-5 flex-shrink-0 rounded border flex items-center justify-center ${req.selected ? 'bg-[#388bfd] border-[#388bfd]' : 'border-[#30363d]'
+                                            className={`w-5 h-5 flex-shrink-0 rounded border flex items-center justify-center ${req.selected ? 'bg-[#0969da] border-[#0969da]' : 'border-[#d0d7de]'
                                                 }`}
                                         >
                                             {req.selected && <Check size={12} className="text-white" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm text-[#c9d1d9] line-clamp-2">{req.text}</p>
+                                            <p className="text-sm text-[#1f2328] line-clamp-2">{req.text}</p>
                                         </div>
                                         <span className={`px-2 py-0.5 rounded text-xs ${getConfidenceColor(req.confidence)}`}>
                                             {req.confidence}
@@ -590,14 +590,14 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                             <div className="flex justify-end gap-3">
                                 <button
                                     onClick={() => setPhase('upload')}
-                                    className="px-4 py-2 text-sm text-[#8b949e] hover:text-[#c9d1d9] transition-colors"
+                                    className="px-4 py-2 text-sm text-[#656d76] hover:text-[#1f2328] transition-colors"
                                 >
                                     Back
                                 </button>
                                 <button
                                     onClick={handleLegacyImport}
                                     disabled={extractedReqs.filter((r) => r.selected).length === 0}
-                                    className="px-4 py-2 bg-[#238636] hover:bg-[#2ea043] disabled:opacity-50 rounded-lg text-sm text-white font-medium transition-colors"
+                                    className="px-4 py-2 bg-[#1a7f37] hover:bg-[#1a8f3e] disabled:opacity-50 rounded-lg text-sm text-white font-medium transition-colors"
                                 >
                                     Import {extractedReqs.filter((r) => r.selected).length} Requirements
                                 </button>
@@ -608,24 +608,24 @@ export default function ImportModal({ isOpen, onClose }: ImportModalProps) {
                     {/* Legacy Importing Phase */}
                     {phase === 'importing' && (
                         <div className="text-center py-12">
-                            <Loader2 size={48} className="mx-auto text-[#388bfd] animate-spin mb-4" />
-                            <p className="text-[#c9d1d9]">Importing requirements...</p>
+                            <Loader2 size={48} className="mx-auto text-[#0969da] animate-spin mb-4" />
+                            <p className="text-[#1f2328]">Importing requirements...</p>
                         </div>
                     )}
 
                     {/* Legacy Done Phase */}
                     {phase === 'done' && (
                         <div className="text-center py-12">
-                            <div className="w-16 h-16 mx-auto bg-[#3fb95022] rounded-full flex items-center justify-center mb-4">
-                                <Check size={32} className="text-[#3fb950]" />
+                            <div className="w-16 h-16 mx-auto bg-[#1a7f3722] rounded-full flex items-center justify-center mb-4">
+                                <Check size={32} className="text-[#1a7f37]" />
                             </div>
-                            <p className="text-[#c9d1d9] mb-2">Import Complete!</p>
-                            <p className="text-sm text-[#8b949e] mb-6">
+                            <p className="text-[#1f2328] mb-2">Import Complete!</p>
+                            <p className="text-sm text-[#656d76] mb-6">
                                 {extractedReqs.filter((r) => r.selected).length} requirements imported
                             </p>
                             <button
                                 onClick={onClose}
-                                className="px-6 py-2 bg-[#238636] hover:bg-[#2ea043] rounded-lg text-sm text-white font-medium transition-colors"
+                                className="px-6 py-2 bg-[#1a7f37] hover:bg-[#1a8f3e] rounded-lg text-sm text-white font-medium transition-colors"
                             >
                                 Done
                             </button>

@@ -37,20 +37,20 @@ function NumberInput({
         <div className="flex items-center gap-1">
             <button
                 onClick={() => onChange(Math.max(min, +(value - step).toFixed(2)))}
-                className="w-7 h-7 flex items-center justify-center bg-[#21262d] hover:bg-[#30363d] rounded transition-colors"
+                className="w-7 h-7 flex items-center justify-center bg-[#eaeef2] hover:bg-[#d0d7de] rounded transition-colors"
             >
-                <Minus size={12} className="text-[#8b949e]" />
+                <Minus size={12} className="text-[#656d76]" />
             </button>
-            <div className="w-12 h-7 flex items-center justify-center bg-[#21262d] rounded text-sm text-[#c9d1d9]">
+            <div className="w-12 h-7 flex items-center justify-center bg-[#eaeef2] rounded text-sm text-[#1f2328]">
                 {step < 1 ? value.toFixed(1) : value}
             </div>
             <button
                 onClick={() => onChange(Math.min(max, +(value + step).toFixed(2)))}
-                className="w-7 h-7 flex items-center justify-center bg-[#21262d] hover:bg-[#30363d] rounded transition-colors"
+                className="w-7 h-7 flex items-center justify-center bg-[#eaeef2] hover:bg-[#d0d7de] rounded transition-colors"
             >
-                <Plus size={12} className="text-[#8b949e]" />
+                <Plus size={12} className="text-[#656d76]" />
             </button>
-            {unit && <span className="text-xs text-[#8b949e] ml-1">{unit}</span>}
+            {unit && <span className="text-xs text-[#656d76] ml-1">{unit}</span>}
         </div>
     );
 }
@@ -137,8 +137,8 @@ export default function RightSidebar() {
     const presetClass = (key: string) =>
         `flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-left ${
             activeStyle === key
-                ? 'bg-[#388bfd]'
-                : 'bg-[#21262d] hover:bg-[#30363d]'
+                ? 'bg-[#3fb950]'
+                : 'bg-[#eaeef2] hover:bg-[#d0d7de]'
         }`;
 
     // Handle preset — applies heading/paragraph/docStyle to current block
@@ -217,20 +217,20 @@ export default function RightSidebar() {
     }, [scanTrigger]);
 
     const getScoreColor = (score: number) => {
-        if (score >= 80) return 'text-[#3fb950]';
-        if (score >= 50) return 'text-[#d29922]';
-        return 'text-[#f85149]';
+        if (score >= 80) return 'text-[#1a7f37]';
+        if (score >= 50) return 'text-[#9a6700]';
+        return 'text-[#cf222e]';
     };
 
     return (
-        <aside className="w-[280px] min-w-[280px] flex-shrink-0 bg-[#161b22] border-l border-[#30363d] flex flex-col h-full">
+        <aside className="w-[280px] min-w-[280px] flex-shrink-0 bg-[#f6f8fa] border-l border-[#d0d7de] flex flex-col h-full">
             {/* Tabs */}
-            <div className="flex border-b border-[#21262d]">
+            <div className="flex border-b border-[#eaeef2]">
                 <button
                     onClick={() => setActiveTab('scan')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors ${activeTab === 'scan'
-                        ? 'text-[#388bfd] border-b-2 border-[#388bfd]'
-                        : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                        ? 'text-[#3fb950] border-b-2 border-[#3fb950]'
+                        : 'text-[#656d76] hover:text-[#1f2328]'
                         }`}
                 >
                     <Sparkles size={12} />
@@ -239,8 +239,8 @@ export default function RightSidebar() {
                 <button
                     onClick={() => setActiveTab('styles')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors ${activeTab === 'styles'
-                        ? 'text-[#388bfd] border-b-2 border-[#388bfd]'
-                        : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                        ? 'text-[#3fb950] border-b-2 border-[#3fb950]'
+                        : 'text-[#656d76] hover:text-[#1f2328]'
                         }`}
                 >
                     <Type size={12} />
@@ -249,8 +249,8 @@ export default function RightSidebar() {
                 <button
                     onClick={() => setActiveTab('sources')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors ${activeTab === 'sources'
-                        ? 'text-[#388bfd] border-b-2 border-[#388bfd]'
-                        : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                        ? 'text-[#3fb950] border-b-2 border-[#3fb950]'
+                        : 'text-[#656d76] hover:text-[#1f2328]'
                         }`}
                 >
                     <BookOpen size={12} />
@@ -262,10 +262,10 @@ export default function RightSidebar() {
             <div className="flex-1 p-4 overflow-y-auto sidebar-scroll">
                 {activeTab === 'scan' && (
                     <div>
-                        <h3 className="text-sm font-semibold text-[#c9d1d9] mb-3">
+                        <h3 className="text-sm font-semibold text-[#1f2328] mb-3">
                             Quality Scanner
                         </h3>
-                        <p className="text-xs text-[#8b949e] mb-4">
+                        <p className="text-xs text-[#656d76] mb-4">
                             Analyze document for quality and completeness
                         </p>
 
@@ -273,11 +273,11 @@ export default function RightSidebar() {
                         {!hasContent && sources.length === 0 ? (
                             // Empty state - no content and no sources
                             <div className="text-center py-8">
-                                <div className="w-12 h-12 mx-auto bg-[#21262d] rounded-full flex items-center justify-center mb-4">
-                                    <Sparkles size={20} className="text-[#8b949e]" />
+                                <div className="w-12 h-12 mx-auto bg-[#eaeef2] rounded-full flex items-center justify-center mb-4">
+                                    <Sparkles size={20} className="text-[#656d76]" />
                                 </div>
-                                <p className="text-sm text-[#8b949e] mb-2">No content to scan</p>
-                                <p className="text-xs text-[#6e7681]">
+                                <p className="text-sm text-[#656d76] mb-2">No content to scan</p>
+                                <p className="text-xs text-[#9198a1]">
                                     Import an RFP or start writing to enable scanning
                                 </p>
                             </div>
@@ -286,7 +286,7 @@ export default function RightSidebar() {
                                 <button
                                     onClick={runScan}
                                     disabled={isScanning}
-                                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#238636] hover:bg-[#2ea043] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm text-white font-medium transition-colors"
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#1a7f37] hover:bg-[#1a8f3e] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm text-white font-medium transition-colors"
                                 >
                                     {isScanning ? (
                                         <>
@@ -303,8 +303,8 @@ export default function RightSidebar() {
 
                                 {scanResult && (
                                     <div className="mt-4 space-y-3">
-                                        <div className="flex items-center justify-between p-3 bg-[#21262d] rounded-lg">
-                                            <span className="text-sm text-[#8b949e]">Quality Score</span>
+                                        <div className="flex items-center justify-between p-3 bg-[#eaeef2] rounded-lg">
+                                            <span className="text-sm text-[#656d76]">Quality Score</span>
                                             <span className={`text-2xl font-bold ${getScoreColor(scanResult.score)}`}>
                                                 {scanResult.score}%
                                             </span>
@@ -312,11 +312,11 @@ export default function RightSidebar() {
 
                                         <div className="space-y-2">
                                             {scanResult.issues.map((issue, i) => (
-                                                <div key={i} className="flex items-start gap-2 p-2 rounded bg-[#21262d]">
-                                                    {issue.type === 'success' && <CheckCircle size={14} className="text-[#3fb950] mt-0.5" />}
-                                                    {issue.type === 'warning' && <AlertTriangle size={14} className="text-[#d29922] mt-0.5" />}
-                                                    {issue.type === 'error' && <XCircle size={14} className="text-[#f85149] mt-0.5" />}
-                                                    <span className="text-xs text-[#c9d1d9]">{issue.message}</span>
+                                                <div key={i} className="flex items-start gap-2 p-2 rounded bg-[#eaeef2]">
+                                                    {issue.type === 'success' && <CheckCircle size={14} className="text-[#1a7f37] mt-0.5" />}
+                                                    {issue.type === 'warning' && <AlertTriangle size={14} className="text-[#9a6700] mt-0.5" />}
+                                                    {issue.type === 'error' && <XCircle size={14} className="text-[#cf222e] mt-0.5" />}
+                                                    <span className="text-xs text-[#1f2328]">{issue.message}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -332,25 +332,25 @@ export default function RightSidebar() {
                         {/* TYPOGRAPHY Section */}
                         <div>
                             <div className="flex items-center gap-2 mb-4">
-                                <Type size={14} className="text-[#8b949e]" />
-                                <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wide">Typography</span>
+                                <Type size={14} className="text-[#656d76]" />
+                                <span className="text-xs font-semibold text-[#656d76] uppercase tracking-wide">Typography</span>
                             </div>
 
                             {/* Font Picker */}
                             <div className="mb-3">
-                                <span className="text-sm text-[#c9d1d9] block mb-1.5">Font</span>
+                                <span className="text-sm text-[#1f2328] block mb-1.5">Font</span>
                                 <FontPicker editor={editor} />
                             </div>
 
                             {/* Size */}
                             <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm text-[#c9d1d9]">Size</span>
+                                <span className="text-sm text-[#1f2328]">Size</span>
                                 <NumberInput value={fontSize} onChange={setFontSize} min={8} max={72} step={1} />
                             </div>
 
                             {/* Line Height */}
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-[#c9d1d9]">↕ Line Height</span>
+                                <span className="text-sm text-[#1f2328]">↕ Line Height</span>
                                 <NumberInput value={lineHeight} onChange={setLineHeight} min={1} max={3} step={0.1} />
                             </div>
                         </div>
@@ -358,77 +358,77 @@ export default function RightSidebar() {
                         {/* SPACING Section */}
                         <div>
                             <div className="flex items-center gap-2 mb-4">
-                                <span className="text-[#8b949e]">↔</span>
-                                <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wide">Spacing</span>
+                                <span className="text-[#656d76]">↔</span>
+                                <span className="text-xs font-semibold text-[#656d76] uppercase tracking-wide">Spacing</span>
                             </div>
 
                             {/* Space Before */}
                             <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm text-[#c9d1d9]">Space Before</span>
+                                <span className="text-sm text-[#1f2328]">Space Before</span>
                                 <NumberInput value={spaceBefore} onChange={setSpaceBefore} min={0} max={100} step={4} unit="pt" />
                             </div>
 
                             {/* Space After */}
                             <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm text-[#c9d1d9]">Space After</span>
+                                <span className="text-sm text-[#1f2328]">Space After</span>
                                 <NumberInput value={spaceAfter} onChange={setSpaceAfter} min={0} max={100} step={4} unit="pt" />
                             </div>
 
                             {/* First Line Indent */}
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-[#c9d1d9]">≡ First Line Indent</span>
+                                <span className="text-sm text-[#1f2328]">≡ First Line Indent</span>
                                 <NumberInput value={firstLineIndent} onChange={setFirstLineIndent} min={0} max={2} step={0.25} unit="in" />
                             </div>
                         </div>
 
                         {/* PRESETS Section */}
                         <div>
-                            <span className="text-xs font-semibold text-[#8b949e] uppercase tracking-wide block mb-3">Presets</span>
+                            <span className="text-xs font-semibold text-[#656d76] uppercase tracking-wide block mb-3">Presets</span>
                             <div className="flex flex-col gap-1">
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('title')}
                                     className={presetClass('Title')} title="Title — 32pt Bold">
-                                    <span className="text-[13px] font-bold" style={{ fontFamily, color: activeStyle === 'Title' ? '#fff' : '#c9d1d9' }}>Title</span>
-                                    <span className={`text-xs ${activeStyle === 'Title' ? 'text-blue-200' : 'text-[#8b949e]'}`}>32pt Bold</span>
+                                    <span className="text-[13px] font-bold" style={{ fontFamily, color: activeStyle === 'Title' ? '#fff' : '#1f2328' }}>Title</span>
+                                    <span className={`text-xs ${activeStyle === 'Title' ? 'text-green-100' : 'text-[#656d76]'}`}>32pt Bold</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('subtitle')}
                                     className={presetClass('Subtitle')} title="Subtitle — 14pt Italic">
-                                    <span className="text-[12px] italic" style={{ fontFamily, color: activeStyle === 'Subtitle' ? '#fff' : '#c9d1d9' }}>Subtitle</span>
-                                    <span className={`text-xs ${activeStyle === 'Subtitle' ? 'text-blue-200' : 'text-[#8b949e]'}`}>14pt Italic</span>
+                                    <span className="text-[12px] italic" style={{ fontFamily, color: activeStyle === 'Subtitle' ? '#fff' : '#1f2328' }}>Subtitle</span>
+                                    <span className={`text-xs ${activeStyle === 'Subtitle' ? 'text-green-100' : 'text-[#656d76]'}`}>14pt Italic</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h1')}
                                     className={presetClass('H1')}>
                                     <span className="text-[15px] font-bold" style={{ color: activeStyle === 'H1' ? '#fff' : '#13818A' }}>H1</span>
-                                    <span className={`text-xs ${activeStyle === 'H1' ? 'text-blue-200' : 'text-[#8b949e]'}`}>16pt Bold</span>
+                                    <span className={`text-xs ${activeStyle === 'H1' ? 'text-green-100' : 'text-[#656d76]'}`}>16pt Bold</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h2')}
                                     className={presetClass('H2')}>
-                                    <span className={`text-[13px] font-bold ${activeStyle === 'H2' ? 'text-white' : 'text-[#c9d1d9]'}`}>H2</span>
-                                    <span className={`text-xs ${activeStyle === 'H2' ? 'text-blue-200' : 'text-[#8b949e]'}`}>14pt Bold</span>
+                                    <span className={`text-[13px] font-bold ${activeStyle === 'H2' ? 'text-white' : 'text-[#1f2328]'}`}>H2</span>
+                                    <span className={`text-xs ${activeStyle === 'H2' ? 'text-green-100' : 'text-[#656d76]'}`}>14pt Bold</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h3')}
                                     className={presetClass('H3')}>
-                                    <span className={`text-[12px] font-bold italic ${activeStyle === 'H3' ? 'text-white' : 'text-[#c9d1d9]'}`}>H3</span>
-                                    <span className={`text-xs ${activeStyle === 'H3' ? 'text-blue-200' : 'text-[#8b949e]'}`}>13pt Bold Italic</span>
+                                    <span className={`text-[12px] font-bold italic ${activeStyle === 'H3' ? 'text-white' : 'text-[#1f2328]'}`}>H3</span>
+                                    <span className={`text-xs ${activeStyle === 'H3' ? 'text-green-100' : 'text-[#656d76]'}`}>13pt Bold Italic</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h4')}
                                     className={presetClass('H4')}>
-                                    <span className={`text-[11px] ${activeStyle === 'H4' ? 'text-white' : 'text-[#c9d1d9]'}`}>H4</span>
-                                    <span className={`text-xs ${activeStyle === 'H4' ? 'text-blue-200' : 'text-[#8b949e]'}`}>11pt Callout</span>
+                                    <span className={`text-[11px] ${activeStyle === 'H4' ? 'text-white' : 'text-[#1f2328]'}`}>H4</span>
+                                    <span className={`text-xs ${activeStyle === 'H4' ? 'text-green-100' : 'text-[#656d76]'}`}>11pt Callout</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h5')}
                                     className={presetClass('H5')}>
-                                    <span className={`text-[12px] ${activeStyle === 'H5' ? 'text-white' : 'text-[#c9d1d9]'}`}>H5</span>
-                                    <span className={`text-xs ${activeStyle === 'H5' ? 'text-blue-200' : 'text-[#8b949e]'}`}>12pt Lead</span>
+                                    <span className={`text-[12px] ${activeStyle === 'H5' ? 'text-white' : 'text-[#1f2328]'}`}>H5</span>
+                                    <span className={`text-xs ${activeStyle === 'H5' ? 'text-green-100' : 'text-[#656d76]'}`}>12pt Lead</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('h6')}
                                     className={presetClass('H6')}>
-                                    <span className={`text-[10px] italic ${activeStyle === 'H6' ? 'text-white' : 'text-[#8b949e]'}`}>H6</span>
-                                    <span className={`text-xs ${activeStyle === 'H6' ? 'text-blue-200' : 'text-[#8b949e]'}`}>10pt Caption</span>
+                                    <span className={`text-[10px] italic ${activeStyle === 'H6' ? 'text-white' : 'text-[#656d76]'}`}>H6</span>
+                                    <span className={`text-xs ${activeStyle === 'H6' ? 'text-green-100' : 'text-[#656d76]'}`}>10pt Caption</span>
                                 </button>
                                 <button onMouseDown={(e) => e.preventDefault()} onClick={() => handlePreset('body')}
                                     className={presetClass('Body')}>
-                                    <span className={`text-[12px] font-medium ${activeStyle === 'Body' ? 'text-white' : 'text-[#c9d1d9]'}`}>Body</span>
-                                    <span className={`text-xs ${activeStyle === 'Body' ? 'text-blue-200' : 'text-[#8b949e]'}`}>12pt Regular</span>
+                                    <span className={`text-[12px] font-medium ${activeStyle === 'Body' ? 'text-white' : 'text-[#1f2328]'}`}>Body</span>
+                                    <span className={`text-xs ${activeStyle === 'Body' ? 'text-green-100' : 'text-[#656d76]'}`}>12pt Regular</span>
                                 </button>
                             </div>
                         </div>
@@ -437,12 +437,12 @@ export default function RightSidebar() {
 
                 {activeTab === 'sources' && (
                     <div>
-                        <h3 className="text-sm font-semibold text-[#c9d1d9] mb-3">
+                        <h3 className="text-sm font-semibold text-[#1f2328] mb-3">
                             Source Documents
                         </h3>
 
                         {sources.length === 0 ? (
-                            <p className="text-xs text-[#8b949e]">
+                            <p className="text-xs text-[#656d76]">
                                 No sources added yet. Import an RFP to get started.
                             </p>
                         ) : (
@@ -450,23 +450,23 @@ export default function RightSidebar() {
                                 {sources.map((source) => (
                                     <div
                                         key={source.id}
-                                        className="flex items-start gap-3 p-3 bg-[#21262d] rounded-lg group"
+                                        className="flex items-start gap-3 p-3 bg-[#eaeef2] rounded-lg group"
                                     >
-                                        <FileText size={16} className="text-[#388bfd] mt-0.5" />
+                                        <FileText size={16} className="text-[#3fb950] mt-0.5" />
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm text-[#c9d1d9] truncate">
+                                            <p className="text-sm text-[#1f2328] truncate">
                                                 {source.filename}
                                             </p>
-                                            <p className="text-xs text-[#8b949e]">
+                                            <p className="text-xs text-[#656d76]">
                                                 {formatSize(source.fileSize)} · {source.requirementCount} requirements
                                             </p>
                                         </div>
                                         <button
                                             onClick={() => removeSource(source.id)}
-                                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#f8514922] rounded transition-all"
+                                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#cf222e22] rounded transition-all"
                                             title="Remove source"
                                         >
-                                            <Trash2 size={14} className="text-[#f85149]" />
+                                            <Trash2 size={14} className="text-[#cf222e]" />
                                         </button>
                                     </div>
                                 ))}

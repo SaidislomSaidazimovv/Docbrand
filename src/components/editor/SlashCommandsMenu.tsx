@@ -62,16 +62,16 @@ const SlashCommandsMenu = forwardRef<SlashCommandsMenuRef, SlashCommandsMenuProp
 
         if (items.length === 0) {
             return (
-                <div className="bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl p-3 min-w-[220px]">
-                    <p className="text-sm text-[#8b949e]">No commands found</p>
+                <div className="bg-[#f6f8fa] border border-[#d0d7de] rounded-lg shadow-xl p-3 min-w-[220px]">
+                    <p className="text-sm text-[#656d76]">No commands found</p>
                 </div>
             );
         }
 
         return (
-            <div className="bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl overflow-hidden min-w-[280px]">
-                <div className="p-2 border-b border-[#30363d]">
-                    <p className="text-xs text-[#8b949e] uppercase tracking-wide">Basic blocks</p>
+            <div className="bg-[#f6f8fa] border border-[#d0d7de] rounded-lg shadow-xl overflow-hidden min-w-[280px]">
+                <div className="p-2 border-b border-[#d0d7de]">
+                    <p className="text-xs text-[#656d76] uppercase tracking-wide">Basic blocks</p>
                 </div>
                 <div className="max-h-[300px] overflow-y-auto">
                     {items.map((item, index) => (
@@ -79,19 +79,19 @@ const SlashCommandsMenu = forwardRef<SlashCommandsMenuRef, SlashCommandsMenuProp
                             key={item.title}
                             onClick={() => selectItem(index)}
                             className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${index === selectedIndex
-                                    ? 'bg-[#388bfd22] text-[#c9d1d9]'
-                                    : 'text-[#8b949e] hover:bg-[#21262d]'
+                                    ? 'bg-[#0969da22] text-[#1f2328]'
+                                    : 'text-[#656d76] hover:bg-[#eaeef2]'
                                 }`}
                         >
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-mono ${index === selectedIndex
-                                    ? 'bg-[#388bfd] text-white'
-                                    : 'bg-[#21262d] text-[#8b949e]'
+                                    ? 'bg-[#0969da] text-white'
+                                    : 'bg-[#eaeef2] text-[#656d76]'
                                 }`}>
                                 {item.icon}
                             </div>
                             <div>
                                 <p className="font-medium text-sm">{item.title}</p>
-                                <p className="text-xs text-[#6e7681]">{item.description}</p>
+                                <p className="text-xs text-[#9198a1]">{item.description}</p>
                             </div>
                         </button>
                     ))}

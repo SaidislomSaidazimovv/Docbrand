@@ -209,7 +209,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                   p  { font-size: ${fontSize}pt; font-weight: 400; line-height: ${lineHeight}; margin-top: ${spaceBefore}pt; margin-bottom: ${spaceAfter}pt; color: ${bodyColor}; }
                   p[data-doc-style="title"] { font-size: ${titleFontSize}pt; font-weight: 700; line-height: ${titleLineHeight}; margin-top: ${titleSpaceBefore}pt; margin-bottom: ${titleSpaceAfter}pt; color: ${titleColor}; }
                   p[data-doc-style="subtitle"] { font-size: ${subtitleFontSize}pt; font-weight: 400; font-style: italic; line-height: ${subtitleLineHeight}; margin-top: ${subtitleSpaceBefore}pt; margin-bottom: ${subtitleSpaceAfter}pt; color: ${subtitleColor}; }
-                  div[data-callout-type] { border: 1px solid #d1d5db; border-left: 4px solid #3b82f6; border-radius: 6px; padding: 8px 12px !important; margin: 8px 0; background: #f0f7ff; line-height: 1.4 !important; }
+                  div[data-callout-type] { border: 1px solid #d1d5db; border-left: 4px solid #3fb950; border-radius: 6px; padding: 8px 12px !important; margin: 8px 0; background: #f0f7ff; line-height: 1.4 !important; }
                   div[data-callout-type="warning"] { border-left-color: #eab308; background: #fefce8; }
                   div[data-callout-type="success"] { border-left-color: #22c55e; background: #f0fdf4; }
                   div[data-callout-type="tip"] { border-left-color: #a855f7; background: #faf5ff; }
@@ -1126,8 +1126,8 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                         <>
                             {/* Icon */}
                             <div className="flex justify-center mb-4">
-                                <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center">
-                                    <FileText size={28} className="text-emerald-500" />
+                                <div className="w-14 h-14 bg-[#3fb95015] rounded-full flex items-center justify-center">
+                                    <FileText size={28} className="text-[#3fb950]" />
                                 </div>
                             </div>
 
@@ -1141,7 +1141,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                     type="text"
                                     value={fileName}
                                     onChange={(e) => setFileName(e.target.value)}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-[#3fb950] focus:ring-2 focus:ring-[#3fb95030]"
                                     placeholder="Enter file name"
                                 />
                             </div>
@@ -1151,11 +1151,11 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                 <button
                                     onClick={() => setSelectedFormat('pdf')}
                                     className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${selectedFormat === 'pdf'
-                                        ? 'bg-emerald-50 border-emerald-400'
+                                        ? 'bg-[#3fb95015] border-[#3fb950]'
                                         : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
-                                    <FileText size={20} className={selectedFormat === 'pdf' ? 'text-emerald-500' : 'text-red-500'} />
+                                    <FileText size={20} className={selectedFormat === 'pdf' ? 'text-[#3fb950]' : 'text-red-500'} />
                                     <div className="text-left">
                                         <p className="text-sm font-medium text-gray-800">PDF</p>
                                         <p className="text-xs text-gray-500">Best for sharing</p>
@@ -1165,11 +1165,11 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                 <button
                                     onClick={() => setSelectedFormat('docx')}
                                     className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${selectedFormat === 'docx'
-                                        ? 'bg-emerald-50 border-emerald-400'
+                                        ? 'bg-[#3fb95015] border-[#3fb950]'
                                         : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
-                                    <FileText size={20} className={selectedFormat === 'docx' ? 'text-emerald-500' : 'text-blue-500'} />
+                                    <FileText size={20} className={selectedFormat === 'docx' ? 'text-[#3fb950]' : 'text-[#9198a1]'} />
                                     <div className="text-left">
                                         <p className="text-sm font-medium text-gray-800">DOCX</p>
                                         <p className="text-xs text-gray-500">For editing</p>
@@ -1181,7 +1181,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             <button
                                 onClick={handleExport}
                                 disabled={!fileName.trim()}
-                                className="w-full flex items-center justify-center gap-2 py-3.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 rounded-xl text-white font-medium transition-colors"
+                                className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#3fb950] hover:bg-[#4cc764] disabled:opacity-50 rounded-xl text-white font-medium transition-colors"
                             >
                                 <Download size={18} />
                                 Export as {selectedFormat.toUpperCase()}
@@ -1201,8 +1201,8 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             )}
 
                             <div className="flex justify-center mb-4">
-                                <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center">
-                                    <FileText size={28} className="text-emerald-500" />
+                                <div className="w-14 h-14 bg-[#3fb95015] rounded-full flex items-center justify-center">
+                                    <FileText size={28} className="text-[#3fb950]" />
                                 </div>
                             </div>
 
@@ -1212,7 +1212,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             {/* Progress Bar */}
                             <div className="h-1.5 bg-gray-100 rounded-full mb-6 overflow-hidden">
                                 <div
-                                    className="h-full bg-emerald-500 transition-all duration-500"
+                                    className="h-full bg-[#3fb950] transition-all duration-500"
                                     style={{ width: `${(steps.filter(s => s.completed).length / steps.length) * 100}%` }}
                                 />
                             </div>
@@ -1222,12 +1222,12 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                 {steps.map((step) => (
                                     <div key={step.id} className="flex items-center gap-3">
                                         <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${step.completed
-                                            ? 'bg-emerald-500'
+                                            ? 'bg-[#3fb950]'
                                             : 'bg-gray-200'
                                             }`}>
                                             {step.completed && <Check size={12} className="text-white" />}
                                         </div>
-                                        <span className={`text-sm ${step.completed ? 'text-emerald-600' : 'text-gray-500'}`}>
+                                        <span className={`text-sm ${step.completed ? 'text-[#3fb950]' : 'text-gray-500'}`}>
                                             {step.label}
                                         </span>
                                     </div>
@@ -1248,8 +1248,8 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             )}
 
                             <div className="flex justify-center mb-4">
-                                <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center">
-                                    <FileText size={28} className="text-emerald-500" />
+                                <div className="w-14 h-14 bg-[#3fb95015] rounded-full flex items-center justify-center">
+                                    <FileText size={28} className="text-[#3fb950]" />
                                 </div>
                             </div>
 
@@ -1257,16 +1257,16 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             <p className="text-gray-500 text-sm text-center mb-6">Your document is ready to download</p>
 
                             {/* Progress Bar Complete */}
-                            <div className="h-1.5 bg-emerald-500 rounded-full mb-6" />
+                            <div className="h-1.5 bg-[#3fb950] rounded-full mb-6" />
 
                             {/* Steps - All Complete */}
                             <div className="space-y-3 mb-6">
                                 {steps.map((step) => (
                                     <div key={step.id} className="flex items-center gap-3">
-                                        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                                        <div className="w-5 h-5 rounded-full bg-[#3fb950] flex items-center justify-center">
                                             <Check size={12} className="text-white" />
                                         </div>
-                                        <span className="text-sm text-emerald-600">{step.label}</span>
+                                        <span className="text-sm text-[#3fb950]">{step.label}</span>
                                     </div>
                                 ))}
                             </div>
@@ -1274,7 +1274,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             {/* Download Button */}
                             <button
                                 onClick={handleDownload}
-                                className="w-full flex items-center justify-center gap-2 py-3.5 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-white font-medium transition-colors"
+                                className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#3fb950] hover:bg-[#4cc764] rounded-xl text-white font-medium transition-colors"
                             >
                                 <Download size={18} />
                                 Download File

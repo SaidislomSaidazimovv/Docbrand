@@ -22,12 +22,12 @@ interface AlignmentButtonsProps {
 
 function AlignmentButtons({ value, onChange }: AlignmentButtonsProps) {
     return (
-        <div className="flex rounded-lg overflow-hidden border border-[#30363d]">
+        <div className="flex rounded-lg overflow-hidden border border-[#d0d7de]">
             {(['left', 'center', 'right'] as Alignment[]).map((align) => (
                 <button
                     key={align}
                     onClick={() => onChange(align)}
-                    className={`p-2 transition-colors ${value === align ? 'bg-[#388bfd] text-white' : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'}`}
+                    className={`p-2 transition-colors ${value === align ? 'bg-[#3fb950] text-white' : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'}`}
                 >
                     {align === 'left' && <AlignLeft size={16} />}
                     {align === 'center' && <AlignCenter size={16} />}
@@ -47,7 +47,7 @@ interface DistributionToggleProps {
 function DistributionToggle({ value, onChange }: DistributionToggleProps) {
     return (
         <div>
-            <p className="text-xs font-medium text-[#8b949e] uppercase tracking-wide mb-2">Distribution</p>
+            <p className="text-xs font-medium text-[#656d76] uppercase tracking-wide mb-2">Distribution</p>
             <div className="flex gap-2">
                 {([
                     { value: 'gap' as Distribution, label: 'Gap' },
@@ -58,8 +58,8 @@ function DistributionToggle({ value, onChange }: DistributionToggleProps) {
                         key={opt.value}
                         onClick={() => onChange(opt.value)}
                         className={`px-3 py-1 rounded text-xs transition-colors ${value === opt.value
-                            ? 'bg-[#388bfd] text-white'
-                            : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'
+                            ? 'bg-[#3fb950] text-white'
+                            : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'
                             }`}
                     >
                         {opt.label}
@@ -82,18 +82,18 @@ interface SpacingInputProps {
 function SpacingInput({ label, value, onChange, min = 0, max = 120 }: SpacingInputProps) {
     return (
         <div className="flex items-center justify-between">
-            <span className="text-xs text-[#8b949e]">{label}</span>
+            <span className="text-xs text-[#656d76]">{label}</span>
             <div className="flex items-center gap-1">
                 <button
                     onClick={() => onChange(Math.max(min, value - 4))}
-                    className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                    className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                 >−</button>
-                <span className="w-10 text-center text-xs text-[#c9d1d9]">
+                <span className="w-10 text-center text-xs text-[#1f2328]">
                     {value}px
                 </span>
                 <button
                     onClick={() => onChange(Math.min(max, value + 4))}
-                    className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                    className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                 >+</button>
             </div>
         </div>
@@ -125,7 +125,7 @@ function SortablePreviewElement({ id, children, onClick, isSelected }: SortableP
                 transform: CSS.Transform.toString(transform),
                 transition,
                 cursor: 'grab',
-                outline: isSelected ? '2px solid #388bfd' : '1px dashed transparent',
+                outline: isSelected ? '2px solid #3fb950' : '1px dashed transparent',
                 outlineOffset: '2px',
                 borderRadius: '4px',
                 padding: '2px 4px',
@@ -138,7 +138,7 @@ function SortablePreviewElement({ id, children, onClick, isSelected }: SortableP
                 e.stopPropagation();
                 onClick();
             }}
-            className="hover:outline-[#30363d] hover:outline-dashed hover:outline-1"
+            className="hover:outline-[#d0d7de] hover:outline-dashed hover:outline-1"
         >
             {children}
         </div>
@@ -155,40 +155,40 @@ interface ElementStyleEditorProps {
 
 function ElementStyleEditor({ label, style, onChange, onClose }: ElementStyleEditorProps) {
     return (
-        <div className="mt-3 p-3 bg-[#161b22] rounded-lg border border-[#30363d]">
+        <div className="mt-3 p-3 bg-[#f6f8fa] rounded-lg border border-[#d0d7de]">
             <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-medium text-[#8b949e] uppercase tracking-wide">
+                <p className="text-xs font-medium text-[#656d76] uppercase tracking-wide">
                     Style: {label}
                 </p>
                 <button
                     onClick={onClose}
-                    className="p-0.5 hover:bg-[#21262d] rounded transition-colors"
+                    className="p-0.5 hover:bg-[#eaeef2] rounded transition-colors"
                 >
-                    <X size={12} className="text-[#8b949e]" />
+                    <X size={12} className="text-[#656d76]" />
                 </button>
             </div>
 
             {/* Font size */}
             <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-[#8b949e]">Size</span>
+                <span className="text-xs text-[#656d76]">Size</span>
                 <div className="flex items-center gap-1">
                     <button
                         onClick={() => onChange({ fontSize: Math.max(8, style.fontSize - 1) })}
-                        className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                        className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                     >−</button>
-                    <span className="text-xs text-[#c9d1d9] w-10 text-center">
+                    <span className="text-xs text-[#1f2328] w-10 text-center">
                         {style.fontSize}px
                     </span>
                     <button
                         onClick={() => onChange({ fontSize: Math.min(32, style.fontSize + 1) })}
-                        className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                        className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                     >+</button>
                 </div>
             </div>
 
             {/* Color */}
             <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-[#8b949e]">Color</span>
+                <span className="text-xs text-[#656d76]">Color</span>
                 <input
                     type="color"
                     value={style.color}
@@ -202,8 +202,8 @@ function ElementStyleEditor({ label, style, onChange, onClose }: ElementStyleEdi
                 <button
                     onClick={() => onChange({ bold: !style.bold })}
                     className={`px-3 py-1 rounded text-xs font-bold transition-colors ${style.bold
-                        ? 'bg-[#388bfd] text-white'
-                        : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'
+                        ? 'bg-[#3fb950] text-white'
+                        : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'
                         }`}
                 >
                     B
@@ -211,8 +211,8 @@ function ElementStyleEditor({ label, style, onChange, onClose }: ElementStyleEdi
                 <button
                     onClick={() => onChange({ italic: !style.italic })}
                     className={`px-3 py-1 rounded text-xs italic transition-colors ${style.italic
-                        ? 'bg-[#388bfd] text-white'
-                        : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'
+                        ? 'bg-[#3fb950] text-white'
+                        : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'
                         }`}
                 >
                     I
@@ -585,27 +585,27 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
 
     return (
         <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm modal-overlay ${isOpen ? 'modal-open' : ''}`}>
-            <div className="w-full max-w-4xl max-h-[90vh] bg-[#161b22] rounded-xl shadow-2xl border border-[#30363d] flex flex-col overflow-hidden modal-panel">
+            <div className="w-full max-w-4xl max-h-[90vh] bg-[#f6f8fa] rounded-xl shadow-2xl border border-[#d0d7de] flex flex-col overflow-hidden modal-panel">
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363d]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[#d0d7de]">
                     <div className="flex items-center gap-3">
-                        <h2 className="text-lg font-semibold text-[#c9d1d9]">Edit Header & Footer</h2>
+                        <h2 className="text-lg font-semibold text-[#1f2328]">Edit Header & Footer</h2>
                         <button
                             onClick={() => setShowPreview(!showPreview)}
-                            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors ${showPreview ? 'bg-[#388bfd] text-white' : 'bg-[#21262d] text-[#8b949e]'
+                            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors ${showPreview ? 'bg-[#3fb950] text-white' : 'bg-[#eaeef2] text-[#656d76]'
                                 }`}
                         >
                             <Eye size={12} />
                             Preview
                         </button>
                     </div>
-                    <button onClick={onClose} className="p-1 hover:bg-[#21262d] rounded transition-colors">
-                        <X size={18} className="text-[#8b949e]" />
+                    <button onClick={onClose} className="p-1 hover:bg-[#eaeef2] rounded transition-colors">
+                        <X size={18} className="text-[#656d76]" />
                     </button>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-[#21262d]">
+                <div className="flex border-b border-[#eaeef2]">
                     {(['header', 'footer', 'templates'] as Tab[]).map((tab) => (
                         <button
                             key={tab}
@@ -614,8 +614,8 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                 setSelectedElement(null);
                             }}
                             className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${activeTab === tab
-                                    ? 'text-[#388bfd] border-b-2 border-[#388bfd]'
-                                    : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                                    ? 'text-[#3fb950] border-b-2 border-[#3fb950]'
+                                    : 'text-[#656d76] hover:text-[#1f2328]'
                                 }`}
                         >
                             {tab === 'templates' && <LayoutTemplate size={14} />}
@@ -633,7 +633,7 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                 <>
                                     {/* Company Name */}
                                     <div>
-                                        <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">
+                                        <label className="flex items-center gap-2 text-sm text-[#656d76] mb-2">
                                             <Building2 size={14} />
                                             Company Name
                                         </label>
@@ -641,14 +641,14 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             type="text"
                                             value={header.companyName}
                                             onChange={(e) => updateHeader({ companyName: e.target.value })}
-                                            className="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
+                                            className="w-full px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#1f2328] text-sm focus:outline-none focus:border-[#3fb950] accent-[#3fb950]"
                                             placeholder="e.g., Acme Solutions Inc."
                                         />
                                     </div>
 
                                     {/* Document Title */}
                                     <div>
-                                        <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">
+                                        <label className="flex items-center gap-2 text-sm text-[#656d76] mb-2">
                                             <FileText size={14} />
                                             Document Title
                                         </label>
@@ -656,14 +656,14 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             type="text"
                                             value={header.documentTitle}
                                             onChange={(e) => updateHeader({ documentTitle: e.target.value })}
-                                            className="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
+                                            className="w-full px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#1f2328] text-sm focus:outline-none focus:border-[#3fb950] accent-[#3fb950]"
                                             placeholder="e.g., Technical Proposal - DOJ-2024-RFP-045"
                                         />
                                     </div>
 
                                     {/* Logo Section */}
                                     <div>
-                                        <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">
+                                        <label className="flex items-center gap-2 text-sm text-[#656d76] mb-2">
                                             <Image size={14} />
                                             Logo
                                         </label>
@@ -672,7 +672,7 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                                 type="text"
                                                 value={header.logoUrl}
                                                 onChange={(e) => updateHeader({ logoUrl: e.target.value })}
-                                                className="flex-1 px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
+                                                className="flex-1 px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#1f2328] text-sm focus:outline-none focus:border-[#3fb950]"
                                                 placeholder="Logo URL or upload file"
                                             />
                                             <input
@@ -684,19 +684,19 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             />
                                             <button
                                                 onClick={() => fileInputRef.current?.click()}
-                                                className="px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#8b949e] hover:text-[#c9d1d9] hover:border-[#388bfd] transition-colors"
+                                                className="px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#656d76] hover:text-[#1f2328] hover:border-[#3fb950] transition-colors"
                                             >
                                                 <Upload size={16} />
                                             </button>
                                         </div>
                                         {header.logoFile && (
-                                            <p className="text-xs text-[#3fb950] mt-1">✓ Logo uploaded</p>
+                                            <p className="text-xs text-[#1a7f37] mt-1">✓ Logo uploaded</p>
                                         )}
                                     </div>
 
                                     {/* Alignment */}
                                     <div>
-                                        <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">
+                                        <label className="flex items-center gap-2 text-sm text-[#656d76] mb-2">
                                             Alignment
                                         </label>
                                         <AlignmentButtons
@@ -713,13 +713,13 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
 
                                     {/* Layout Direction */}
                                     <div>
-                                        <p className="text-xs font-medium text-[#8b949e] uppercase tracking-wide mb-2">Layout</p>
+                                        <p className="text-xs font-medium text-[#656d76] uppercase tracking-wide mb-2">Layout</p>
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => updateHeader({ direction: 'row' })}
                                                 className={`px-3 py-1 rounded text-xs transition-colors ${(header.direction ?? 'row') === 'row'
-                                                    ? 'bg-[#388bfd] text-white'
-                                                    : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'
+                                                    ? 'bg-[#3fb950] text-white'
+                                                    : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'
                                                     }`}
                                             >
                                                 ← → Side by side
@@ -727,8 +727,8 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             <button
                                                 onClick={() => updateHeader({ direction: 'column' })}
                                                 className={`px-3 py-1 rounded text-xs transition-colors ${header.direction === 'column'
-                                                    ? 'bg-[#388bfd] text-white'
-                                                    : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'
+                                                    ? 'bg-[#3fb950] text-white'
+                                                    : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'
                                                     }`}
                                             >
                                                 ↕ Stacked
@@ -738,14 +738,14 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
 
                                     {/* Element Style Selector */}
                                     <div>
-                                        <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">
+                                        <label className="flex items-center gap-2 text-sm text-[#656d76] mb-2">
                                             <Palette size={14} />
                                             Element Style
                                         </label>
                                         <select
                                             value={selectedElement ?? ''}
                                             onChange={(e) => setSelectedElement(e.target.value || null)}
-                                            className="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
+                                            className="w-full px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#1f2328] text-sm focus:outline-none focus:border-[#3fb950] accent-[#3fb950]"
                                         >
                                             <option value="">Select element to style...</option>
                                             <option value="companyName">Company Name</option>
@@ -757,25 +757,25 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             (() => {
                                                 const elStyle = getElementStyle(selectedElement);
                                                 return (
-                                                    <div className="mt-3 p-3 bg-[#0d1117] rounded-lg border border-[#30363d] space-y-2">
+                                                    <div className="mt-3 p-3 bg-[#f6f8fa] rounded-lg border border-[#d0d7de] space-y-2">
                                                         {/* Font size */}
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-xs text-[#8b949e]">Size</span>
+                                                            <span className="text-xs text-[#656d76]">Size</span>
                                                             <div className="flex items-center gap-1">
                                                                 <button
                                                                     onClick={() => handleUpdateElementStyle(selectedElement, { fontSize: Math.max(8, elStyle.fontSize - 1) })}
-                                                                    className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                                                                    className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                                                                 >−</button>
-                                                                <span className="text-xs text-[#c9d1d9] w-10 text-center">{elStyle.fontSize}px</span>
+                                                                <span className="text-xs text-[#1f2328] w-10 text-center">{elStyle.fontSize}px</span>
                                                                 <button
                                                                     onClick={() => handleUpdateElementStyle(selectedElement, { fontSize: Math.min(32, elStyle.fontSize + 1) })}
-                                                                    className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                                                                    className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                                                                 >+</button>
                                                             </div>
                                                         </div>
                                                         {/* Color */}
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-xs text-[#8b949e]">Color</span>
+                                                            <span className="text-xs text-[#656d76]">Color</span>
                                                             <input
                                                                 type="color"
                                                                 value={elStyle.color}
@@ -787,16 +787,16 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                                         <div className="flex gap-2">
                                                             <button
                                                                 onClick={() => handleUpdateElementStyle(selectedElement, { bold: !elStyle.bold })}
-                                                                className={`px-3 py-1 rounded text-xs font-bold transition-colors ${elStyle.bold ? 'bg-[#388bfd] text-white' : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'}`}
+                                                                className={`px-3 py-1 rounded text-xs font-bold transition-colors ${elStyle.bold ? 'bg-[#3fb950] text-white' : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'}`}
                                                             >B</button>
                                                             <button
                                                                 onClick={() => handleUpdateElementStyle(selectedElement, { italic: !elStyle.italic })}
-                                                                className={`px-3 py-1 rounded text-xs italic transition-colors ${elStyle.italic ? 'bg-[#388bfd] text-white' : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'}`}
+                                                                className={`px-3 py-1 rounded text-xs italic transition-colors ${elStyle.italic ? 'bg-[#3fb950] text-white' : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'}`}
                                                             >I</button>
                                                         </div>
                                                         {/* Per-element spacing */}
-                                                        <div className="border-t border-[#30363d] mt-3 pt-3">
-                                                            <p className="text-xs text-[#8b949e] mb-2">Spacing</p>
+                                                        <div className="border-t border-[#d0d7de] mt-3 pt-3">
+                                                            <p className="text-xs text-[#656d76] mb-2">Spacing</p>
                                                             {([
                                                                 { label: 'Top', key: 'marginTop' as const },
                                                                 { label: 'Bottom', key: 'marginBottom' as const },
@@ -804,16 +804,16 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                                                 { label: 'Right', key: 'marginRight' as const },
                                                             ]).map(({ label, key }) => (
                                                                 <div key={key} className="flex items-center justify-between mb-2">
-                                                                    <span className="text-xs text-[#8b949e]">{label}</span>
+                                                                    <span className="text-xs text-[#656d76]">{label}</span>
                                                                     <div className="flex items-center gap-1">
                                                                         <button
                                                                             onClick={() => handleUpdateElementStyle(selectedElement, { [key]: Math.max(0, (elStyle[key] || 0) - 4) })}
-                                                                            className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                                                                            className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                                                                         >−</button>
-                                                                        <span className="w-10 text-center text-xs text-[#c9d1d9]">{elStyle[key] || 0}px</span>
+                                                                        <span className="w-10 text-center text-xs text-[#1f2328]">{elStyle[key] || 0}px</span>
                                                                         <button
                                                                             onClick={() => handleUpdateElementStyle(selectedElement, { [key]: Math.min(120, (elStyle[key] || 0) + 4) })}
-                                                                            className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                                                                            className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                                                                         >+</button>
                                                                     </div>
                                                                 </div>
@@ -832,24 +832,24 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                                 type="checkbox"
                                                 checked={header.showLogo}
                                                 onChange={(e) => updateHeader({ showLogo: e.target.checked })}
-                                                className="w-4 h-4 rounded bg-[#21262d] border-[#30363d] text-[#388bfd]"
+                                                className="w-4 h-4 rounded bg-[#eaeef2] border-[#d0d7de] accent-[#3fb950]"
                                             />
-                                            <span className="text-sm text-[#c9d1d9]">Show logo</span>
+                                            <span className="text-sm text-[#1f2328]">Show logo</span>
                                         </label>
                                         <label className="flex items-center gap-3 cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={header.showBorder}
                                                 onChange={(e) => updateHeader({ showBorder: e.target.checked })}
-                                                className="w-4 h-4 rounded bg-[#21262d] border-[#30363d] text-[#388bfd]"
+                                                className="w-4 h-4 rounded bg-[#eaeef2] border-[#d0d7de] accent-[#3fb950]"
                                             />
-                                            <span className="text-sm text-[#c9d1d9]">Show bottom border</span>
+                                            <span className="text-sm text-[#1f2328]">Show bottom border</span>
                                         </label>
                                     </div>
 
                                     {/* Spacing */}
                                     <div className="space-y-2">
-                                        <p className="text-xs font-medium text-[#8b949e] uppercase tracking-wide">Spacing</p>
+                                        <p className="text-xs font-medium text-[#656d76] uppercase tracking-wide">Spacing</p>
                                         <SpacingInput label="Element gap" value={header.elementGap ?? 16} onChange={(v) => updateHeader({ elementGap: v })} max={64} />
                                     </div>
                                 </>
@@ -859,7 +859,7 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                 <>
                                     {/* Footer Text */}
                                     <div>
-                                        <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">
+                                        <label className="flex items-center gap-2 text-sm text-[#656d76] mb-2">
                                             <FileText size={14} />
                                             Footer Text
                                         </label>
@@ -867,14 +867,14 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             type="text"
                                             value={footer.text}
                                             onChange={(e) => updateFooter({ text: e.target.value })}
-                                            className="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
+                                            className="w-full px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#1f2328] text-sm focus:outline-none focus:border-[#3fb950] accent-[#3fb950]"
                                             placeholder="e.g., Confidential - Do Not Distribute"
                                         />
                                     </div>
 
                                     {/* Alignment */}
                                     <div>
-                                        <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">
+                                        <label className="flex items-center gap-2 text-sm text-[#656d76] mb-2">
                                             Alignment
                                         </label>
                                         <AlignmentButtons
@@ -891,13 +891,13 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
 
                                     {/* Layout Direction */}
                                     <div>
-                                        <p className="text-xs font-medium text-[#8b949e] uppercase tracking-wide mb-2">Layout</p>
+                                        <p className="text-xs font-medium text-[#656d76] uppercase tracking-wide mb-2">Layout</p>
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => updateFooter({ direction: 'row' })}
                                                 className={`px-3 py-1 rounded text-xs transition-colors ${(footer.direction ?? 'row') === 'row'
-                                                    ? 'bg-[#388bfd] text-white'
-                                                    : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'
+                                                    ? 'bg-[#3fb950] text-white'
+                                                    : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'
                                                     }`}
                                             >
                                                 ← → Side by side
@@ -905,8 +905,8 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             <button
                                                 onClick={() => updateFooter({ direction: 'column' })}
                                                 className={`px-3 py-1 rounded text-xs transition-colors ${footer.direction === 'column'
-                                                    ? 'bg-[#388bfd] text-white'
-                                                    : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'
+                                                    ? 'bg-[#3fb950] text-white'
+                                                    : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'
                                                     }`}
                                             >
                                                 ↕ Stacked
@@ -921,16 +921,16 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                                 type="checkbox"
                                                 checked={footer.showPageNumbers}
                                                 onChange={(e) => updateFooter({ showPageNumbers: e.target.checked })}
-                                                className="w-4 h-4 rounded bg-[#21262d] border-[#30363d] text-[#388bfd]"
+                                                className="w-4 h-4 rounded bg-[#eaeef2] border-[#d0d7de] accent-[#3fb950]"
                                             />
-                                            <Hash size={14} className="text-[#8b949e]" />
-                                            <span className="text-sm text-[#c9d1d9]">Show page numbers</span>
+                                            <Hash size={14} className="text-[#656d76]" />
+                                            <span className="text-sm text-[#1f2328]">Show page numbers</span>
                                         </label>
                                         {footer.showPageNumbers && (
                                             <select
                                                 value={footer.pageNumberFormat}
                                                 onChange={(e) => updateFooter({ pageNumberFormat: e.target.value as 'number' | 'pageOf' })}
-                                                className="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
+                                                className="w-full px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#1f2328] text-sm focus:outline-none focus:border-[#3fb950] accent-[#3fb950]"
                                             >
                                                 <option value="number">Simple (1, 2, 3...)</option>
                                                 <option value="pageOf">Full (Page 1 of 10)</option>
@@ -945,16 +945,16 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                                 type="checkbox"
                                                 checked={footer.showDate}
                                                 onChange={(e) => updateFooter({ showDate: e.target.checked })}
-                                                className="w-4 h-4 rounded bg-[#21262d] border-[#30363d] text-[#388bfd]"
+                                                className="w-4 h-4 rounded bg-[#eaeef2] border-[#d0d7de] accent-[#3fb950]"
                                             />
-                                            <Calendar size={14} className="text-[#8b949e]" />
-                                            <span className="text-sm text-[#c9d1d9]">Show date</span>
+                                            <Calendar size={14} className="text-[#656d76]" />
+                                            <span className="text-sm text-[#1f2328]">Show date</span>
                                         </label>
                                         {footer.showDate && (
                                             <select
                                                 value={footer.dateFormat}
                                                 onChange={(e) => updateFooter({ dateFormat: e.target.value as 'short' | 'long' | 'iso' })}
-                                                className="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
+                                                className="w-full px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#1f2328] text-sm focus:outline-none focus:border-[#3fb950] accent-[#3fb950]"
                                             >
                                                 <option value="short">{formatDate('short')}</option>
                                                 <option value="long">{formatDate('long')}</option>
@@ -965,14 +965,14 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
 
                                     {/* Element Style Selector */}
                                     <div>
-                                        <label className="flex items-center gap-2 text-sm text-[#8b949e] mb-2">
+                                        <label className="flex items-center gap-2 text-sm text-[#656d76] mb-2">
                                             <Palette size={14} />
                                             Element Style
                                         </label>
                                         <select
                                             value={selectedElement ?? ''}
                                             onChange={(e) => setSelectedElement(e.target.value || null)}
-                                            className="w-full px-3 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-[#c9d1d9] text-sm focus:outline-none focus:border-[#388bfd]"
+                                            className="w-full px-3 py-2 bg-[#eaeef2] border border-[#d0d7de] rounded-lg text-[#1f2328] text-sm focus:outline-none focus:border-[#3fb950] accent-[#3fb950]"
                                         >
                                             <option value="">Select element to style...</option>
                                             {footer.text && <option value="text">Footer Text</option>}
@@ -984,25 +984,25 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             (() => {
                                                 const elStyle = getElementStyle(selectedElement);
                                                 return (
-                                                    <div className="mt-3 p-3 bg-[#0d1117] rounded-lg border border-[#30363d] space-y-2">
+                                                    <div className="mt-3 p-3 bg-[#f6f8fa] rounded-lg border border-[#d0d7de] space-y-2">
                                                         {/* Font size */}
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-xs text-[#8b949e]">Size</span>
+                                                            <span className="text-xs text-[#656d76]">Size</span>
                                                             <div className="flex items-center gap-1">
                                                                 <button
                                                                     onClick={() => handleUpdateElementStyle(selectedElement, { fontSize: Math.max(8, elStyle.fontSize - 1) })}
-                                                                    className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                                                                    className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                                                                 >−</button>
-                                                                <span className="text-xs text-[#c9d1d9] w-10 text-center">{elStyle.fontSize}px</span>
+                                                                <span className="text-xs text-[#1f2328] w-10 text-center">{elStyle.fontSize}px</span>
                                                                 <button
                                                                     onClick={() => handleUpdateElementStyle(selectedElement, { fontSize: Math.min(32, elStyle.fontSize + 1) })}
-                                                                    className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                                                                    className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                                                                 >+</button>
                                                             </div>
                                                         </div>
                                                         {/* Color */}
                                                         <div className="flex items-center justify-between">
-                                                            <span className="text-xs text-[#8b949e]">Color</span>
+                                                            <span className="text-xs text-[#656d76]">Color</span>
                                                             <input
                                                                 type="color"
                                                                 value={elStyle.color}
@@ -1014,16 +1014,16 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                                         <div className="flex gap-2">
                                                             <button
                                                                 onClick={() => handleUpdateElementStyle(selectedElement, { bold: !elStyle.bold })}
-                                                                className={`px-3 py-1 rounded text-xs font-bold transition-colors ${elStyle.bold ? 'bg-[#388bfd] text-white' : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'}`}
+                                                                className={`px-3 py-1 rounded text-xs font-bold transition-colors ${elStyle.bold ? 'bg-[#3fb950] text-white' : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'}`}
                                                             >B</button>
                                                             <button
                                                                 onClick={() => handleUpdateElementStyle(selectedElement, { italic: !elStyle.italic })}
-                                                                className={`px-3 py-1 rounded text-xs italic transition-colors ${elStyle.italic ? 'bg-[#388bfd] text-white' : 'bg-[#21262d] text-[#8b949e] hover:bg-[#30363d]'}`}
+                                                                className={`px-3 py-1 rounded text-xs italic transition-colors ${elStyle.italic ? 'bg-[#3fb950] text-white' : 'bg-[#eaeef2] text-[#656d76] hover:bg-[#d0d7de]'}`}
                                                             >I</button>
                                                         </div>
                                                         {/* Per-element spacing */}
-                                                        <div className="border-t border-[#30363d] mt-3 pt-3">
-                                                            <p className="text-xs text-[#8b949e] mb-2">Spacing</p>
+                                                        <div className="border-t border-[#d0d7de] mt-3 pt-3">
+                                                            <p className="text-xs text-[#656d76] mb-2">Spacing</p>
                                                             {([
                                                                 { label: 'Top', key: 'marginTop' as const },
                                                                 { label: 'Bottom', key: 'marginBottom' as const },
@@ -1031,16 +1031,16 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                                                 { label: 'Right', key: 'marginRight' as const },
                                                             ]).map(({ label, key }) => (
                                                                 <div key={key} className="flex items-center justify-between mb-2">
-                                                                    <span className="text-xs text-[#8b949e]">{label}</span>
+                                                                    <span className="text-xs text-[#656d76]">{label}</span>
                                                                     <div className="flex items-center gap-1">
                                                                         <button
                                                                             onClick={() => handleUpdateElementStyle(selectedElement, { [key]: Math.max(0, (elStyle[key] || 0) - 4) })}
-                                                                            className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                                                                            className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                                                                         >−</button>
-                                                                        <span className="w-10 text-center text-xs text-[#c9d1d9]">{elStyle[key] || 0}px</span>
+                                                                        <span className="w-10 text-center text-xs text-[#1f2328]">{elStyle[key] || 0}px</span>
                                                                         <button
                                                                             onClick={() => handleUpdateElementStyle(selectedElement, { [key]: Math.min(120, (elStyle[key] || 0) + 4) })}
-                                                                            className="w-6 h-6 bg-[#21262d] rounded text-[#8b949e] hover:bg-[#30363d] flex items-center justify-center text-sm"
+                                                                            className="w-6 h-6 bg-[#eaeef2] rounded text-[#656d76] hover:bg-[#d0d7de] flex items-center justify-center text-sm"
                                                                         >+</button>
                                                                     </div>
                                                                 </div>
@@ -1058,14 +1058,14 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             type="checkbox"
                                             checked={footer.showBorder}
                                             onChange={(e) => updateFooter({ showBorder: e.target.checked })}
-                                            className="w-4 h-4 rounded bg-[#21262d] border-[#30363d] text-[#388bfd]"
+                                            className="w-4 h-4 rounded bg-[#eaeef2] border-[#d0d7de] accent-[#3fb950]"
                                         />
-                                        <span className="text-sm text-[#c9d1d9]">Show top border</span>
+                                        <span className="text-sm text-[#1f2328]">Show top border</span>
                                     </label>
 
                                     {/* Spacing */}
                                     <div className="space-y-2">
-                                        <p className="text-xs font-medium text-[#8b949e] uppercase tracking-wide">Spacing</p>
+                                        <p className="text-xs font-medium text-[#656d76] uppercase tracking-wide">Spacing</p>
                                         <SpacingInput label="Element gap" value={footer.elementGap ?? 24} onChange={(v) => updateFooter({ elementGap: v })} max={64} />
                                     </div>
                                 </>
@@ -1078,17 +1078,17 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                                             key={template.id}
                                             onClick={() => applyTemplate(template)}
                                             className={`p-4 rounded-lg border-2 text-left transition-all ${activeTemplate === template.id
-                                                    ? 'border-[#388bfd] bg-[#388bfd22]'
-                                                    : 'border-[#30363d] bg-[#21262d] hover:border-[#8b949e]'
+                                                    ? 'border-[#3fb950] bg-[#3fb95022]'
+                                                    : 'border-[#d0d7de] bg-[#eaeef2] hover:border-[#656d76]'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between mb-2">
-                                                <span className="font-medium text-[#c9d1d9]">{template.name}</span>
+                                                <span className="font-medium text-[#1f2328]">{template.name}</span>
                                                 {activeTemplate === template.id && (
-                                                    <Check size={16} className="text-[#388bfd]" />
+                                                    <Check size={16} className="text-[#3fb950]" />
                                                 )}
                                             </div>
-                                            <p className="text-xs text-[#8b949e]">
+                                            <p className="text-xs text-[#656d76]">
                                                 {template.id === 'professional' && 'Clean corporate look with logo'}
                                                 {template.id === 'minimal' && 'Simple and elegant'}
                                                 {template.id === 'corporate' && 'Full branding package'}
@@ -1104,9 +1104,9 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                         {showPreview && (
                             <div>
                                 <div className="flex items-center gap-2 mb-3">
-                                    <p className="text-xs text-[#8b949e] uppercase tracking-wide">Live Preview</p>
-                                    <GripVertical size={12} className="text-[#6e7681]" />
-                                    <span className="text-[10px] text-[#6e7681]">Drag to reorder, click to style</span>
+                                    <p className="text-xs text-[#656d76] uppercase tracking-wide">Live Preview</p>
+                                    <GripVertical size={12} className="text-[#9198a1]" />
+                                    <span className="text-[10px] text-[#9198a1]">Drag to reorder, click to style</span>
                                 </div>
                                 <Preview
                                     header={header}
@@ -1132,23 +1132,23 @@ export default function HeaderFooterModal({ isOpen, onClose }: HeaderFooterModal
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-between items-center px-6 py-4 border-t border-[#30363d]">
+                <div className="flex justify-between items-center px-6 py-4 border-t border-[#d0d7de]">
                     <button
                         onClick={reset}
-                        className="px-4 py-2 text-sm text-[#f85149] hover:text-[#ff7b72] transition-colors"
+                        className="px-4 py-2 text-sm text-[#cf222e] hover:text-[#ff7b72] transition-colors"
                     >
                         Reset to Default
                     </button>
                     <div className="flex gap-3">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 text-sm text-[#8b949e] hover:text-[#c9d1d9] transition-colors"
+                            className="px-4 py-2 text-sm text-[#656d76] hover:text-[#1f2328] transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={onClose}
-                            className="px-6 py-2 bg-[#238636] hover:bg-[#2ea043] rounded-lg text-sm text-white font-medium transition-colors"
+                            className="px-6 py-2 bg-[#1a7f37] hover:bg-[#1a8f3e] rounded-lg text-sm text-white font-medium transition-colors"
                         >
                             Save Changes
                         </button>

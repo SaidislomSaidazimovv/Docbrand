@@ -104,11 +104,11 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             Link.configure({
                 openOnClick: false,
                 HTMLAttributes: {
-                    class: 'text-blue-500 underline',
+                    class: 'text-green-600 underline',
                 },
             }),
             Dropcursor.configure({
-                color: '#388bfd',
+                color: '#3fb950',
                 width: 2,
             }),
             Gapcursor,
@@ -500,15 +500,15 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
     const isLinkingMode = !!activeLinkingReqId;
 
     return (
-        <div className="flex-1 flex flex-col items-center py-8 px-4 overflow-y-auto bg-[#0d1117]">
+        <div className="flex-1 flex flex-col items-center py-8 px-4 overflow-y-auto bg-[#ffffff]">
             {/* Linking Mode Banner */}
             {isLinkingMode && (
-                <div className="mb-4 flex items-center gap-2 px-4 py-2 bg-[#388bfd22] border border-[#388bfd] rounded-lg animate-pulse">
-                    <Link2 size={14} className="text-[#388bfd]" />
-                    <span className="text-sm text-[#388bfd]">Click a paragraph to link requirement</span>
+                <div className="mb-4 flex items-center gap-2 px-4 py-2 bg-[#3fb95022] border border-[#3fb950] rounded-lg animate-pulse">
+                    <Link2 size={14} className="text-[#3fb950]" />
+                    <span className="text-sm text-[#3fb950]">Click a paragraph to link requirement</span>
                     <button
                         onClick={() => setLinkingMode(null)}
-                        className="ml-2 text-xs text-[#8b949e] hover:text-white"
+                        className="ml-2 text-xs text-[#656d76] hover:text-white"
                     >
                         Cancel
                     </button>
@@ -517,20 +517,20 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
 
             {/* Auto-Heading Toast */}
             {autoHeadingToast && (
-                <div className="mb-4 flex items-center gap-2 px-4 py-2 bg-[#3fb95022] border border-[#3fb950] rounded-lg">
-                    <span className="text-sm text-[#3fb950]">
+                <div className="mb-4 flex items-center gap-2 px-4 py-2 bg-[#1a7f3722] border border-[#1a7f37] rounded-lg">
+                    <span className="text-sm text-[#1a7f37]">
                         Converted {autoHeadingToast.count} line{autoHeadingToast.count !== 1 ? 's' : ''} to Headings
                     </span>
-                    <span className="text-[#484f58]">—</span>
+                    <span className="text-[#9198a1]">—</span>
                     <button
                         onClick={handleAutoHeadingUndo}
-                        className="text-sm text-[#388bfd] hover:text-[#58a6ff] underline"
+                        className="text-sm text-[#3fb950] hover:text-[#4cc764] underline"
                     >
                         Undo
                     </button>
                     <button
                         onClick={hideAutoHeadingToast}
-                        className="ml-auto text-xs text-[#8b949e] hover:text-white"
+                        className="ml-auto text-xs text-[#656d76] hover:text-white"
                     >
                         Dismiss
                     </button>
@@ -603,7 +603,7 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
             {!isLinkingMode && (
                 <button
                     onClick={onEditHeaderFooter}
-                    className="mb-4 flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] rounded-lg text-xs text-[#8b949e] transition-colors"
+                    className="mb-4 flex items-center gap-2 px-4 py-2 bg-[#eaeef2] hover:bg-[#d0d7de] rounded-lg text-xs text-[#656d76] transition-colors"
                 >
                     <Edit3 size={12} />
                     Edit Header & Footer
@@ -625,14 +625,14 @@ export default function Editor({ onEditHeaderFooter }: EditorProps) {
                     }}
                     onDragLeave={() => setIsDragOver(false)}
                     onDrop={handleRequirementDrop}
-                    className={`w-full bg-white rounded-lg shadow-2xl document-editor transition-all relative ${isLinkingMode ? 'ring-2 ring-[#388bfd] cursor-crosshair' : ''}`}
+                    className={`w-full bg-white rounded-lg shadow-2xl document-editor transition-all relative ${isLinkingMode ? 'ring-2 ring-[#3fb950] cursor-crosshair' : ''}`}
                     style={{
                         minHeight: '800px',
                         paddingTop: `${marginTop}px`,
                         paddingBottom: `${marginBottom}px`,
                         paddingLeft: `${marginLeft}px`,
                         paddingRight: `${marginRight}px`,
-                        outline: isDragOver ? '2px dashed #388bfd' : 'none',
+                        outline: isDragOver ? '2px dashed #3fb950' : 'none',
                         outlineOffset: '-2px',
                     }}
                 >

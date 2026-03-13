@@ -37,23 +37,23 @@ export default function ConfirmModal({
             onClick={onCancel}
         >
             <div
-                className="w-full max-w-sm bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl modal-panel"
+                className="w-full max-w-sm bg-[#f6f8fa] border border-[#d0d7de] rounded-xl shadow-2xl modal-panel"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">
-                    <h3 className="text-lg font-semibold text-[#c9d1d9] mb-2">{title}</h3>
-                    <p className="text-sm text-[#8b949e] mb-6">{message}</p>
+                    <h3 className="text-lg font-semibold text-[#1f2328] mb-2">{title}</h3>
+                    <p className="text-sm text-[#656d76] mb-6">{message}</p>
 
                     <div className="flex justify-end gap-3">
                         <button
                             onClick={onCancel}
-                            className="px-4 py-2 text-sm text-[#c9d1d9] border border-[#30363d] rounded-lg hover:bg-[#21262d] transition-colors"
+                            className="px-4 py-2 text-sm text-[#1f2328] border border-[#d0d7de] rounded-lg hover:bg-[#eaeef2] transition-colors"
                         >
                             {cancelLabel}
                         </button>
                         <button
                             onClick={onConfirm}
-                            className="px-4 py-2 text-sm text-white bg-[#238636] hover:bg-[#2ea043] rounded-lg font-medium transition-colors"
+                            className="px-4 py-2 text-sm text-white bg-[#1a7f37] hover:bg-[#1a8f3e] rounded-lg font-medium transition-colors"
                         >
                             {confirmLabel}
                         </button>

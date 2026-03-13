@@ -14,10 +14,10 @@ interface ShredderModalProps {
 type KanbanStatus = Requirement['kanbanStatus'];
 
 const COLUMNS: { id: KanbanStatus; title: string; color: string }[] = [
-    { id: 'to_address', title: 'To Address', color: '#f85149' },
-    { id: 'in_progress', title: 'In Progress', color: '#d29922' },
-    { id: 'in_review', title: 'In Review', color: '#388bfd' },
-    { id: 'complete', title: 'Complete', color: '#3fb950' },
+    { id: 'to_address', title: 'To Address', color: '#cf222e' },
+    { id: 'in_progress', title: 'In Progress', color: '#9a6700' },
+    { id: 'in_review', title: 'In Review', color: '#0969da' },
+    { id: 'complete', title: 'Complete', color: '#1a7f37' },
 ];
 
 export default function ShredderModal({ isOpen, onClose }: ShredderModalProps) {
@@ -78,19 +78,19 @@ export default function ShredderModal({ isOpen, onClose }: ShredderModalProps) {
         <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm modal-overlay ${isOpen ? 'modal-open' : ''}`}>
             <div className="w-[95vw] max-w-[1400px] h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden modal-panel">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 bg-[#1a1a2e] border-b border-[#30363d]">
+                <div className="flex items-center justify-between px-6 py-4 bg-[#1a1a2e] border-b border-[#d0d7de]">
                     <span className="text-lg font-semibold text-white">RFP Response Progress</span>
                     <div className="flex items-center gap-4">
-                        <span className="text-3xl font-bold text-[#3fb950]">{progressPercent}%</span>
-                        <button onClick={onClose} className="p-2 hover:bg-[#21262d] rounded-lg transition-colors">
-                            <X size={20} className="text-[#8b949e]" />
+                        <span className="text-3xl font-bold text-[#1a7f37]">{progressPercent}%</span>
+                        <button onClick={onClose} className="p-2 hover:bg-[#eaeef2] rounded-lg transition-colors">
+                            <X size={20} className="text-[#656d76]" />
                         </button>
                     </div>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="px-6 py-3 bg-[#1a1a2e]">
-                    <div className="h-3 bg-[#21262d] rounded-full overflow-hidden flex">
+                    <div className="h-3 bg-[#eaeef2] rounded-full overflow-hidden flex">
                         {COLUMNS.map((col) => {
                             const count = grouped[col.id].length;
                             const width = total > 0 ? (count / total) * 100 : 0;
