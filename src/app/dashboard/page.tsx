@@ -36,6 +36,18 @@ export default function Dashboard() {
         });
     }, []);
 
+    // Ctrl+S keyboard shortcut
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                useUIStore.getState().showPasteToast('Document saved');
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
     return (
         <div className="h-screen flex flex-col overflow-hidden">
             {/* Top Toolbar */}

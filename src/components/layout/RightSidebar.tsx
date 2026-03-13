@@ -6,6 +6,7 @@ import { useEditorStore } from '@/store/editorStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
 import { useStyleStore } from '@/store/styleStore';
+import { useUIStore } from '@/store/uiStore';
 import FontPicker from '@/components/FontPicker';
 import posthog from 'posthog-js';
 
@@ -204,6 +205,16 @@ export default function RightSidebar() {
             setIsScanning(false);
         }
     };
+
+    // External scan trigger (from Toolbar > Tools > Quality Scan)
+    const scanTrigger = useUIStore((s) => s.scanTrigger);
+    useEffect(() => {
+        if (scanTrigger > 0) {
+            setActiveTab('scan');
+            runScan();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scanTrigger]);
 
     const getScoreColor = (score: number) => {
         if (score >= 80) return 'text-[#3fb950]';

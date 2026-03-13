@@ -36,6 +36,10 @@ interface UIState {
     showPasteModal: (data: PasteModalData) => void;
     hidePasteModal: () => void;
 
+    // Scan trigger (increment to trigger scan from outside RightSidebar)
+    scanTrigger: number;
+    triggerScan: () => void;
+
     // Feedback modal
     feedbackOpen: boolean;
     openFeedback: () => void;
@@ -62,6 +66,9 @@ export const useUIStore = create<UIState>((set) => ({
     pasteModal: null,
     showPasteModal: (data) => set({ pasteModal: data }),
     hidePasteModal: () => set({ pasteModal: null }),
+
+    scanTrigger: 0,
+    triggerScan: () => set((state) => ({ scanTrigger: state.scanTrigger + 1 })),
 
     feedbackOpen: false,
     openFeedback: () => set({ feedbackOpen: true }),

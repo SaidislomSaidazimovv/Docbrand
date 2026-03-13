@@ -158,7 +158,10 @@ export default function Toolbar({
                     <PanelLeftClose size={18} className={leftSidebarOpen ? 'text-[#388bfd]' : 'text-[#8b949e]'} />
                 </button>
 
-                <button className="p-1.5 hover:bg-[#21262d] rounded transition-colors">
+                <button
+                    onClick={() => useUIStore.getState().setLeftSidebar(!useUIStore.getState().leftSidebarOpen)}
+                    className="p-1.5 hover:bg-[#21262d] rounded transition-colors"
+                >
                     <Menu size={18} className="text-[#8b949e]" />
                 </button>
 
@@ -183,7 +186,7 @@ export default function Toolbar({
                                     <Upload size={14} />
                                     Import RFP...
                                 </button>
-                                <button onClick={closeMenus} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); useUIStore.getState().showPasteToast?.('Document saved'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
                                     <Save size={14} />
                                     Save
                                     <span className="ml-auto text-[#8b949e] text-xs">Ctrl+S</span>
@@ -225,17 +228,17 @@ export default function Toolbar({
                                     <span className="ml-auto text-[#8b949e] text-xs">Ctrl+Y</span>
                                 </button>
                                 <hr className="border-[#30363d] my-1" />
-                                <button onClick={closeMenus} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); document.execCommand('cut'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
                                     <Scissors size={14} />
                                     Cut
                                     <span className="ml-auto text-[#8b949e] text-xs">Ctrl+X</span>
                                 </button>
-                                <button onClick={closeMenus} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); document.execCommand('copy'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
                                     <Copy size={14} />
                                     Copy
                                     <span className="ml-auto text-[#8b949e] text-xs">Ctrl+C</span>
                                 </button>
-                                <button onClick={closeMenus} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); document.execCommand('paste'); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
                                     <Clipboard size={14} />
                                     Paste
                                     <span className="ml-auto text-[#8b949e] text-xs">Ctrl+V</span>
@@ -297,11 +300,11 @@ export default function Toolbar({
                         </button>
                         {openMenu === 'tools' && (
                             <div className="absolute top-full left-0 mt-1 w-52 bg-[#21262d] rounded-lg shadow-xl border border-[#30363d] py-1 z-50">
-                                <button onClick={closeMenus} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); useUIStore.getState().triggerScan(); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
                                     <Sparkles size={14} />
                                     Quality Scan
                                 </button>
-                                <button onClick={closeMenus} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
+                                <button onClick={() => { closeMenus(); useUIStore.getState().setLeftSidebar(true); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#30363d]">
                                     <CheckSquare size={14} />
                                     Check Requirements
                                 </button>
