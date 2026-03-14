@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Type, BookOpen, CheckCircle, XCircle, AlertTriangle, FileText, Trash2, Minus, Plus } from 'lucide-react';
+import { Sparkles, Type, BookOpen, CheckCircle, XCircle, AlertTriangle, FileText, Trash2, Minus, Plus, Send } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useSourcesStore } from '@/store/sourcesStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
@@ -10,7 +10,7 @@ import { useUIStore } from '@/store/uiStore';
 import FontPicker from '@/components/FontPicker';
 import posthog from 'posthog-js';
 
-type Tab = 'scan' | 'styles' | 'sources';
+type Tab = 'scan' | 'styles' | 'sources' | 'ai';
 
 interface ScanResult {
     score: number;
@@ -60,6 +60,9 @@ export default function RightSidebar() {
     const [isScanning, setIsScanning] = useState(false);
     const [scanResult, setScanResult] = useState<ScanResult | null>(null);
     const [hasContent, setHasContent] = useState(false);
+    const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
+    const [chatInput, setChatInput] = useState('');
+    const [isChatLoading, setIsChatLoading] = useState(false);
 
     const editor = useEditorStore((state) => state.editor);
     const { sources, removeSource } = useSourcesStore();
@@ -216,6 +219,35 @@ export default function RightSidebar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scanTrigger]);
 
+    const sendMessage = async () => {
+        if (!chatInput.trim() || isChatLoading) return;
+
+        const userMessage = { role: 'user' as const, content: chatInput.trim() };
+        const newMessages = [...chatMessages, userMessage];
+        setChatMessages(newMessages);
+        setChatInput('');
+        setIsChatLoading(true);
+
+        try {
+            const proposalText = editor?.getText() || '';
+            const requirements = useRequirementsStore.getState().requirements
+                .map(r => ({ id: r.id, text: r.text, priority: r.priority }));
+
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: newMessages, proposalText, requirements }),
+            });
+
+            const data = await res.json();
+            setChatMessages(prev => [...prev, { role: 'assistant', content: data.message || 'Error occurred.' }]);
+        } catch {
+            setChatMessages(prev => [...prev, { role: 'assistant', content: 'Failed to get response. Please try again.' }]);
+        } finally {
+            setIsChatLoading(false);
+        }
+    };
+
     const getScoreColor = (score: number) => {
         if (score >= 80) return 'text-[#1a7f37]';
         if (score >= 50) return 'text-[#9a6700]';
@@ -256,6 +288,16 @@ export default function RightSidebar() {
                     <BookOpen size={12} />
                     Sources
                 </button>
+                <button
+                    onClick={() => setActiveTab('ai')}
+                    className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium border-b-2 transition-colors ${activeTab === 'ai'
+                        ? 'text-[#3fb950] border-[#3fb950]'
+                        : 'text-[#656d76] border-transparent hover:text-[#1f2328]'
+                        }`}
+                >
+                    <Sparkles size={13} />
+                    AI
+                </button>
             </div>
 
             {/* Tab Content */}
@@ -286,7 +328,7 @@ export default function RightSidebar() {
                                 <button
                                     onClick={runScan}
                                     disabled={isScanning}
-                                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#1a7f37] hover:bg-[#1a8f3e] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm text-white font-medium transition-colors"
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#3fb950] hover:bg-[#4cc764] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm text-white font-medium transition-colors"
                                 >
                                     {isScanning ? (
                                         <>
@@ -313,7 +355,7 @@ export default function RightSidebar() {
                                         <div className="space-y-2">
                                             {scanResult.issues.map((issue, i) => (
                                                 <div key={i} className="flex items-start gap-2 p-2 rounded bg-[#eaeef2]">
-                                                    {issue.type === 'success' && <CheckCircle size={14} className="text-[#1a7f37] mt-0.5" />}
+                                                    {issue.type === 'success' && <CheckCircle size={14} className="text-[#3fb950] mt-0.5" />}
                                                     {issue.type === 'warning' && <AlertTriangle size={14} className="text-[#9a6700] mt-0.5" />}
                                                     {issue.type === 'error' && <XCircle size={14} className="text-[#cf222e] mt-0.5" />}
                                                     <span className="text-xs text-[#1f2328]">{issue.message}</span>
@@ -472,6 +514,104 @@ export default function RightSidebar() {
                                 ))}
                             </div>
                         )}
+                    </div>
+                )}
+
+                {activeTab === 'ai' && (
+                    <div className="flex flex-col h-full -m-4">
+                        {/* Header */}
+                        <div className="p-4 border-b border-[#d0d7de]">
+                            <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-full bg-[#3fb95020] flex items-center justify-center">
+                                    <Sparkles size={14} className="text-[#3fb950]" />
+                                </div>
+                                <div>
+                                    <div className="text-sm font-semibold text-[#1f2328]">AI Assistant</div>
+                                    <div className="text-xs text-[#656d76]">Powered by Gemini</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                            {chatMessages.length === 0 && (
+                                <div className="text-center py-8">
+                                    <Sparkles size={24} className="text-[#3fb950] mx-auto mb-2" />
+                                    <p className="text-sm text-[#656d76]">Ask me anything about your proposal</p>
+                                    <div className="mt-4 space-y-2">
+                                        {[
+                                            'Improve my executive summary',
+                                            'What requirements am I missing?',
+                                            'Make this more persuasive',
+                                        ].map(suggestion => (
+                                            <button
+                                                key={suggestion}
+                                                onClick={() => setChatInput(suggestion)}
+                                                className="block w-full text-left text-xs px-3 py-2 bg-[#f6f8fa] hover:bg-[#eaeef2] rounded-lg text-[#656d76] transition-colors"
+                                            >
+                                                {suggestion}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {chatMessages.map((msg, i) => (
+                                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[85%] rounded-xl px-3 py-2 text-xs leading-relaxed ${
+                                        msg.role === 'user'
+                                            ? 'bg-[#3fb950] text-white'
+                                            : 'bg-[#f6f8fa] text-[#1f2328] border border-[#d0d7de]'
+                                    }`}>
+                                        {msg.content}
+                                    </div>
+                                </div>
+                            ))}
+                            {isChatLoading && (
+                                <div className="flex justify-start">
+                                    <div className="bg-[#f6f8fa] border border-[#d0d7de] rounded-xl px-3 py-2">
+                                        <div className="flex gap-1">
+                                            <div className="w-1.5 h-1.5 bg-[#3fb950] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                            <div className="w-1.5 h-1.5 bg-[#3fb950] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                            <div className="w-1.5 h-1.5 bg-[#3fb950] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Input */}
+                        <div className="p-3 border-t border-[#d0d7de]">
+                            <div className="flex gap-2">
+                                <textarea
+                                    value={chatInput}
+                                    onChange={e => setChatInput(e.target.value)}
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            sendMessage();
+                                        }
+                                    }}
+                                    placeholder="Ask AI to help with your proposal..."
+                                    className="flex-1 text-xs border border-[#d0d7de] rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-[#3fb950] text-[#1f2328] placeholder-[#9198a1] bg-white"
+                                    rows={2}
+                                />
+                                <button
+                                    onClick={sendMessage}
+                                    disabled={!chatInput.trim() || isChatLoading}
+                                    className="px-3 py-2 bg-[#3fb950] hover:bg-[#4cc764] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                                >
+                                    <Send size={14} />
+                                </button>
+                            </div>
+                            {chatMessages.length > 0 && (
+                                <button
+                                    onClick={() => setChatMessages([])}
+                                    className="mt-1 text-xs text-[#9198a1] hover:text-[#656d76]"
+                                >
+                                    Clear chat
+                                </button>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

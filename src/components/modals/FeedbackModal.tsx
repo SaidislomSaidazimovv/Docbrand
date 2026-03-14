@@ -140,7 +140,7 @@ export default function FeedbackModal() {
                                 onChange={(e) => setComment(e.target.value.slice(0, 500))}
                                 placeholder="What can we improve?"
                                 rows={4}
-                                className="w-full px-3 py-2 text-sm text-[#1f2328] bg-[#f6f8fa] border border-[#d0d7de] rounded-lg resize-none placeholder-[#9198a1] focus:border-[#0969da] focus:outline-none transition-colors"
+                                className="w-full px-3 py-2 text-sm text-[#1f2328] bg-[#f6f8fa] border border-[#d0d7de] rounded-lg resize-none placeholder-[#9198a1] focus:border-[#3fb950] focus:outline-none transition-colors"
                             />
                             <div className="text-xs text-[#9198a1] text-right mt-1">
                                 {comment.length}/500
@@ -158,7 +158,7 @@ export default function FeedbackModal() {
                             <button
                                 onClick={handleSubmit}
                                 disabled={rating === 0 || loading}
-                                className="px-4 py-2 text-sm text-white bg-[#0969da] hover:bg-[#2563eb] rounded-lg font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="px-4 py-2 text-sm text-white bg-[#3fb950] hover:bg-[#4cc764] rounded-lg font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {loading && <Loader2 size={14} className="animate-spin" />}
                                 Send Feedback

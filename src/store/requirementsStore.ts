@@ -26,6 +26,7 @@ interface RequirementsState {
     linkToBlock: (reqId: string, blockId: string) => void;
     unlinkFromBlock: (reqId: string, blockId: string) => void;
     setLinkingMode: (reqId: string | null) => void;
+    updateRequirementText: (reqId: string, newText: string) => void;
 }
 
 // Start with empty requirements - user needs to import RFP
@@ -85,6 +86,13 @@ export const useRequirementsStore = create<RequirementsState>()(
                 })),
 
             setLinkingMode: (reqId) => set({ activeLinkingReqId: reqId }),
+
+            updateRequirementText: (reqId, newText) =>
+                set((state) => ({
+                    requirements: state.requirements.map((r) =>
+                        r.id === reqId ? { ...r, originalText: newText, text: newText.slice(0, 60) } : r
+                    ),
+                })),
         }),
         {
             name: 'docbrand-requirements',

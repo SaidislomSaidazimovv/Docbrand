@@ -26,6 +26,8 @@ import {
     PanelLeftClose,
     PanelRightClose,
     Trash2,
+    Maximize2,
+    Minimize2,
 } from 'lucide-react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRequirementsStore } from '@/store/requirementsStore';
@@ -56,6 +58,7 @@ export default function Toolbar({
 }: ToolbarProps) {
     const [openMenu, setOpenMenu] = useState<MenuType>(null);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const [focusMode, setFocusMode] = useState(false);
     const editor = useEditorStore((state) => state.editor);
 
     // Requirements store
@@ -345,6 +348,22 @@ export default function Toolbar({
 
                 <button onClick={onSearchClick} className="p-2 hover:bg-[#eaeef2] rounded transition-colors">
                     <Search size={16} className="text-[#656d76]" />
+                </button>
+
+                <button
+                    onClick={() => {
+                        const next = !focusMode;
+                        setFocusMode(next);
+                        useUIStore.getState().setLeftSidebar(!next);
+                        useUIStore.getState().setRightSidebar(!next);
+                    }}
+                    className={focusMode
+                        ? 'border border-[#3fb950] rounded px-3 py-1.5 text-sm text-[#3fb950] bg-[#3fb95015] flex items-center gap-1.5'
+                        : 'border border-[#d0d7de] rounded px-3 py-1.5 text-sm text-[#656d76] flex items-center gap-1.5 hover:bg-[#eaeef2] transition-colors'
+                    }
+                >
+                    {focusMode ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                    Focus Mode
                 </button>
 
                 <button
