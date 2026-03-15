@@ -23,19 +23,19 @@
     }
 
     :root {
-      --bg-primary: #0a0a0b;
-      --bg-secondary: #111113;
-      --bg-card: #16161a;
-      --bg-card-hover: #1c1c21;
-      --border: #222228;
-      --border-subtle: #1a1a1f;
-      --text-primary: #f0f0f2;
-      --text-secondary: #8b8b96;
-      --text-tertiary: #55555e;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f6f8fa;
+      --bg-card: #ffffff;
+      --bg-card-hover: #eaeef2;
+      --border: #d0d7de;
+      --border-subtle: #eaeef2;
+      --text-primary: #1f2328;
+      --text-secondary: #656d76;
+      --text-tertiary: #9198a1;
       --accent: #3fb950;
       --accent-dim: #2ea043;
-      --accent-glow: rgba(63, 185, 80, 0.15);
-      --accent-glow-strong: rgba(63, 185, 80, 0.3);
+      --accent-glow: rgba(63, 185, 80, 0.08);
+      --accent-glow-strong: rgba(63, 185, 80, 0.15);
       --red: #f85149;
       --yellow: #d29922;
       --blue: #58a6ff;
@@ -149,16 +149,16 @@
       right: 0;
       z-index: 100;
       padding: 16px 0;
-      background: rgba(10, 10, 11, 0.7);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid #d0d7de;
       transition: border-color 0.3s, background 0.3s;
     }
 
     .navbar.scrolled {
       border-bottom-color: var(--border);
-      background: rgba(10, 10, 11, 0.92);
+      background: rgba(255, 255, 255, 0.98);
     }
 
     .navbar .container {
@@ -302,7 +302,7 @@
 
     @keyframes heroGlow {
       0% {
-        opacity: 0.5;
+        opacity: 0.8;
         transform: translateX(-50%) scale(1);
       }
 
@@ -324,7 +324,7 @@
       mask-image: radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 70%);
       -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 30%, black 20%, transparent 70%);
       pointer-events: none;
-      opacity: 0.5;
+      opacity: 1;
     }
 
     .hero .container {
@@ -1110,7 +1110,7 @@
       bottom: 0;
       background: radial-gradient(ellipse 50% 40% at 80% 50%, var(--accent-glow) 0%, transparent 70%);
       pointer-events: none;
-      opacity: 0.3;
+      opacity: 0.6;
     }
 
     .workflow-header {
@@ -1367,7 +1367,7 @@
       height: 400px;
       background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
       pointer-events: none;
-      opacity: 0.5;
+      opacity: 1;
     }
 
     .cta .container {
@@ -2956,11 +2956,11 @@
       }
 
       10% {
-        opacity: 0.3;
+        opacity: 0.6;
       }
 
       90% {
-        opacity: 0.3;
+        opacity: 0.6;
       }
 
       100% {
